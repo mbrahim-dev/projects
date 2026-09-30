@@ -3,6 +3,10 @@
 import streamlit as st
 
 
+# page config
+
+st.set_page_config("", "", layout="wide")
+
 # creating pages
 
 main = "🏠 Home"
@@ -24,7 +28,7 @@ page = st.sidebar.radio(
 
 if page == main:
 
-    st.set_page_config("Streamlit Components Hub", "🎪", layout="wide")
+    st.title("👋 Welcome to my Streamlit App")
 
     st.caption("")
     
