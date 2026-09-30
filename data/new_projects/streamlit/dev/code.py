@@ -24,7 +24,7 @@ page = st.sidebar.radio(
 
 if page == main:
 
-    st.title("👋 Welcome to my Streamlit App")
+    st.set_page_config("Welcome to my Streamlit App", "👋", layout="wide")
 
     st.caption("")
     
