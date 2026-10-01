@@ -33,8 +33,15 @@ if page == main:
 
     st.header("")
     
-    st.markdown(""" 💻 This app is built using **python and cascading style sheets**. 📊 The purpose of this page is to showcase my skills in **data analysis**, **visualization** and **business intelligence**. 
-    🔎 Explore the **sidebar** to discover different dashboards, datasets and business contexts through various analyses.""")
+    st.markdown(""" 💻 This app is built using **python and cascading style sheets**. """)
+
+    st.caption("")
+    
+    st.markdown(""" 📊 The purpose of this page is to showcase my skills in **data analysis**, **visualization** and **business intelligence**. """)
+
+    st.caption("")
+    
+    st.markdown(""" 🔎 Explore the **sidebar** to discover different dashboards, datasets and business contexts through various analyses. """)
 
 # page 1
 
