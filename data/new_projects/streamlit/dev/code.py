@@ -6,7 +6,7 @@ import pandas as pd
 # import datasets
 
 df1 = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
-columns_df1 = df1["category","product","quantity","unit_price","discount_rate","revenue","cost","profit","country","sales_channel"]
+columns_df1 = ["category","product","quantity","unit_price","discount_rate","revenue","cost","profit","country","sales_channel"]
 
 # page config
 
@@ -69,14 +69,14 @@ elif page == p1:
 
 
     filtered_df1 = columns_df1[
-    (columns_df1["category"] == category) &
-    (columns_df1["country"] == country) &
-    (columns_df1["sales_channel"] == sales_channel)
+    (df1["category"] == category) &
+    (df1["country"] == country) &
+    (df1["sales_channel"] == sales_channel)
     ]
     
     st.header("")
 
-    st.dataframe(filtered_df1)
+    st.dataframe(filtered_df1[columns_df1])
 
 
 
