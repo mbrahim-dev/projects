@@ -144,37 +144,29 @@ elif page == p1:
     # pagination
 
     st.header("")
-
-    b1, b2, b3, b4, b5, b6 = st.columns([1, 1, 1, 1, 1, 1])
     
-    with b1:
-        if st.button("← Previous"):
-            if st.session_state.page_analysis > 1:
-                st.session_state.page_analysis -= 1
-                st.rerun()
-    
-    with b2:
-        if st.button("1"):
-            st.session_state.page_analysis = 1
+    if st.button("← Previous"):
+        if st.session_state.page_analysis > 1:
+            st.session_state.page_analysis -= 1
             st.rerun()
     
-    with b3:
-        if st.button("2"):
-            st.session_state.page_analysis = 2
-            st.rerun()
+    if st.button("1"):
+        st.session_state.page_analysis = 1
+        st.rerun()
     
-    with b4:
-        if st.button("3"):
-            st.session_state.page_analysis = 3
-            st.rerun()
+    if st.button("2"):
+        st.session_state.page_analysis = 2
+        st.rerun()
     
-    with b5:
-        if st.button("4"):
-            st.session_state.page_analysis = 4
+    if st.button("3"):
+        st.session_state.page_analysis = 3
+        st.rerun()
+        
+    if st.button("4"):
+        st.session_state.page_analysis = 4
+        st.rerun()
+        
+    if st.button("Next →"):
+        if st.session_state.page_analysis < 4:
+            st.session_state.page_analysis += 1
             st.rerun()
-    
-    with b6:
-        if st.button("Next →"):
-            if st.session_state.page_analysis < 4:
-                st.session_state.page_analysis += 1
-                st.rerun()
