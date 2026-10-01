@@ -29,6 +29,8 @@ page = st.sidebar.radio(
 
 if page == main:
 
+    st.balloons()
+
     st.title("👋 Welcome to my Streamlit App")
 
     st.header("")
@@ -52,17 +54,19 @@ elif page == p1:
 
     st.header("")
 
-    category = st.selectbox(
+    s0, s1, s2, s3, s4, s5 = st.columns(5)
+    
+    s1.category = st.selectbox(
         "🏷️ Product Category",
         df1["category"].unique()
     )
     
-    country = st.selectbox(
+    s3.country = st.selectbox(
         "🌍 Country",
         df1["country"].unique()
     )
     
-    sales_channel = st.selectbox(
+    s5.sales_channel = st.selectbox(
         "🛒 Sales Channel",
         df1["sales_channel"].unique()
     )
