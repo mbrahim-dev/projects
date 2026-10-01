@@ -55,7 +55,8 @@ elif page == p1:
     with p3_col:
         page_analysis = st.pagination(4)
 
-
+    st.
+    
     # overview
 
     if page_analysis == 1:
@@ -96,24 +97,24 @@ elif page == p1:
 
         st.header("")
 
-        m1, m2, m3, m4 = st.columns(4)
+        m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
 
-        m1.metric(
+        m2.metric(
             "💰 Revenue",
             f"${filtered_df1['revenue'].sum():,.0f}"
         )
 
-        m2.metric(
+        m3.metric(
             "📈 Profit",
             f"${filtered_df1['profit'].sum():,.0f}"
         )
 
-        m3.metric(
+        m5.metric(
             "📦 Orders",
             f"{filtered_df1['order_id'].nunique():,}"
         )
 
-        m4.metric(
+        m7.metric(
             "💵 Avg. Order Value",
             f"${filtered_df1['revenue'].sum() / filtered_df1['order_id'].nunique():,.0f}"
         )
