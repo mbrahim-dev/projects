@@ -76,7 +76,7 @@ elif page == p1:
     
     st.header("")
 
-    st.dataframe(df1[columns_df1])
+    st.dataframe(filtered_df1)
 
 
 
