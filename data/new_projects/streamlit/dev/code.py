@@ -95,7 +95,7 @@ elif page == p1:
 
         st.header("")
 
-        m1, m2, m3, m4, m5, m6, m7, m8 = st.columns(8)
+        m1, m2, m3, m4, m5, m6, m7, m8, m9 = st.columns(9)
 
         m2.metric(
             "💰 Revenue",
