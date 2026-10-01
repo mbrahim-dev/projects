@@ -68,10 +68,10 @@ elif page == p1:
     )
 
 
-    filtered_df1 = df1[
-    (df1["category"] == category) &
-    (df1["country"] == country) &
-    (df1["sales_channel"] == sales_channel)
+    filtered_df1 = columns_df1[
+    (columns_df1["category"] == category) &
+    (columns_df1["country"] == country) &
+    (columns_df1["sales_channel"] == sales_channel)
     ]
     
     st.header("")
