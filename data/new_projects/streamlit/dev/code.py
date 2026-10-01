@@ -55,21 +55,24 @@ elif page == p1:
     st.header("")
 
     s0, s1, s2, s3, s4, s5 = st.columns(6)
+
+    with s1:
+        category = st.selectbox(
+            "🏷️ Product Category",
+            df1["category"].unique()
+        )
     
-    s1.category = st.selectbox(
-        "🏷️ Product Category",
-        df1["category"].unique()
-    )
+    with s3:
+        country = st.selectbox(
+            "🌍 Country",
+            df1["country"].unique()
+        )
     
-    s3.country = st.selectbox(
-        "🌍 Country",
-        df1["country"].unique()
-    )
-    
-    s5.sales_channel = st.selectbox(
-        "🛒 Sales Channel",
-        df1["sales_channel"].unique()
-    )
+    with s5:
+        sales_channel = st.selectbox(
+            "🛒 Sales Channel",
+            df1["sales_channel"].unique()
+        )
 
 
     filtered_df1 = df1[
