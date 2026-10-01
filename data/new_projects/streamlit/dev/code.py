@@ -66,6 +66,8 @@ elif page == p1:
         "🛒 Sales Channel",
         df1["sales_channel"].unique()
     )
+
+    st.header("")
     
     st.dataframe(df1[columns_df1])
 
