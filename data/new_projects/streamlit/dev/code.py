@@ -5,7 +5,8 @@ import pandas as pd
 
 # import datasets
 
-df = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
+df1 = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
+columns_df1 = ["category","product","quantity","unit_price","discount_rate","revenue","cost","profit","country","sales_channel"]
 
 # page config
 
@@ -14,7 +15,7 @@ st.set_page_config("", "", layout="wide")
 # creating pages
 
 main = "🏠 Home"
-p1 = "📊 Page 1"
+p1 = "📈 Sales Performance"
 
 
 # sidebar
@@ -23,7 +24,6 @@ page = st.sidebar.radio(
     "Navigation",
     [main, p1]
 )
-
 
 # home page
 
@@ -52,9 +52,7 @@ elif page == p1:
 
     st.header("")
 
-    df = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
-
-    st.dataframe(df)
+    st.dataframe(df1)
 
 
 
