@@ -85,5 +85,32 @@ elif page == p1:
 
     st.dataframe(filtered_df1[columns_df1])
 
+    st.header("")
+
+    m1, m2, m3, m4, m5 = st.columns(5)
+
+    m1.metric(
+    "💰 Revenue",
+    f"${filtered_df1['revenue'].sum():,.0f}"
+    )
+    
+    m2.metric(
+        "📈 Profit",
+        f"${filtered_df1['profit'].sum():,.0f}"
+    )
+    
+    m3.metric(
+        "📦 Orders",
+        f"{filtered_df1['order_id'].nunique():,}"
+    )
+    
+    m4.metric(
+        "💵 Avg. Order Value",
+        f"${filtered_df1['revenue'].sum() / filtered_df1['order_id'].nunique():,.0f}"
+    )
+
+
+
+
 
 
