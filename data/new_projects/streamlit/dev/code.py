@@ -1,7 +1,11 @@
 # import librairies
 
 import streamlit as st
+import pandas as pd
 
+# import datasets
+
+df = pd.read_csv("datasets/sales_performance.csv")
 
 # page config
 
@@ -19,9 +23,6 @@ page = st.sidebar.radio(
     "Navigation",
     [main, p1]
 )
-
-
-# using pages
 
 
 # home page
@@ -44,3 +45,15 @@ if page == main:
 
 
 # page 1
+
+
+elif page == p1:
+
+    st.title("📈 Sales Performance Dashboard")
+
+    df = pd.read_csv("datasets/sales_performance.csv")
+
+    st.dataframe(df)
+
+
+
