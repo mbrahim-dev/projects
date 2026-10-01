@@ -87,27 +87,24 @@ elif page == p1:
 
     st.header("")
 
-    m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
+    m1, m2, m3, m4, m5, m6 = st.columns(6)
 
-    m1.metric(
+    m2.metric(
     "💰 Revenue",
     f"${filtered_df1['revenue'].sum():,.0f}"
     )
     
-    m3.metric(
+    m4.metric(
         "📈 Profit",
         f"${filtered_df1['profit'].sum():,.0f}"
     )
     
-    m5.metric(
+    m6.metric(
         "📦 Orders",
         f"{filtered_df1['order_id'].nunique():,}"
     )
     
-    m4.metric(
-        "💵 Avg. Order Value",
-        f"${filtered_df1['revenue'].sum() / filtered_df1['order_id'].nunique():,.0f}"
-    )
+    
 
 
 
