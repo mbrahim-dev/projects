@@ -87,7 +87,7 @@ elif page == p1:
 
     st.header("")
 
-    m1, m2, m3, m4, m5, m6 = st.columns(6)
+    m1, m2, m3, m4, m5, m6, m7, m8 = st.columns(8)
 
     m2.metric(
     "💰 Revenue",
@@ -104,7 +104,10 @@ elif page == p1:
         f"{filtered_df1['order_id'].nunique():,}"
     )
     
-    
+    m8.metric(
+        "💵 Avg. Order Value",
+        f"${filtered_df1['revenue'].sum() / filtered_df1['order_id'].nunique():,.0f}"
+    )
 
 
 
