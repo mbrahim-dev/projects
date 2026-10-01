@@ -65,6 +65,23 @@ elif page == p1:
 
         st.header("")
 
+        s1, s2, s3, s4, s5 = st.columns(5)# page 1
+
+elif page == p1:
+
+    # pagination
+
+    page_analysis = st.pagination(4)
+
+
+    # overview
+
+    if page_analysis == 1:
+
+        st.title("📊 Sales Performance Overview")
+
+        st.header("")
+
         s1, s2, s3, s4, s5 = st.columns(5)
 
         with s1:
@@ -93,7 +110,9 @@ elif page == p1:
 
         st.header("")
 
-        st.dataframe(filtered_df1[columns_df1])
+        st.dataframe(
+            filtered_df1[columns_df1]
+        )
 
         st.header("")
 
@@ -120,53 +139,22 @@ elif page == p1:
         )
 
 
-    # time Analysis
+    # time analysis
 
     elif page_analysis == 2:
 
         st.title("📅 Time Analysis")
 
 
-    # geographic Analysis
+    # geographic analysis
 
     elif page_analysis == 3:
 
         st.title("🌍 Geographic Analysis")
 
 
-    # product Analysis
+    # product analysis
 
     elif page_analysis == 4:
 
         st.title("🏷️ Product Analysis")
-
-
-    # pagination
-
-    st.header("")
-    
-    if st.button("← Previous"):
-        if st.session_state.page_analysis > 1:
-            st.session_state.page_analysis -= 1
-            st.rerun()
-    
-    if st.button("1"):
-        st.session_state.page_analysis = 1
-        st.rerun()
-    
-    if st.button("2"):
-        st.session_state.page_analysis = 2
-        st.rerun()
-    
-    if st.button("3"):
-        st.session_state.page_analysis = 3
-        st.rerun()
-        
-    if st.button("4"):
-        st.session_state.page_analysis = 4
-        st.rerun()
-        
-    if st.button("Next →"):
-        if st.session_state.page_analysis < 4:
-            st.session_state.page_analysis += 1
-            st.rerun()
