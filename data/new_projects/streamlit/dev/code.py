@@ -67,8 +67,15 @@ elif page == p1:
         df1["sales_channel"].unique()
     )
 
-    st.header("")
+
+    filtered_df1 = df1[
+    (df1["category"] == category) &
+    (df1["country"] == country) &
+    (df1["sales_channel"] == sales_channel)
+    ]
     
+    st.header("")
+
     st.dataframe(df1[columns_df1])
 
 
