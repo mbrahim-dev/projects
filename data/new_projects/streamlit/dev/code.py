@@ -58,7 +58,7 @@ elif page == p1:
 
     # overview
 
-    if page_analysis == 0:
+    if page_analysis == 1:
 
         st.title("📊 Sales Performance Overview")
 
@@ -121,20 +121,20 @@ elif page == p1:
 
     # time analysis
 
-    elif page_analysis == 1:
+    elif page_analysis == 2:
 
         st.title("📅 Time Analysis")
 
 
     # geographic analysis
 
-    elif page_analysis == 2:
+    elif page_analysis == 3:
 
         st.title("🌍 Geographic Analysis")
 
 
     # product analysis
 
-    elif page_analysis == 3:
+    elif page_analysis == 4:
 
         st.title("🏷️ Product Analysis")
