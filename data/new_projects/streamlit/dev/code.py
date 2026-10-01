@@ -31,18 +31,10 @@ if page == main:
 
     st.title("👋 Welcome to my Streamlit App")
 
-    st.caption("")
+    st.header("")
     
-    st.markdown(""" 💻 This app is built using **python and cascading style sheets**. """)
-
-    st.caption("")
-    
-    st.markdown(""" 📊 The purpose of this page is to showcase my skills in **data analysis**, **visualization** and **business intelligence**. """)
-
-    st.caption("")
-    
-    st.markdown(""" 🔎 Explore the **sidebar** to discover different dashboards, datasets and business contexts through various analyses. """)
-
+    st.markdown(""" 💻 This app is built using **python and cascading style sheets**. 📊 The purpose of this page is to showcase my skills in **data analysis**, **visualization** and **business intelligence**. 
+    🔎 Explore the **sidebar** to discover different dashboards, datasets and business contexts through various analyses.""")
 
 # page 1
 
@@ -50,6 +42,8 @@ if page == main:
 elif page == p1:
 
     st.title("📈 Sales Performance Dashboard")
+
+    st.header("")
 
     df = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
 
