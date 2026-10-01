@@ -54,7 +54,7 @@ elif page == p1:
 
     st.header("")
 
-    s0, s1, s2, s3, s4, s5 = st.columns(5)
+    s0, s1, s2, s3, s4, s5 = st.columns(6)
     
     s1.category = st.selectbox(
         "🏷️ Product Category",
