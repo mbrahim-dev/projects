@@ -68,7 +68,7 @@ elif page == p1:
     )
 
 
-    filtered_df1 = columns_df1[
+    filtered_df1 = df1[
     (df1["category"] == category) &
     (df1["country"] == country) &
     (df1["sales_channel"] == sales_channel)
