@@ -28,11 +28,9 @@ page = st.sidebar.radio(
 
 if page == main:
 
-    st.balloons()
-
     st.title("👋 Welcome to my Streamlit App")
 
-    st.header("")
+    st.subheader("")
     
     st.markdown(""" 💻 This app is built using **python and cascading style sheets**. """)
 
@@ -54,6 +52,8 @@ elif page == p1:
 
     with p3_col:
         page_analysis = st.pagination(4)
+
+    st.subheader("")
     
     # overview
 
@@ -61,7 +61,7 @@ elif page == p1:
 
         st.title("📊 Sales Performance Overview")
 
-        st.header("")
+        st.subheader("")
 
         s1, s2, s3, s4, s5 = st.columns(5)
 
@@ -89,11 +89,11 @@ elif page == p1:
             (df1["sales_channel"] == sales_channel)
         ]
 
-        st.header("")
+        st.subheader("")
 
         st.dataframe(filtered_df1[columns_df1])
 
-        st.header("")
+        st.subheader("")
 
         m1, m2, m3, m4, m5, m6, m7, m8, m9 = st.columns(9)
 
