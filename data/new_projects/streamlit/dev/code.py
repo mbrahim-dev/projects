@@ -5,7 +5,7 @@ import pandas as pd
 
 # import datasets
 
-df = pd.read_csv("datasets/sales_performance.csv")
+df = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
 
 # page config
 
@@ -51,7 +51,7 @@ elif page == p1:
 
     st.title("📈 Sales Performance Dashboard")
 
-    df = pd.read_csv("datasets/sales_performance.csv")
+    df = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
 
     st.dataframe(df)
 
