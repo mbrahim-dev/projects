@@ -17,7 +17,6 @@ st.set_page_config("", "", layout="wide")
 main = "🏠 Home"
 p1 = "📈 Sales Performance"
 
-
 # sidebar
 
 page = st.sidebar.radio(
@@ -47,70 +46,86 @@ if page == main:
 
 # page 1
 
-
 elif page == p1:
 
-    st.title("📈 Sales Performance Dashboard")
+    page_analysis = st.pagination(4)
 
-    st.header("")
+    # Overview
 
-    s1, s2, s3, s4, s5 = st.columns(5)
+    if page_analysis == 1:
 
-    with s1:
-        category = st.selectbox(
-            "🏷️ Product Category",
-            df1["category"].unique()
+        st.title("📊 Sales Performance Overview")
+
+        st.header("")
+
+        s1, s2, s3, s4, s5 = st.columns(5)
+
+        with s1:
+            category = st.selectbox(
+                "🏷️ Product Category",
+                df1["category"].unique()
+            )
+
+        with s3:
+            country = st.selectbox(
+                "🌍 Country",
+                df1["country"].unique()
+            )
+
+        with s5:
+            sales_channel = st.selectbox(
+                "🛒 Sales Channel",
+                df1["sales_channel"].unique()
+            )
+
+        filtered_df1 = df1[
+            (df1["category"] == category) &
+            (df1["country"] == country) &
+            (df1["sales_channel"] == sales_channel)
+        ]
+
+        st.header("")
+
+        st.dataframe(filtered_df1[columns_df1])
+
+        st.header("")
+
+        m2, m3, m4, m5, m6, m7, m8 = st.columns(7)
+
+        m2.metric(
+            "💰 Revenue",
+            f"${filtered_df1['revenue'].sum():,.0f}"
         )
-    
-    with s3:
-        country = st.selectbox(
-            "🌍 Country",
-            df1["country"].unique()
-        )
-    
-    with s5:
-        sales_channel = st.selectbox(
-            "🛒 Sales Channel",
-            df1["sales_channel"].unique()
+
+        m4.metric(
+            "📈 Profit",
+            f"${filtered_df1['profit'].sum():,.0f}"
         )
 
+        m6.metric(
+            "📦 Orders",
+            f"{filtered_df1['order_id'].nunique():,}"
+        )
 
-    filtered_df1 = df1[
-    (df1["category"] == category) &
-    (df1["country"] == country) &
-    (df1["sales_channel"] == sales_channel)
-    ]
-    
-    st.header("")
+        m8.metric(
+            "💵 Avg. Order Value",
+            f"${filtered_df1['revenue'].sum() / filtered_df1['order_id'].nunique():,.0f}"
+        )
 
-    st.dataframe(filtered_df1[columns_df1])
+    # Time Analysis
 
-    st.header("")
+    elif page_analysis == 2:
 
-    m2, m3, m4, m5, m6, m7, m8 = st.columns(7)
+        st.title("📅 Time Analysis")
 
-    m2.metric(
-    "💰 Revenue",
-    f"${filtered_df1['revenue'].sum():,.0f}"
-    )
-    
-    m4.metric(
-        "📈 Profit",
-        f"${filtered_df1['profit'].sum():,.0f}"
-    )
-    
-    m6.metric(
-        "📦 Orders",
-        f"{filtered_df1['order_id'].nunique():,}"
-    )
-    
-    m8.metric(
-        "💵 Avg. Order Value",
-        f"${filtered_df1['revenue'].sum() / filtered_df1['order_id'].nunique():,.0f}"
-    )
+    # Geographic Analysis
 
+    elif page_analysis == 3:
 
+        st.title("🌍 Geographic Analysis")
 
+    # Product Analysis
 
+    elif page_analysis == 4:
 
-
+        st.title("🏷️ Product Analysis")
