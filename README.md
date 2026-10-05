@@ -1,7 +1,7 @@
 # 👋 Welcome to my GitHub Repository
 
-This page is a portfolio of my personal projects. Its purpose is to showcase my skills in both **Data** and **Web Development**.
+This page is a portfolio of my personal projects, showcasing my skills in **Data** and **Web Development**.
 
-📂 The `data` folder contains both my previous projects and my current work.
+📂 You can explore the `data` folder to discover my previous and current projects.
 
-🚀 **Take a look at what I am currently working on :** [my_streamlit_app](https://projects-data.streamlit.app/)
+🚀 **[Discover my Streamlit App here]**(https://projects-data.streamlit.app/)
