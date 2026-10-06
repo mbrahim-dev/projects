@@ -91,6 +91,7 @@ elif page == p1:
         st.header("Dataset Overview 📊")
 
         st.caption("")
+        st.caption("")
 
         st.markdown("""This page provides an overview of the dataset used for the analysis, along with a description of each variable.""")
 
