@@ -88,7 +88,7 @@ elif page == p1:
 
     if page_analysis == 1:
 
-        st.header("Dataset Overview 📊")
+        st.header("Data Overview 📊")
 
         st.subheader("")
 
