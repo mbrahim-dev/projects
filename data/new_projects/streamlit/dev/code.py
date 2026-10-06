@@ -88,7 +88,7 @@ elif page == p1:
 
     if page_analysis == 1:
 
-        st.title("📊 Dataset Overview")
+        st.header("Dataset Overview 📊")
 
         st.caption("")
 
@@ -104,10 +104,7 @@ elif page == p1:
 
         st.caption("")
 
-        st.dataframe(
-            df1,
-            width="stretch"
-        )
+        st.dataframe(df1,width="stretch")
 
         st.caption("")
 
