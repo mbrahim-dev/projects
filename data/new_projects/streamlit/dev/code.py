@@ -28,11 +28,44 @@ page = st.sidebar.radio(
 
 if page == main:
 
-    st.header("👋 Welcome to my Streamlit App")
+    st.header("Welcome to my Streamlit App 👋")
 
-    st.subheader("❓ What will you find in this application?")
+    st.caption("")
 
+    st.markdown("""On this home page, you will find answers to some of the key questions you may have about this application and the technology behind it.""")
+
+    st.subheader("#1 What is a Streamlit App ❓")
+
+    st.caption("")
+    
+    st.markdown("""A **Streamlit App** is an interactive web application built with Python""") 
+
+    st.caption("")
+
+    st.subheader("#2 Why use Streamlit❓")
+
+    st.markdown("""Streamlit makes it easy to turn **data into interactive visualizations using Python**.""")
+
+    st.caption("")
+    
+    st.subheader("#3 What will you find in this application ❓")
+
+    st.caption("")
+    
     st.markdown("""This application showcases different **projects that can be built with Streamlit**. Each page presents a different project and its features.""")
+
+    st.caption("")
+
+    
+
+
+
+
+
+
+
+
+
 
 # page 1
 
