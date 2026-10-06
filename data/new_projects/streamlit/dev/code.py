@@ -92,7 +92,7 @@ elif page == p1:
 
         st.subheader("")
 
-        st.markdown("""This page provides an overview of the dataset used for the analysis, along with a description of each variable.""")
+        st.markdown("""This page provides an overview of the dataset that will be used throughout the following pages to create different visualizations.""")
 
         st.divider()
 
