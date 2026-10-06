@@ -15,7 +15,7 @@ st.set_page_config("", "", layout="wide")
 # creating pages
 
 main = "🏠 Home"
-p1 = "📈 Sales Performance"
+p1 = "📈 Data Visualisation"
 
 # sidebar
 
@@ -83,67 +83,98 @@ elif page == p1:
         page_analysis = st.pagination(4)
 
     st.subheader("")
-    
-    # overview
+
+    # dataset overview
 
     if page_analysis == 1:
 
-        st.title("📊 Sales Performance Overview")
+        st.title("📊 Dataset Overview")
 
-        st.subheader("")
+        st.caption("")
 
-        s1, s2, s3, s4, s5 = st.columns(5)
+        st.markdown("""
+        This page provides an overview of the dataset used for the analysis,
+        along with a description of each variable.
+        """)
 
-        with s1:
-            category = st.selectbox(
-                "🏷️ Product Category",
-                df1["category"].unique()
-            )
+        st.caption("")
 
-        with s3:
-            country = st.selectbox(
-                "🌍 Country",
-                df1["country"].unique()
-            )
+        st.divider()
 
-        with s5:
-            sales_channel = st.selectbox(
-                "🛒 Sales Channel",
-                df1["sales_channel"].unique()
-            )
+        st.caption("")
 
-        filtered_df1 = df1[
-            (df1["category"] == category) &
-            (df1["country"] == country) &
-            (df1["sales_channel"] == sales_channel)
-        ]
+        # dataset
 
-        st.subheader("")
+        st.subheader("Dataset")
 
-        st.dataframe(filtered_df1[columns_df1])
+        st.caption("")
 
-        st.subheader("")
-
-        m1, m2, m3, m4, m5, m6, m7, m8, m9 = st.columns(9)
-
-        m2.metric(
-            "💰 Revenue",
-            f"${filtered_df1['revenue'].sum():,.0f}"
+        st.dataframe(
+            df1,
+            width="stretch"
         )
 
-        m4.metric(
-            "📈 Profit",
-            f"${filtered_df1['profit'].sum():,.0f}"
-        )
+        st.caption("")
 
-        m6.metric(
-            "📦 Orders",
-            f"{filtered_df1['order_id'].nunique():,}"
-        )
+        st.divider()
 
-        m8.metric(
-            "💵 Avg. Order Value",
-            f"${filtered_df1['revenue'].sum() / filtered_df1['order_id'].nunique():,.0f}"
+        st.caption("")
+
+        # data dictionary
+
+        st.subheader("Data Dictionary")
+
+        st.caption("")
+
+        data_dictionary = pd.DataFrame({
+            "Column": [
+                "order_id",
+                "order_date",
+                "category",
+                "product",
+                "quantity",
+                "unit_price",
+                "discount_rate",
+                "revenue",
+                "cost",
+                "profit",
+                "country",
+                "sales_channel"
+            ],
+            "Format": [
+                "varchar",
+                "date",
+                "varchar",
+                "varchar",
+                "integer",
+                "float",
+                "float",
+                "float",
+                "float",
+                "float",
+                "varchar",
+                "varchar"
+            ],
+            "Description": [
+                "Order identifier",
+                "Date of the order",
+                "Product category",
+                "Product name",
+                "Quantity ordered",
+                "Unit selling price",
+                "Discount applied to the order",
+                "Total revenue generated",
+                "Total cost of the order",
+                "Profit generated",
+                "Customer's country",
+                "Sales channel used for the order"
+            ]
+        })
+
+        st.dataframe(
+            data_dictionary,
+            width="stretch",
+            hide_index=True
         )
 
 
