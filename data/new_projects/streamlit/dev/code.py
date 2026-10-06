@@ -30,6 +30,8 @@ if page == main:
 
     st.header("Welcome to my Streamlit App 👋")
 
+    st.divider()
+
     st.header("")
 
     st.markdown("""On this home page, you will find answers to some of the key questions you may have about this application and the technology behind it.""")
