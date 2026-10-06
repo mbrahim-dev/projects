@@ -33,33 +33,42 @@ if page == main:
     st.header("")
 
     st.markdown("""On this home page, you will find answers to some of the key questions you may have about this application and the technology behind it.""")
-    
+
     st.caption("")
 
     st.divider()
-    
-    st.subheader("#1 What is a Streamlit App ❓")
 
-    st.caption("")
-    
-    st.markdown("""A **Streamlit App** is an interactive web application built with Python""") 
+    st.subheader("1)  What is a Streamlit App ❓")
 
     st.caption("")
 
-    st.subheader("#2 Why use Streamlit❓")
+    st.markdown("""A **Streamlit App** is an interactive web application.""")
+
+    st.caption("")
+
+    st.subheader("2)  What will you find in this application ❓")
+
+    st.caption("")
+
+    st.markdown("""This application showcases different **projects that can be built with Streamlit**. Each page presents a different project and its features.""")
+
+    st.caption("")
+
+    st.subheader("3)  Why use Streamlit ❓")
 
     st.caption("")
 
     st.markdown("""Streamlit makes it easy to turn **data into interactive visualizations using Python**.""")
 
     st.caption("")
-    
-    st.subheader("#3 What will you find in this application ❓")
+
+    st.subheader("4)  How is a Streamlit App built ❓")
 
     st.caption("")
-    
-    st.markdown("""This application showcases different **projects that can be built with Streamlit**. Each page presents a different project and its features.""")
 
+    st.markdown("""It is built mainly with **Python code**, but you can also use **Cascading Style Sheets (CSS)** to customize its design, for example.""")
+    
+    
 
     
 
