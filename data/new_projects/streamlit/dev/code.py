@@ -68,7 +68,7 @@ if page == main:
 
     st.caption("")
 
-    st.markdown("""Mainly with **Python code**, but you can also use **CSS** to customize its design.""")
+    st.markdown("""Mainly with **Python code**, but you can also use **CSS** (Cascading Style Sheets) to customize its design.""")
     
 
 # page 1
