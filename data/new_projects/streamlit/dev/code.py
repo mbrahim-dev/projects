@@ -52,7 +52,7 @@ if page == main:
 
     st.caption("")
 
-    st.markdown("""Different **projects that can be built with Streamlit**.""")
+    st.markdown("""**Different projects** that can be built with Streamlit.""")
 
     st.caption("")
 
@@ -60,7 +60,7 @@ if page == main:
 
     st.caption("")
 
-    st.markdown("""A simple way to turn **data into interactive visualizations**.""")
+    st.markdown("""A simple way to **turn data into interactive visualizations**.""")
 
     st.caption("")
 
