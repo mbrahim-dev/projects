@@ -36,7 +36,7 @@ if page == main:
     
     st.subheader("")
 
-    st.divider("")
+    st.divider()
     
     st.subheader("#1 What is a Streamlit App ❓")
 
