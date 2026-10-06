@@ -92,12 +92,7 @@ elif page == p1:
 
         st.caption("")
 
-        st.markdown("""
-        This page provides an overview of the dataset used for the analysis,
-        along with a description of each variable.
-        """)
-
-        st.caption("")
+        st.markdown("""This page provides an overview of the dataset used for the analysis, along with a description of each variable.""")
 
         st.divider()
 
@@ -156,7 +151,7 @@ elif page == p1:
                 "varchar"
             ],
             "Description": [
-                "Order identifier",
+                "Order number",
                 "Date of the order",
                 "Product category",
                 "Product name",
