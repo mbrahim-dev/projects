@@ -187,7 +187,7 @@ elif page == p1:
         with title_col:
             st.header("Time Analysis 📅")
     
-        with filters_col:
+        with caption_col:
             st.caption("Filters")
     
             selected_year = st.selectbox(
