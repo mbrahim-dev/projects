@@ -182,9 +182,7 @@ elif page == p1:
         df1["month_name"] = df1["order_date"].dt.strftime("%B")
         df1["quarter"] = df1["order_date"].dt.quarter
 
-        st.caption("")
-
-        analysis_col, filters_col = st.columns([4, 1])
+        analysis_col, filters_col = st.columns([4, 0.5])
     
         with filters_col:
     
