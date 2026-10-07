@@ -180,40 +180,46 @@ elif page == p1:
         df1["month_name"] = df1["order_date"].dt.strftime("%B")
         df1["quarter"] = df1["order_date"].dt.quarter
 
-        title_col, caption_col = st.columns([4, 1])
-    
-        title_col, caption_col = st.columns([4, 1])
+        months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+        title_col, space_col, filters_col = st.columns([3, 0.5, 4.5])
 
         with title_col:
             st.header("Time Analysis 📅")
+
+        with filters_col:
     
-        with caption_col:
-            st.caption("Filters")
+            st.markdown("**Filters**")
     
-            selected_year = st.selectbox(
-            "Year",
-            sorted(df1["year"].unique())
-            )
+            year_col, month_col, quarter_col = st.columns(3)
     
-            selected_month = st.selectbox(
-                "Month",
-                ["All"] + sorted(df1["month_name"].unique())
-            )
+            with year_col:
+                selected_year = st.selectbox(
+                    "Year",
+                    sorted(df1["year"].unique())
+                )
     
-            selected_quarter = st.selectbox(
-                "Quarter",
-                ["All", 1, 2, 3, 4]
-            )
+            with month_col:
+                selected_month = st.selectbox(
+                    "Month",
+                    ["All"] + months
+                )
+    
+            with quarter_col:
+                selected_quarter = st.selectbox(
+                    "Quarter",
+                    ["All", 1, 2, 3, 4]
+                )
 
     # geographic analysis
 
     elif page_analysis == 3:
 
-        st.title("🌍 Geographic Analysis")
+        st.header("Geographic Analysis 🌍")
 
 
     # product analysis
 
     elif page_analysis == 4:
 
-        st.title("🏷️ Product Analysis")
+        st.title("Product Analysis 🏷️")
