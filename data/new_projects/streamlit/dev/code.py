@@ -169,61 +169,61 @@ elif page == p1:
         )
 
 
-# time analysis
+    # time analysis
 
-elif page_analysis == 2:
+    elif page_analysis == 2:
 
-    df1["order_date"] = pd.to_datetime(df1["order_date"])
-
-    df1["year"] = df1["order_date"].dt.year
-    df1["month"] = df1["order_date"].dt.month
-    df1["month_name"] = df1["order_date"].dt.strftime("%B")
-    df1["quarter"] = df1["order_date"].dt.quarter
-
-    months = ["January", "February", "March", "April","May", "June", "July", "August","September", "October", "November", "December"]
-
-    title_col, space_col, filters_col = st.columns([3, 1, 4.5])
-
-    with title_col:
-
-        st.caption("")
-        st.header("Time Analysis 📅")
-
-    with filters_col:
-
-        st.markdown("**Filters**")
-
-        year_col, month_col, quarter_col = st.columns(3)
-
-        # year filter
-        with year_col:
-
-            with st.popover("Year"):
-
-                selected_years = st.multiselect(
-                    "Select years",
-                    sorted(df1["year"].unique())
-                )
-
-        # month filter
-        with month_col:
-
-            with st.popover("Month"):
-
-                selected_months = st.multiselect(
-                    "Select months",
-                    months
-                )
-
-        # quarter filter
-        with quarter_col:
-
-            with st.popover("Quarter"):
-
-                selected_quarters = st.multiselect(
-                    "Select quarters",
-                    [1, 2, 3, 4]
-                )
+        df1["order_date"] = pd.to_datetime(df1["order_date"])
+    
+        df1["year"] = df1["order_date"].dt.year
+        df1["month"] = df1["order_date"].dt.month
+        df1["month_name"] = df1["order_date"].dt.strftime("%B")
+        df1["quarter"] = df1["order_date"].dt.quarter
+    
+        months = ["January", "February", "March", "April","May", "June", "July", "August","September", "October", "November", "December"]
+    
+        title_col, space_col, filters_col = st.columns([3, 1, 4.5])
+    
+        with title_col:
+    
+            st.caption("")
+            st.header("Time Analysis 📅")
+    
+        with filters_col:
+    
+            st.markdown("**Filters**")
+    
+            year_col, month_col, quarter_col = st.columns(3)
+    
+            # year filter
+            with year_col:
+    
+                with st.popover("Year"):
+    
+                    selected_years = st.multiselect(
+                        "Select years",
+                        sorted(df1["year"].unique())
+                    )
+    
+            # month filter
+            with month_col:
+    
+                with st.popover("Month"):
+    
+                    selected_months = st.multiselect(
+                        "Select months",
+                        months
+                    )
+    
+            # quarter filter
+            with quarter_col:
+    
+                with st.popover("Quarter"):
+    
+                    selected_quarters = st.multiselect(
+                        "Select quarters",
+                        [1, 2, 3, 4]
+                    )
 
 
 
@@ -232,13 +232,13 @@ elif page_analysis == 2:
 
 
     
-# geographic analysis
-
-elif page_analysis == 3:
-    st.header("Geographic Analysis 🌍")
-
-
-# product analysis
-
-elif page_analysis == 4:
-    st.header("Product Analysis 🏷️")
+    # geographic analysis
+    
+    elif page_analysis == 3:
+        st.header("Geographic Analysis 🌍")
+    
+    
+    # product analysis
+    
+    elif page_analysis == 4:
+        st.header("Product Analysis 🏷️")
