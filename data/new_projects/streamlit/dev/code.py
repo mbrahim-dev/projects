@@ -193,7 +193,7 @@ elif page == p1:
     
             st.markdown("**Filters**")
     
-            year_col, space_col, month_col, space_col, quarter_col, space_col = st.columns(6)
+            year_col, month_col, quarter_col = st.columns(3)
 
             with year_col:
                 selected_years = st.multiselect(
