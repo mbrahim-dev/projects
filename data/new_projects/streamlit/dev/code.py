@@ -191,13 +191,13 @@ elif page == p1:
             st.caption("Filters")
     
             selected_year = st.selectbox(
-                "Year",
-                sorted(df1["year"].unique())
+            "Year",
+            sorted(df1["year"].unique())
             )
     
             selected_month = st.selectbox(
                 "Month",
-                ["All"] + months
+                ["All"] + sorted(df1["month_name"].unique())
             )
     
             selected_quarter = st.selectbox(
