@@ -173,8 +173,6 @@ elif page == p1:
 
     elif page_analysis == 2:
 
-        st.header("Time Analysis 📅")
-
         df1["order_date"] = pd.to_datetime(df1["order_date"])
 
         df1["year"] = df1["order_date"].dt.year
@@ -182,11 +180,15 @@ elif page == p1:
         df1["month_name"] = df1["order_date"].dt.strftime("%B")
         df1["quarter"] = df1["order_date"].dt.quarter
 
-        analysis_col, filters_col = st.columns([4, 0.5])
+        title_col, caption_col = st.columns([4, 1])
+    
+        title_col, caption_col = st.columns([4, 1])
+
+        with title_col:
+            st.header("Time Analysis 📅")
     
         with filters_col:
-    
-            st.subheader("Filters")
+            st.caption("Filters")
     
             selected_year = st.selectbox(
                 "Year",
@@ -195,14 +197,13 @@ elif page == p1:
     
             selected_month = st.selectbox(
                 "Month",
-                ["All"] + sorted(df1["month_name"].unique())
+                ["All"] + months
             )
     
             selected_quarter = st.selectbox(
                 "Quarter",
                 ["All", 1, 2, 3, 4]
             )
-
 
     # geographic analysis
 
