@@ -194,23 +194,23 @@ elif page == p1:
             st.markdown("**Filters**")
     
             year_col, space_col, month_col, space_col, quarter_col, space_col = st.columns(6)
-    
+
             with year_col:
-                selected_year = st.selectbox(
-                    "Year",
-                    sorted(df1["year"].unique())
+                selected_years = st.multiselect(
+                "Year",
+                sorted(df1["year"].unique())
                 )
-    
+                
             with month_col:
-                selected_month = st.selectbox(
+                selected_months = st.multiselect(
                     "Month",
-                    ["All"] + months
+                    months
                 )
-    
+                
             with quarter_col:
-                selected_quarter = st.selectbox(
+                selected_quarters = st.multiselect(
                     "Quarter",
-                    ["All", 1, 2, 3, 4]
+                    [1, 2, 3, 4]
                 )
 
     # geographic analysis
