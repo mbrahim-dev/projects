@@ -202,10 +202,14 @@ elif page == p1:
                 )
                 
             with month_col:
-                selected_months = st.multiselect(
-                    "Month",
-                    months
-                )
+
+                with st.popover("Month"):
+            
+                    selected_months = st.multiselect(
+                        "Select months",
+                        months,
+                        default=months
+                    )
                 
             with quarter_col:
                 selected_quarters = st.multiselect(
