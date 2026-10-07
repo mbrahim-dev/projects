@@ -6,7 +6,6 @@ import pandas as pd
 # import datasets
 
 df1 = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
-columns_df1 = ["category","product","quantity","unit_price","discount_rate","revenue","cost","profit","country","sales_channel"]
 
 # page config
 
@@ -174,7 +173,37 @@ elif page == p1:
 
     elif page_analysis == 2:
 
-        st.title("📅 Time Analysis")
+        st.header("Time Analysis 📅")
+
+        df1["order_date"] = pd.to_datetime(df1["order_date"])
+
+        df1["year"] = df1["order_date"].dt.year
+        df1["month"] = df1["order_date"].dt.month
+        df1["month_name"] = df1["order_date"].dt.strftime("%B")
+        df1["quarter"] = df1["order_date"].dt.quarter
+
+        st.caption("")
+
+        analysis_col, filters_col = st.columns([4, 1])
+    
+        with filters_col:
+    
+            st.subheader("Filters")
+    
+            selected_year = st.selectbox(
+                "Year",
+                sorted(df1["year"].unique())
+            )
+    
+            selected_month = st.selectbox(
+                "Month",
+                ["All"] + sorted(df1["month_name"].unique())
+            )
+    
+            selected_quarter = st.selectbox(
+                "Quarter",
+                ["All", 1, 2, 3, 4]
+            )
 
 
     # geographic analysis
