@@ -182,7 +182,7 @@ elif page == p1:
     
         months = ["January", "February", "March", "April","May", "June", "July", "August","September", "October", "November", "December"]
     
-        title_col, space_col, filters_col = st.columns([3, 4, 1])
+        title_col, space_col, filters_col = st.columns([3, 3, 2])
     
         with title_col:
     
