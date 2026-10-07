@@ -232,15 +232,13 @@ elif page_analysis == 2:
 
 
     
-    # geographic analysis
+# geographic analysis
 
-    elif page_analysis == 3:
+elif page_analysis == 3:
+    st.header("Geographic Analysis 🌍")
 
-        st.header("Geographic Analysis 🌍")
 
+# product analysis
 
-    # product analysis
-
-    elif page_analysis == 4:
-
-        st.title("Product Analysis 🏷️")
+elif page_analysis == 4:
+    st.header("Product Analysis 🏷️")
