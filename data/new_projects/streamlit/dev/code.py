@@ -185,6 +185,8 @@ elif page == p1:
         title_col, space_col, filters_col = st.columns([3, 0.5, 4.5])
 
         with title_col:
+
+            st.caption("")
             st.header("Time Analysis 📅")
 
         with filters_col:
