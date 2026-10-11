@@ -267,10 +267,10 @@ elif page == p1:
                 chart_data = df1[df1["year"].isin([selected_year, previous_year])]
             
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
+                monthly_revenue["year"] = monthly_revenue["year"].astype(str)
                 monthly_revenue = monthly_revenue.sort_values("month")
             
-                st.line_chart(monthly_revenue, x="month_name", y="revenue", color="year:N")
-
+                st.line_chart(monthly_revenue, x="month_name", y="revenue", color="year")
     
     # geographic analysis
     
