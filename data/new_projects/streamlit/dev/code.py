@@ -171,8 +171,6 @@ elif page == p1:
 
 
     
-    
-    
     # time analysis
 
     elif page_analysis == 2:
@@ -190,7 +188,7 @@ elif page == p1:
 
         # header and filters
         
-        title_col, space_col, filters_col = st.columns([3, 1, 4])
+        title_col, sp6, filters_col = st.columns([3, 1, 4])
 
         with title_col:
             st.header("Time Analysis 📅")
@@ -249,20 +247,21 @@ elif page == p1:
 
             # kpi sidebar
             
-            kpi_col, space_col, charts_col = st.columns([1.2, 0.15, 4.5])
+            kpi_col, sp7, charts_col = st.columns([1.2, 0.1, 4.5])
 
             with kpi_col:
+                
                 st.subheader("Key Metrics")
 
                 st.caption("")
 
                 st.metric("💰 Revenue", f"${revenue:,.0f}", delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None)
 
-                st.write("")
+                st.header("")
 
                 st.metric("💵 Profit", f"${profit:,.0f}", delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None)
 
-                st.write("")
+                st.header("")
 
                 st.metric("🛒 Number of Orders", f"{number_of_orders:,}", delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None)
 
@@ -306,7 +305,7 @@ elif page == p1:
 
                 # bottom charts
                 
-                profit_col, quarter_col = st.columns(2)
+                profit_col, sp8, quarter_col = st.columns([1, 0.3, 1])
 
                 # profit chart
                 
