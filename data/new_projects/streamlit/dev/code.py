@@ -266,6 +266,9 @@ elif page == p1:
             
             with line_chart_col:
                 chart_data = df1[df1["year"].isin([selected_year, previous_year])]
+
+                if selected_months:
+                    chart_data = chart_data[chart_data["month_name"].isin(selected_months)]
             
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
                 monthly_revenue["year"] = monthly_revenue["year"].astype(str)
