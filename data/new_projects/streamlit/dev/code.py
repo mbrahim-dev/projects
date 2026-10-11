@@ -262,6 +262,8 @@ elif page == p1:
 
             monthly_revenue = chart_data.groupby(["year", "month"])["revenue"].sum().reset_index()
 
+            st.line_chart(monthly_revenue, x="month", y="revenue", color="year")
+
 
     
     # geographic analysis
