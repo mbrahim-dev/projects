@@ -256,7 +256,11 @@ elif page == p1:
                 with kpi3:
                     st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}")
 
+            st.subheader("")
 
+            chart_data = df1[df1["year"].isin([selected_year, previous_year])]
+
+            monthly_revenue = chart_data.groupby(["year", "month"])["revenue"].sum().reset_index()
 
 
     
