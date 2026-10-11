@@ -170,9 +170,9 @@ elif page == p1:
 
 
     # time analysis
-
+    
     elif page_analysis == 2:
-
+    
         df1["order_date"] = pd.to_datetime(df1["order_date"])
     
         df1["year"] = df1["order_date"].dt.year
@@ -180,61 +180,64 @@ elif page == p1:
         df1["month_name"] = df1["order_date"].dt.strftime("%B")
         df1["quarter"] = df1["order_date"].dt.quarter
     
-        months = ["January", "February", "March", "April","May", "June", "July", "August","September", "October", "November", "December"]
+        months = [
+            "January", "February", "March", "April",
+            "May", "June", "July", "August",
+            "September", "October", "November", "December"
+        ]
     
         title_col, space_col, filters_col = st.columns([3, 3, 2])
     
         with title_col:
-    
             st.caption("")
             st.header("Time Analysis 📅")
     
         with filters_col:
-    
             st.markdown("**Filters**")
     
             year_col, month_col, quarter_col = st.columns(3)
     
             # year filter
+            
             with year_col:
-    
                 with st.popover("Year"):
-    
                     selected_years = st.multiselect(
                         "Select years",
                         sorted(df1["year"].unique())
                     )
-
-                    if selected_years :
-                        
-                        selected_year = selected_years[0]
-                        revenue = df1[df1["year"] == selected_year]["revenue"].sum()
-                    
-                        st.metric(
-                            label="Revenue",
-                            value=f"{revenue:,.2f}"
-                        )
     
             # month filter
+            
             with month_col:
-    
                 with st.popover("Month"):
-    
                     selected_months = st.multiselect(
                         "Select months",
                         months
                     )
     
             # quarter filter
+            
             with quarter_col:
-    
                 with st.popover("Quarter"):
-    
                     selected_quarters = st.multiselect(
                         "Select quarters",
                         [1, 2, 3, 4]
                     )
+    
+        # revenue kpi
+    
+        if selected_years:
+    
+            selected_year = selected_years[0]
+    
+            revenue = df1[df1["year"] == selected_year]["revenue"].sum()
+    
+            st.metric(
+                label="Revenue",
+                value=f"{revenue:,.2f}"
+            )
 
+    
 
 
 
