@@ -286,13 +286,19 @@ elif page == p1:
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
                 monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
 
-                # dynamic Y-axis range for revenue
-                
+                # Dynamic Y-axis range for revenue
+
                 revenue_min = monthly_revenue["Revenue"].min()
                 revenue_max = monthly_revenue["Revenue"].max()
                 revenue_padding = (revenue_max - revenue_min) * 0.15
                 if revenue_padding == 0:
                     revenue_padding = revenue_max * 0.05 if revenue_max != 0 else 1
+
+                # Dynamic colors: previous year in orange, selected year in blue
+                year_colors = alt.Scale(
+                    domain=[str(previous_year), str(selected_year)],
+                    range=["#F28E2B", "#0868C9"]
+                )
 
                 revenue_chart = alt.Chart(monthly_revenue).mark_line(point=True).encode(
                     x=alt.X("Month:N", sort=months, title="Month"),
@@ -305,7 +311,11 @@ elif page == p1:
                             zero=False
                         )
                     ),
-                    color=alt.Color("year:N", title="Year"),
+                    color=alt.Color(
+                        "year:N",
+                        title="Year",
+                        scale=year_colors
+                    ),
                     tooltip=[
                         alt.Tooltip("year:N", title="Year"),
                         alt.Tooltip("Month:N", title="Month"),
@@ -317,11 +327,11 @@ elif page == p1:
 
                 st.divider()
 
-                # bottom charts
+                # Bottom charts
 
                 profit_col, sp8, quarter_col = st.columns([1, 0.3, 1])
 
-                # profit chart
+                # Profit chart
 
                 with profit_col:
 
@@ -331,8 +341,8 @@ elif page == p1:
                     monthly_profit = chart_data.groupby(["year", "month", "month_name"])["profit"].sum().reset_index()
                     monthly_profit = monthly_profit.rename(columns={"month_name": "Month", "profit": "Profit"})
 
-                    # dynamic Y-axis range for profit
-                    
+                    # Dynamic Y-axis range for profit
+
                     profit_min = monthly_profit["Profit"].min()
                     profit_max = monthly_profit["Profit"].max()
                     profit_padding = (profit_max - profit_min) * 0.15
@@ -350,7 +360,11 @@ elif page == p1:
                                 zero=False
                             )
                         ),
-                        color=alt.Color("year:N", title="Year"),
+                        color=alt.Color(
+                            "year:N",
+                            title="Year",
+                            scale=year_colors
+                        ),
                         tooltip=[
                             alt.Tooltip("year:N", title="Year"),
                             alt.Tooltip("Month:N", title="Month"),
@@ -360,7 +374,7 @@ elif page == p1:
 
                     st.altair_chart(profit_chart, width="stretch")
 
-                # bar chart
+                # Bar chart
 
                 with quarter_col:
 
@@ -381,7 +395,11 @@ elif page == p1:
                             title="Revenue",
                             scale=alt.Scale(zero=True)
                         ),
-                        color=alt.Color("year:N", title="Year"),
+                        color=alt.Color(
+                            "year:N",
+                            title="Year",
+                            scale=year_colors
+                        ),
                         xOffset="year:N",
                         tooltip=[
                             alt.Tooltip("year:N", title="Year"),
@@ -392,8 +410,7 @@ elif page == p1:
 
                     st.altair_chart(quarter_chart, width="stretch")
 
-            st.divider()
-            
+            st.divider()            
 
     # geographic analysis
     
