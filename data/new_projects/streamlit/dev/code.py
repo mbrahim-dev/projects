@@ -281,7 +281,9 @@ elif page == p1:
                     alt.Tooltip("Month:N", title="Month"),
                     alt.Tooltip("Revenue:Q", title="Revenue", format="$,.0f")
                 ]).properties(height=350)
-            
+
+                st.markdown("**Monthly Revenue Trend**")
+                
                 st.altair_chart(chart, use_container_width=True)
     
     # geographic analysis
