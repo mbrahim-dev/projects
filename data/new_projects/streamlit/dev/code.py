@@ -169,6 +169,7 @@ elif page == p1:
             hide_index=True
         )
 
+    
     # time analysis
 
     elif page_analysis == 2:
@@ -197,7 +198,14 @@ elif page == p1:
 
             with year_col:
                 with st.popover("Year"):
-                    selected_years = st.multiselect("Select years", sorted(df1["year"].unique(), reverse=True), default=[2025, 2024])
+                    available_years = sorted(df1["year"].unique(), reverse=True)
+                    default_years = [year for year in [2025, 2024] if year in available_years]
+
+                    selected_years = st.multiselect(
+                        "Select years",
+                        available_years,
+                        default=default_years
+                    )
 
             with month_col:
                 with st.popover("Month"):
@@ -209,40 +217,63 @@ elif page == p1:
 
         st.divider()
 
-        if selected_year is not None:
+        # apply filters
 
-            previous_year = selected_year - 1
+        if selected_years:
 
-            # apply filters
+            chart_data = df1[df1["year"].isin(selected_years)].copy()
 
-            current_data = df1[df1["year"] == selected_year].copy()
-            previous_data = df1[df1["year"] == previous_year].copy()
+            if selected_months:
+                chart_data = chart_data[chart_data["month_name"].isin(selected_months)]
 
-            for data in [current_data, previous_data]:
-                if selected_months:
-                    data.drop(data[~data["month_name"].isin(selected_months)].index, inplace=True)
-                if selected_quarters:
-                    data.drop(data[~data["quarter"].isin(selected_quarters)].index, inplace=True)
+            if selected_quarters:
+                chart_data = chart_data[chart_data["quarter"].isin(selected_quarters)]
 
             # kpi calculations
 
-            revenue = current_data["revenue"].sum()
-            profit = current_data["profit"].sum()
-            number_of_orders = current_data["order_id"].nunique()
-            total_costs = current_data["cost"].sum()
+            revenue = chart_data["revenue"].sum()
+            profit = chart_data["profit"].sum()
+            number_of_orders = chart_data["order_id"].nunique()
+            total_costs = chart_data["cost"].sum()
 
-            previous_year_exists = previous_year in df1["year"].unique()
+            # compare the two most recent selected years when applicable
 
-            if previous_year_exists:
+            comparison_years = sorted(selected_years, reverse=True)
+            revenue_delta = None
+            profit_delta = None
+            orders_delta = None
+
+            if len(comparison_years) == 2:
+
+                current_year = comparison_years[0]
+                previous_year = comparison_years[1]
+
+                current_data = chart_data[chart_data["year"] == current_year]
+                previous_data = chart_data[chart_data["year"] == previous_year]
+
+                current_revenue = current_data["revenue"].sum()
                 previous_revenue = previous_data["revenue"].sum()
-                previous_profit = previous_data["profit"].sum()
-                previous_number_of_orders = previous_data["order_id"].nunique()
 
-                revenue_delta = (revenue - previous_revenue) / previous_revenue * 100 if previous_revenue != 0 else None
-                profit_delta = (profit - previous_profit) / previous_profit * 100 if previous_profit != 0 else None
-                orders_delta = (number_of_orders - previous_number_of_orders) / previous_number_of_orders * 100 if previous_number_of_orders != 0 else None
-            else:
-                revenue_delta = profit_delta = orders_delta = None
+                current_profit = current_data["profit"].sum()
+                previous_profit = previous_data["profit"].sum()
+
+                current_orders = current_data["order_id"].nunique()
+                previous_orders = previous_data["order_id"].nunique()
+
+                revenue_delta = (
+                    (current_revenue - previous_revenue) / previous_revenue * 100
+                    if previous_revenue != 0 else None
+                )
+
+                profit_delta = (
+                    (current_profit - previous_profit) / previous_profit * 100
+                    if previous_profit != 0 else None
+                )
+
+                orders_delta = (
+                    (current_orders - previous_orders) / previous_orders * 100
+                    if previous_orders != 0 else None
+                )
 
             # kpi sidebar
 
@@ -253,28 +284,53 @@ elif page == p1:
                 st.subheader("Key Metrics")
                 st.header("")
 
-                st.metric("💰 Revenue", f"${revenue:,.0f}", delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None)
+                st.metric(
+                    "💰 Revenue",
+                    f"${revenue:,.0f}",
+                    delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None
+                )
                 st.header("")
 
-                st.metric("📈 Profit", f"${profit:,.0f}", delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None)
+                st.metric(
+                    "📈 Profit",
+                    f"${profit:,.0f}",
+                    delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None
+                )
                 st.header("")
 
-                st.metric("🛒 Number of Orders", f"{number_of_orders:,}", delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None)
+                st.metric(
+                    "🛒 Number of Orders",
+                    f"{number_of_orders:,}",
+                    delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None
+                )
                 st.header("")
 
                 st.metric("💸 Total Costs", f"${total_costs:,.0f}")
 
-            # apply selected filters
-
-            chart_data = df1[df1["year"].isin([selected_year, previous_year])].copy()
-
-            if selected_months:
-                chart_data = chart_data[chart_data["month_name"].isin(selected_months)]
-
-            if selected_quarters:
-                chart_data = chart_data[chart_data["quarter"].isin(selected_quarters)]
+            # prepare chart data
 
             chart_data["year"] = chart_data["year"].astype(str)
+
+            # dynamic year colors
+
+            sorted_years = sorted(selected_years)
+
+            color_palette = [
+                "#0868C9",
+                "#F28E2B",
+                "#2CA02C",
+                "#9467BD",
+                "#D62728",
+                "#17BECF"
+            ]
+
+            year_colors = alt.Scale(
+                domain=[str(year) for year in sorted_years],
+                range=[
+                    color_palette[i % len(color_palette)]
+                    for i in range(len(sorted_years))
+                ]
+            )
 
             # line chart
 
@@ -283,31 +339,36 @@ elif page == p1:
                 st.subheader("Monthly Revenue Comparison")
                 st.caption("")
 
-                monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
-                monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
+                monthly_revenue = chart_data.groupby(
+                    ["year", "month", "month_name"]
+                )["revenue"].sum().reset_index()
 
-                # Dynamic Y-axis range for revenue
+                monthly_revenue = monthly_revenue.rename(
+                    columns={"month_name": "Month", "revenue": "Revenue"}
+                )
+
+                # dynamic Y-axis range for revenue
 
                 revenue_min = monthly_revenue["Revenue"].min()
                 revenue_max = monthly_revenue["Revenue"].max()
                 revenue_padding = (revenue_max - revenue_min) * 0.15
+
                 if revenue_padding == 0:
                     revenue_padding = revenue_max * 0.05 if revenue_max != 0 else 1
 
-                # Dynamic colors: previous year in orange, selected year in blue
-                year_colors = alt.Scale(
-                    domain=[str(previous_year), str(selected_year)],
-                    range=["#F28E2B", "#0868C9"]
-                )
-
-                revenue_chart = alt.Chart(monthly_revenue).mark_line(point=True).encode(
+                revenue_chart = alt.Chart(monthly_revenue).mark_line(
+                    point=True
+                ).encode(
                     x=alt.X("Month:N", sort=months, title="Month"),
                     y=alt.Y(
                         "Revenue:Q",
                         axis=alt.Axis(format="$,.0f"),
                         title="Revenue",
                         scale=alt.Scale(
-                            domain=[max(0, revenue_min - revenue_padding), revenue_max + revenue_padding],
+                            domain=[
+                                max(0, revenue_min - revenue_padding),
+                                revenue_max + revenue_padding
+                            ],
                             zero=False
                         )
                     ),
@@ -319,7 +380,11 @@ elif page == p1:
                     tooltip=[
                         alt.Tooltip("year:N", title="Year"),
                         alt.Tooltip("Month:N", title="Month"),
-                        alt.Tooltip("Revenue:Q", title="Revenue", format="$,.0f")
+                        alt.Tooltip(
+                            "Revenue:Q",
+                            title="Revenue",
+                            format="$,.0f"
+                        )
                     ]
                 ).properties(height=350)
 
@@ -327,36 +392,47 @@ elif page == p1:
 
                 st.divider()
 
-                # Bottom charts
+                # bottom charts
 
                 profit_col, sp8, quarter_col = st.columns([1, 0.3, 1])
 
-                # Profit chart
+                # profit chart
 
                 with profit_col:
 
                     st.subheader("Monthly Profit Comparison")
                     st.caption("")
 
-                    monthly_profit = chart_data.groupby(["year", "month", "month_name"])["profit"].sum().reset_index()
-                    monthly_profit = monthly_profit.rename(columns={"month_name": "Month", "profit": "Profit"})
+                    monthly_profit = chart_data.groupby(
+                        ["year", "month", "month_name"]
+                    )["profit"].sum().reset_index()
 
-                    # Dynamic Y-axis range for profit
+                    monthly_profit = monthly_profit.rename(
+                        columns={"month_name": "Month", "profit": "Profit"}
+                    )
+
+                    # dynamic Y-axis range for profit
 
                     profit_min = monthly_profit["Profit"].min()
                     profit_max = monthly_profit["Profit"].max()
                     profit_padding = (profit_max - profit_min) * 0.15
+
                     if profit_padding == 0:
                         profit_padding = profit_max * 0.05 if profit_max != 0 else 1
 
-                    profit_chart = alt.Chart(monthly_profit).mark_line(point=True).encode(
+                    profit_chart = alt.Chart(monthly_profit).mark_line(
+                        point=True
+                    ).encode(
                         x=alt.X("Month:N", sort=months, title="Month"),
                         y=alt.Y(
                             "Profit:Q",
                             axis=alt.Axis(format="$,.0f"),
                             title="Profit",
                             scale=alt.Scale(
-                                domain=[max(0, profit_min - profit_padding), profit_max + profit_padding],
+                                domain=[
+                                    max(0, profit_min - profit_padding),
+                                    profit_max + profit_padding
+                                ],
                                 zero=False
                             )
                         ),
@@ -368,27 +444,40 @@ elif page == p1:
                         tooltip=[
                             alt.Tooltip("year:N", title="Year"),
                             alt.Tooltip("Month:N", title="Month"),
-                            alt.Tooltip("Profit:Q", title="Profit", format="$,.0f")
+                            alt.Tooltip(
+                                "Profit:Q",
+                                title="Profit",
+                                format="$,.0f"
+                            )
                         ]
                     ).properties(height=300)
 
                     st.altair_chart(profit_chart, width="stretch")
 
-                # Bar chart
+                # bar chart
 
                 with quarter_col:
 
                     st.subheader("Quarterly Revenue Comparison")
                     st.caption("")
 
-                    quarterly_revenue = chart_data.groupby(["year", "quarter"])["revenue"].sum().reset_index()
-                    quarterly_revenue["Quarter"] = "Q" + quarterly_revenue["quarter"].astype(str)
+                    quarterly_revenue = chart_data.groupby(
+                        ["year", "quarter"]
+                    )["revenue"].sum().reset_index()
+
+                    quarterly_revenue["Quarter"] = (
+                        "Q" + quarterly_revenue["quarter"].astype(str)
+                    )
 
                     quarter_chart = alt.Chart(quarterly_revenue).mark_bar(
                         cornerRadiusTopLeft=4,
                         cornerRadiusTopRight=4
                     ).encode(
-                        x=alt.X("Quarter:N", sort=["Q1", "Q2", "Q3", "Q4"], title="Quarter"),
+                        x=alt.X(
+                            "Quarter:N",
+                            sort=["Q1", "Q2", "Q3", "Q4"],
+                            title="Quarter"
+                        ),
                         y=alt.Y(
                             "revenue:Q",
                             axis=alt.Axis(format="$,.0f"),
@@ -404,13 +493,21 @@ elif page == p1:
                         tooltip=[
                             alt.Tooltip("year:N", title="Year"),
                             alt.Tooltip("Quarter:N", title="Quarter"),
-                            alt.Tooltip("revenue:Q", title="Revenue", format="$,.0f")
+                            alt.Tooltip(
+                                "revenue:Q",
+                                title="Revenue",
+                                format="$,.0f"
+                            )
                         ]
                     ).properties(height=300)
 
                     st.altair_chart(quarter_chart, width="stretch")
 
-            st.divider()            
+            st.divider()
+
+        else:
+            st.info("Please select at least one year to display the analysis.")
+
 
     # geographic analysis
     
