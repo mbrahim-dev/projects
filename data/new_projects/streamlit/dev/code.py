@@ -237,7 +237,7 @@ elif page == p1:
 
             selected_year = selected_years[0]
         
-            space1, kpi1, space2, kpi2, space3, kpi3, space4 = st.columns([0.5, 2, 0.5, 2, 0.5, 2, 0.5])
+            space_left, kpi1, kpi2, kpi3, space_right = st.columns([1, 2, 2, 2, 1])
         
             revenue = df1[df1["year"] == selected_year]["revenue"].sum()
             profit = df1[df1["year"] == selected_year]["profit"].sum()
