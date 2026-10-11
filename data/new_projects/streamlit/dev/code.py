@@ -254,9 +254,15 @@ elif page == p1:
             with kpi_col:
                 st.subheader("Key Metrics")
 
+                st.caption("")
+
                 st.metric("💰 Revenue", f"${revenue:,.0f}", delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None)
 
+                st.write("")
+
                 st.metric("💵 Profit", f"${profit:,.0f}", delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None)
+
+                st.write("")
 
                 st.metric("🛒 Number of Orders", f"{number_of_orders:,}", delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None)
 
@@ -272,11 +278,13 @@ elif page == p1:
 
             chart_data["year"] = chart_data["year"].astype(str)
 
-            with charts_col:
+            # line chart
 
-                # line chart
+            with charts_col:
                 
                 st.subheader("Monthly Revenue Trend")
+
+                st.caption("")
 
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
                 monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
@@ -303,7 +311,10 @@ elif page == p1:
                 # profit chart
                 
                 with profit_col:
+                    
                     st.subheader("Monthly Profit Trend")
+
+                    st.caption("")
 
                     monthly_profit = chart_data.groupby(["year", "month", "month_name"])["profit"].sum().reset_index()
                     monthly_profit = monthly_profit.rename(columns={"month_name": "Month", "profit": "Profit"})
@@ -324,7 +335,10 @@ elif page == p1:
                 # bar chart
                 
                 with quarter_col:
+                    
                     st.subheader("Quarterly Revenue Comparison")
+
+                    st.caption("")
 
                     quarterly_revenue = chart_data.groupby(["year", "quarter"])["revenue"].sum().reset_index()
                     quarterly_revenue["Quarter"] = "Q" + quarterly_revenue["quarter"].astype(str)
