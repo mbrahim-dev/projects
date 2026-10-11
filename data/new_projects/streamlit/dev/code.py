@@ -3,7 +3,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from streamlit_card import card
+from st_card import card
 
 # import datasets
 
