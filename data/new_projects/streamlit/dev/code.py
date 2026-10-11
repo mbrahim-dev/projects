@@ -3,6 +3,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+from st_card import st_card
 
 # import datasets
 
@@ -288,6 +289,9 @@ elif page == p1:
     
                 st.markdown("**Monthly Revenue Trend**")
                 st.altair_chart(chart, use_container_width=True)
+
+        st_card("Completed Orders", value=76.4, show_progress=True)
+                
     
     # geographic analysis
     
