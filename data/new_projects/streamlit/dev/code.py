@@ -196,7 +196,7 @@ elif page == p1:
             
             with year_col:
                 with st.popover("Year"):
-                    selected_years = st.multiselect("Select years", sorted(df1["year"].unique()), default=[2025])
+                    selected_year = st.pills("Select year", sorted(df1["year"].unique()), default=2025, selection_mode="single")
     
             # month filter
             
@@ -216,8 +216,7 @@ elif page == p1:
     
         # kpi cards
     
-        if selected_years:
-            selected_year = selected_years[0]
+        if selected_year is not None:
             previous_year = selected_year - 1
         
             current_data = df1[df1["year"] == selected_year]
