@@ -216,7 +216,7 @@ elif page == p1:
                         "Select quarters", [1, 2, 3, 4]
                     )
     
-        st.subheader("")
+        st.header("")
     
         if selected_year is not None:
     
@@ -318,7 +318,8 @@ elif page == p1:
     
             # chart 1
             
-            st.subheader("Monthly Revenue Trend")
+            st.markdown("Monthly Revenue Trend")
+            st.caption("")
     
             monthly_revenue = (
                 chart_data.groupby(["year", "month", "month_name"])["revenue"]
@@ -350,10 +351,11 @@ elif page == p1:
     
             # chart 2
             
-            profit_col, quarter_col = st.columns(2)
+            profit_col, sp10, quarter_col = st.columns(3)
     
             with profit_col:
-                st.subheader("Monthly Profit Trend")
+                st.markdown("Monthly Profit Trend")
+                st.caption("")
     
                 monthly_profit = (
                     chart_data.groupby(["year", "month", "month_name"])["profit"]
@@ -384,7 +386,8 @@ elif page == p1:
             # chart 3
     
             with quarter_col:
-                st.subheader("Quarterly Revenue Comparison")
+                st.markdown("Quarterly Revenue Comparison")
+                st.caption("")
     
                 quarterly_revenue = (
                     chart_data.groupby(["year", "quarter"])["revenue"]
