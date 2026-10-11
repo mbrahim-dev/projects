@@ -251,10 +251,10 @@ elif page == p1:
             kpi_col, sp7, charts_col = st.columns([1.2, 0.1, 4.5])
 
             with kpi_col:
-                
+
                 st.subheader("Key Metrics")
 
-                st.caption("")
+                st.header("")
 
                 st.metric("💰 Revenue", f"${revenue:,.0f}", delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None)
 
@@ -286,7 +286,7 @@ elif page == p1:
 
             with charts_col:
                 
-                st.subheader("Monthly Revenue Trend")
+                st.subheader("Revenue Comparison by Year")
 
                 st.caption("")
 
@@ -316,7 +316,7 @@ elif page == p1:
                 
                 with profit_col:
                     
-                    st.subheader("Monthly Profit Trend")
+                    st.subheader("Profit Comparison by Month")
 
                     st.caption("")
 
@@ -340,7 +340,7 @@ elif page == p1:
                 
                 with quarter_col:
                     
-                    st.subheader("Quarterly Revenue Comparison")
+                    st.subheader("Revenue Comparison by Quarter")
 
                     st.caption("")
 
