@@ -196,8 +196,8 @@ elif page == p1:
             
             with year_col:
                 with st.popover("Year"):
-                    selected_year = st.pills("Select year", sorted(df1["year"].unique()), default=2025, selection_mode="single")
-    
+                    selected_year = st.pills("Select year", sorted(df1["year"].unique(), reverse=True), default=2025, selection_mode="single")    
+                    
             # month filter
             
             with month_col:
