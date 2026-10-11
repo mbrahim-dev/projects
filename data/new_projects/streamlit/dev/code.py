@@ -215,7 +215,8 @@ elif page == p1:
                     selected_quarters = st.multiselect(
                         "Select quarters", [1, 2, 3, 4]
                     )
-    
+
+        st.divider()
         st.header("")
     
         if selected_year is not None:
@@ -351,7 +352,7 @@ elif page == p1:
     
             # chart 2
             
-            profit_col, sp10, quarter_col = st.columns(3)
+            sp10, profit_col, sp11, quarter_col, sp12 = st.columns(5)
     
             with profit_col:
                 st.markdown("Monthly Profit Trend")
@@ -425,7 +426,7 @@ elif page == p1:
     
                 st.altair_chart(quarter_chart, width="stretch")
 
-                
+                st.divider()
     
     # geographic analysis
     
