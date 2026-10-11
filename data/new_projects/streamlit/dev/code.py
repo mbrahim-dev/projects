@@ -228,6 +228,8 @@ elif page == p1:
         st.subheader("")
 
         st.divider()
+
+        st.subheader("")
         
         # revenue kpi
     
@@ -242,9 +244,12 @@ elif page == p1:
                 value=f"${revenue:,.0f}"
             )
 
+            profit = df1[df1["year"] == selected_year]["profit"].sum()
 
-
-
+            st.metric(
+                label="💵 Profit",
+                value=f"${profit:,.0f}"
+            )
 
 
 
