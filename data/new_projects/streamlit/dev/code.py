@@ -231,6 +231,7 @@ elif page == p1:
             revenue = current_data["revenue"].sum()
             profit = current_data["profit"].sum()
             number_of_orders = current_data["order_id"].nunique()
+            total_costs = current_data["cost"].sum()
 
             previous_year_exists = previous_year in df1["year"].unique()
 
@@ -259,11 +260,15 @@ elif page == p1:
 
                 st.header("")
 
-                st.metric("💵 Profit", f"${profit:,.0f}", delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None)
+                st.metric("📈 Profit", f"${profit:,.0f}", delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None)
 
                 st.header("")
 
                 st.metric("🛒 Number of Orders", f"{number_of_orders:,}", delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None)
+
+                st.header("")
+
+                st.metric("💸 Total Costs", f"${total_costs:,.0f}")
 
             # apply selected filters
             
