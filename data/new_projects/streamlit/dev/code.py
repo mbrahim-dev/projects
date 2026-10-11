@@ -197,7 +197,7 @@ elif page == p1:
 
             with year_col:
                 with st.popover("Year"):
-                    selected_year = st.pills("Select year", sorted(df1["year"].unique(), reverse=True), default=2025, selection_mode="single")
+                    selected_years = st.multiselect("Select years", sorted(df1["year"].unique(), reverse=True), default=[2025, 2024])
 
             with month_col:
                 with st.popover("Month"):
