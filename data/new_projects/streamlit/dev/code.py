@@ -2,6 +2,7 @@
 
 import streamlit as st
 import pandas as pd
+import altair as alt
 
 # import datasets
 
@@ -271,7 +272,17 @@ elif page == p1:
                 monthly_revenue = monthly_revenue.sort_values("month")
                 monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
             
-                st.line_chart(monthly_revenue, x="Month", y="Revenue", color="year")
+                chart = alt.Chart(monthly_revenue).mark_line(point=True).encode(
+                x=alt.X("Month:N", sort=months, title="Month"),
+                y=alt.Y("Revenue:Q", axis=alt.Axis(format="$,.0f"), title="Revenue"),
+                color=alt.Color("year:N", title="Year"),
+                tooltip=[
+                    alt.Tooltip("year:N", title="Year"),
+                    alt.Tooltip("Month:N", title="Month"),
+                    alt.Tooltip("Revenue:Q", title="Revenue", format="$,.0f")
+                ]).properties(height=350)
+            
+                st.altair_chart(chart, use_container_width=True)
     
     # geographic analysis
     
