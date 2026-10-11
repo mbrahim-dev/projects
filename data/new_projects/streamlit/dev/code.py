@@ -35,13 +35,13 @@ if page == main:
     
         st.caption("")
 
-    st.divider()
+        st.divider()
 
         st.caption("")
     
         st.markdown("""On this home page, you will find answers to some of the key questions you may have about this application and the technology behind it.""")
 
-    st.divider()
+        st.divider()
 
         st.subheader("1 - What is a Streamlit App ?")
     
