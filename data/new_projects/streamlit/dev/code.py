@@ -184,8 +184,7 @@ elif page == p1:
         df1["month_name"] = df1["order_date"].dt.strftime("%B")
         df1["quarter"] = df1["order_date"].dt.quarter
     
-        months = ["January", "February", "March", "April", "May", "June",
-                  "July", "August", "September", "October", "November", "December"]
+        months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     
         # header and filters
         
@@ -217,7 +216,7 @@ elif page == p1:
                         "Select quarters", [1, 2, 3, 4]
                     )
     
-        st.divider()
+        st.subheader("")
     
         if selected_year is not None:
     
@@ -280,7 +279,7 @@ elif page == p1:
     
             # kpi cards
             
-            kpi1, kpi2, kpi3 = st.columns(3)
+            sp6, kpi1, sp7, kpi2, sp8, kpi3, sp9 = st.columns(7)
     
             with kpi1:
                 st.metric(
@@ -303,7 +302,7 @@ elif page == p1:
                     delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None
                 )
     
-            st.divider()
+            st.subheader("")
     
             # prepare chart data for both years
             
@@ -347,7 +346,7 @@ elif page == p1:
     
             st.altair_chart(revenue_chart, width="stretch")
     
-            st.divider()
+            st.subheader("")
     
             # chart 2
             
