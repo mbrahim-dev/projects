@@ -235,31 +235,31 @@ elif page == p1:
     
         if selected_years:
 
-        selected_year = selected_years[0]
-    
-        space1, kpi1, space2, kpi2, space3, kpi3, space4 = st.columns([0.5, 2, 0.5, 2, 0.5, 2, 0.5])
-    
-        revenue = df1[df1["year"] == selected_year]["revenue"].sum()
-        profit = df1[df1["year"] == selected_year]["profit"].sum()
-        number_of_orders = df1[df1["year"] == selected_year]["order_id"].nunique()
-    
-        with kpi1:
-            st.metric(
-                label="💰 Revenue",
-                value=f"${revenue:,.0f}"
-            )
-    
-        with kpi2:
-            st.metric(
-                label="💵 Profit",
-                value=f"${profit:,.0f}"
-            )
-    
-        with kpi3:
-            st.metric(
-                label="🛒 Number of Orders",
-                value=f"{number_of_orders:,}"
-            )
+            selected_year = selected_years[0]
+        
+            space1, kpi1, space2, kpi2, space3, kpi3, space4 = st.columns([0.5, 2, 0.5, 2, 0.5, 2, 0.5])
+        
+            revenue = df1[df1["year"] == selected_year]["revenue"].sum()
+            profit = df1[df1["year"] == selected_year]["profit"].sum()
+            number_of_orders = df1[df1["year"] == selected_year]["order_id"].nunique()
+        
+            with kpi1:
+                st.metric(
+                    label="💰 Revenue",
+                    value=f"${revenue:,.0f}"
+                )
+        
+            with kpi2:
+                st.metric(
+                    label="💵 Profit",
+                    value=f"${profit:,.0f}"
+                )
+        
+            with kpi3:
+                st.metric(
+                    label="🛒 Number of Orders",
+                    value=f"{number_of_orders:,}"
+                )
 
 
 
