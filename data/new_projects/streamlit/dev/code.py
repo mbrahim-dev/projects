@@ -280,7 +280,7 @@ elif page == p1:
 
             with charts_col:
 
-                st.subheader("Revenue Comparison by Year")
+                st.subheader("Monthly Revenue Comparison")
                 st.caption("")
 
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
@@ -325,7 +325,7 @@ elif page == p1:
 
                 with profit_col:
 
-                    st.subheader("Profit Comparison by Month")
+                    st.subheader("Monthly Profit Comparison")
                     st.caption("")
 
                     monthly_profit = chart_data.groupby(["year", "month", "month_name"])["profit"].sum().reset_index()
@@ -364,7 +364,7 @@ elif page == p1:
 
                 with quarter_col:
 
-                    st.subheader("Revenue Comparison by Quarter")
+                    st.subheader("Quarterly Revenue Comparison")
                     st.caption("")
 
                     quarterly_revenue = chart_data.groupby(["year", "quarter"])["revenue"].sum().reset_index()
