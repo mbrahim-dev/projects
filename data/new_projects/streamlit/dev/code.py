@@ -170,6 +170,7 @@ elif page == p1:
         )
 
 
+    
     # time analysis
 
     elif page_analysis == 2:
@@ -196,8 +197,8 @@ elif page == p1:
             
             with year_col:
                 with st.popover("Year"):
-                    selected_year = st.pills("Select year", sorted(df1["year"].unique(), reverse=True), default=2025, selection_mode="single")    
-                    
+                    selected_year = st.pills("Select year", sorted(df1["year"].unique(), reverse=True), default=2025, selection_mode="single")
+    
             # month filter
             
             with month_col:
@@ -218,74 +219,74 @@ elif page == p1:
     
         if selected_year is not None:
             previous_year = selected_year - 1
-        
+    
             current_data = df1[df1["year"] == selected_year]
             previous_data = df1[df1["year"] == previous_year]
-        
+    
             revenue = current_data["revenue"].sum()
             profit = current_data["profit"].sum()
             number_of_orders = current_data["order_id"].nunique()
-        
+    
             sp7, kpi1, sp8, kpi2, sp9, kpi3, sp10 = st.columns(7)
-        
+    
             if previous_year in df1["year"].unique():
                 previous_revenue = previous_data["revenue"].sum()
                 previous_profit = previous_data["profit"].sum()
                 previous_number_of_orders = previous_data["order_id"].nunique()
-        
-                revenue_delta = revenue - previous_revenue
-                profit_delta = profit - previous_profit
-                orders_delta = number_of_orders - previous_number_of_orders
-        
+    
+                revenue_delta = (revenue - previous_revenue) / previous_revenue * 100 if previous_revenue != 0 else None
+                profit_delta = (profit - previous_profit) / previous_profit * 100 if previous_profit != 0 else None
+                orders_delta = (number_of_orders - previous_number_of_orders) / previous_number_of_orders * 100 if previous_number_of_orders != 0 else None
+    
                 with kpi1:
-                    st.metric(label="💰 Revenue", value=f"${revenue:,.0f}", delta=f"${revenue_delta:+,.0f} vs {previous_year}")
-        
+                    st.metric(label="💰 Revenue", value=f"${revenue:,.0f}", delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None)
+    
                 with kpi2:
-                    st.metric(label="💵 Profit", value=f"${profit:,.0f}", delta=f"${profit_delta:+,.0f} vs {previous_year}")
-        
+                    st.metric(label="💵 Profit", value=f"${profit:,.0f}", delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None)
+    
                 with kpi3:
-                    st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}", delta=f"{orders_delta:+,} vs {previous_year}")
-        
+                    st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}", delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None)
+    
             else:
                 with kpi1:
                     st.metric(label="💰 Revenue", value=f"${revenue:,.0f}")
-        
+    
                 with kpi2:
                     st.metric(label="💵 Profit", value=f"${profit:,.0f}")
-        
+    
                 with kpi3:
                     st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}")
-
+    
             # line chart
-
+    
             st.subheader("")
             st.subheader("")
-            
+    
             sp11, line_chart_col, sp12 = st.columns(3)
-            
+    
             with line_chart_col:
                 chart_data = df1[df1["year"].isin([selected_year, previous_year])]
-
+    
                 if selected_months:
                     chart_data = chart_data[chart_data["month_name"].isin(selected_months)]
-            
+    
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
                 monthly_revenue["year"] = monthly_revenue["year"].astype(str)
                 monthly_revenue = monthly_revenue.sort_values("month")
                 monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
-            
+    
                 chart = alt.Chart(monthly_revenue).mark_line(point=True).encode(
-                x=alt.X("Month:N", sort=months, title="Month"),
-                y=alt.Y("Revenue:Q", axis=alt.Axis(format="$,.0f", tickMinStep=50000), title="Revenue"),
-                color=alt.Color("year:N", title="Year"),
-                tooltip=[
-                    alt.Tooltip("year:N", title="Year"),
-                    alt.Tooltip("Month:N", title="Month"),
-                    alt.Tooltip("Revenue:Q", title="Revenue", format="$,.0f")
-                ]).properties(height=350)
-
+                    x=alt.X("Month:N", sort=months, title="Month"),
+                    y=alt.Y("Revenue:Q", axis=alt.Axis(format="$,.0f", tickMinStep=50000), title="Revenue"),
+                    color=alt.Color("year:N", title="Year"),
+                    tooltip=[
+                        alt.Tooltip("year:N", title="Year"),
+                        alt.Tooltip("Month:N", title="Month"),
+                        alt.Tooltip("Revenue:Q", title="Revenue", format="$,.0f")
+                    ]
+                ).properties(height=350)
+    
                 st.markdown("**Monthly Revenue Trend**")
-                
                 st.altair_chart(chart, use_container_width=True)
     
     # geographic analysis
