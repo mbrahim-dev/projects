@@ -201,28 +201,19 @@ elif page == p1:
             
             with year_col:
                 with st.popover("Year"):
-                    selected_years = st.multiselect(
-                        "Select years",
-                        sorted(df1["year"].unique())
-                    )
+                    selected_years = st.multiselect("Select years",sorted(df1["year"].unique()),default=[2025])
     
             # month filter
             
             with month_col:
                 with st.popover("Month"):
-                    selected_months = st.multiselect(
-                        "Select months",
-                        months
-                    )
+                    selected_months = st.multiselect("Select months", months)
     
             # quarter filter
             
             with quarter_col:
                 with st.popover("Quarter"):
-                    selected_quarters = st.multiselect(
-                        "Select quarters",
-                        [1, 2, 3, 4]
-                    )
+                    selected_quarters = st.multiselect("Select quarters", [1, 2, 3, 4])
 
 
         st.subheader("")
@@ -244,22 +235,13 @@ elif page == p1:
             number_of_orders = df1[df1["year"] == selected_year]["order_id"].nunique()
         
             with kpi1:
-                st.metric(
-                    label="💰 Revenue",
-                    value=f"${revenue:,.0f}"
-                )
+                st.metric(label="💰 Revenue", value=f"${revenue:,.0f}")
         
             with kpi2:
-                st.metric(
-                    label="💵 Profit",
-                    value=f"${profit:,.0f}"
-                )
+                st.metric(label="💵 Profit",value=f"${profit:,.0f}")
         
             with kpi3:
-                st.metric(
-                    label="🛒 Number of Orders",
-                    value=f"{number_of_orders:,}"
-                )
+                st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}")
 
 
 
