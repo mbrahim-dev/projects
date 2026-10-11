@@ -232,15 +232,16 @@ elif page == p1:
         # revenue kpi
     
         if selected_years:
-    
+
             selected_year = selected_years[0]
-    
+        
             revenue = df1[df1["year"] == selected_year]["revenue"].sum()
-    
+        
             st.metric(
-                label="Revenue",
-                value=f"{revenue:,.2f}"
+                label="💰 Revenue",
+                value=f"${revenue:,.0f}"
             )
+
 
 
 
