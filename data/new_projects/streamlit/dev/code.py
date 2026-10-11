@@ -277,7 +277,7 @@ elif page == p1:
             
                 chart = alt.Chart(monthly_revenue).mark_line(point=True).encode(
                 x=alt.X("Month:N", sort=months, title="Month"),
-                y=alt.Y("Revenue:Q", axis=alt.Axis(format="$,.0f"), title="Revenue"),
+                y=alt.Y("Revenue:Q", axis=alt.Axis(format="$,.0f", tickMinStep=50000), title="Revenue"),
                 color=alt.Color("year:N", title="Year"),
                 tooltip=[
                     alt.Tooltip("year:N", title="Year"),
