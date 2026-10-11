@@ -223,7 +223,12 @@ elif page == p1:
                         "Select quarters",
                         [1, 2, 3, 4]
                     )
-    
+
+
+        st.subheader("")
+
+        st.divider()
+        
         # revenue kpi
     
         if selected_years:
@@ -237,7 +242,6 @@ elif page == p1:
                 value=f"{revenue:,.2f}"
             )
 
-    
 
 
 
