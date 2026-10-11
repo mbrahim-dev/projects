@@ -39,7 +39,7 @@ if page == main:
 
     st.divider()
 
-    st.subheader("1 - What is a Streamlit App ❓")
+    st.subheader("1 - What is a Streamlit App ?")
 
     st.caption("")
 
@@ -47,7 +47,7 @@ if page == main:
 
     st.caption("")
 
-    st.subheader("2 - What will you find in this application ❓")
+    st.subheader("2 - What will you find in this application ?")
 
     st.caption("")
 
@@ -55,7 +55,7 @@ if page == main:
 
     st.caption("")
 
-    st.subheader("3 - Why use Streamlit ❓")
+    st.subheader("3 - Why use Streamlit ?")
 
     st.caption("")
 
@@ -63,7 +63,7 @@ if page == main:
 
     st.caption("")
 
-    st.subheader("4 - How is a Streamlit App built ❓")
+    st.subheader("4 - How is a Streamlit App built ?")
 
     st.caption("")
 
