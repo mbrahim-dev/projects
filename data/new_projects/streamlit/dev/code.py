@@ -426,7 +426,7 @@ elif page == p1:
     
                 st.altair_chart(quarter_chart, width="stretch")
 
-                st.divider()
+        st.divider()
     
     # geographic analysis
     
