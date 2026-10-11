@@ -269,6 +269,7 @@ elif page == p1:
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
                 monthly_revenue["year"] = monthly_revenue["year"].astype(str)
                 monthly_revenue = monthly_revenue.sort_values("month")
+                monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
             
                 st.line_chart(monthly_revenue, x="month_name", y="revenue", color="year")
     
