@@ -169,14 +169,12 @@ elif page == p1:
             hide_index=True
         )
 
-
-    
     # time analysis
 
     elif page_analysis == 2:
 
         # prepare data
-        
+
         df1["order_date"] = pd.to_datetime(df1["order_date"])
         df1["year"] = df1["order_date"].dt.year
         df1["month"] = df1["order_date"].dt.month
@@ -187,7 +185,7 @@ elif page == p1:
                   "July", "August", "September", "October", "November", "December"]
 
         # header and filters
-        
+
         title_col, sp6, filters_col = st.columns([3, 1, 4])
 
         with title_col:
@@ -216,7 +214,7 @@ elif page == p1:
             previous_year = selected_year - 1
 
             # apply filters
-            
+
             current_data = df1[df1["year"] == selected_year].copy()
             previous_data = df1[df1["year"] == previous_year].copy()
 
@@ -227,7 +225,7 @@ elif page == p1:
                     data.drop(data[~data["quarter"].isin(selected_quarters)].index, inplace=True)
 
             # kpi calculations
-            
+
             revenue = current_data["revenue"].sum()
             profit = current_data["profit"].sum()
             number_of_orders = current_data["order_id"].nunique()
@@ -247,31 +245,27 @@ elif page == p1:
                 revenue_delta = profit_delta = orders_delta = None
 
             # kpi sidebar
-            
+
             kpi_col, sp7, charts_col = st.columns([1.2, 0.1, 4.5])
 
             with kpi_col:
 
                 st.subheader("Key Metrics")
-
                 st.header("")
 
                 st.metric("💰 Revenue", f"${revenue:,.0f}", delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None)
-
                 st.header("")
 
                 st.metric("📈 Profit", f"${profit:,.0f}", delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None)
-
                 st.header("")
 
                 st.metric("🛒 Number of Orders", f"{number_of_orders:,}", delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None)
-
                 st.header("")
 
                 st.metric("💸 Total Costs", f"${total_costs:,.0f}")
 
             # apply selected filters
-            
+
             chart_data = df1[df1["year"].isin([selected_year, previous_year])].copy()
 
             if selected_months:
@@ -285,17 +279,32 @@ elif page == p1:
             # line chart
 
             with charts_col:
-                
-                st.subheader("Revenue Comparison by Year")
 
+                st.subheader("Revenue Comparison by Year")
                 st.caption("")
 
                 monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
                 monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
 
+                # dynamic Y-axis range for revenue
+                
+                revenue_min = monthly_revenue["Revenue"].min()
+                revenue_max = monthly_revenue["Revenue"].max()
+                revenue_padding = (revenue_max - revenue_min) * 0.15
+                if revenue_padding == 0:
+                    revenue_padding = revenue_max * 0.05 if revenue_max != 0 else 1
+
                 revenue_chart = alt.Chart(monthly_revenue).mark_line(point=True).encode(
                     x=alt.X("Month:N", sort=months, title="Month"),
-                    y=alt.Y("Revenue:Q", axis=alt.Axis(format="$,.0f"), title="Revenue"),
+                    y=alt.Y(
+                        "Revenue:Q",
+                        axis=alt.Axis(format="$,.0f"),
+                        title="Revenue",
+                        scale=alt.Scale(
+                            domain=[max(0, revenue_min - revenue_padding), revenue_max + revenue_padding],
+                            zero=False
+                        )
+                    ),
                     color=alt.Color("year:N", title="Year"),
                     tooltip=[
                         alt.Tooltip("year:N", title="Year"),
@@ -309,23 +318,38 @@ elif page == p1:
                 st.divider()
 
                 # bottom charts
-                
+
                 profit_col, sp8, quarter_col = st.columns([1, 0.3, 1])
 
                 # profit chart
-                
-                with profit_col:
-                    
-                    st.subheader("Profit Comparison by Month")
 
+                with profit_col:
+
+                    st.subheader("Profit Comparison by Month")
                     st.caption("")
 
                     monthly_profit = chart_data.groupby(["year", "month", "month_name"])["profit"].sum().reset_index()
                     monthly_profit = monthly_profit.rename(columns={"month_name": "Month", "profit": "Profit"})
 
+                    # dynamic Y-axis range for profit
+                    
+                    profit_min = monthly_profit["Profit"].min()
+                    profit_max = monthly_profit["Profit"].max()
+                    profit_padding = (profit_max - profit_min) * 0.15
+                    if profit_padding == 0:
+                        profit_padding = profit_max * 0.05 if profit_max != 0 else 1
+
                     profit_chart = alt.Chart(monthly_profit).mark_line(point=True).encode(
                         x=alt.X("Month:N", sort=months, title="Month"),
-                        y=alt.Y("Profit:Q", axis=alt.Axis(format="$,.0f"), title="Profit"),
+                        y=alt.Y(
+                            "Profit:Q",
+                            axis=alt.Axis(format="$,.0f"),
+                            title="Profit",
+                            scale=alt.Scale(
+                                domain=[max(0, profit_min - profit_padding), profit_max + profit_padding],
+                                zero=False
+                            )
+                        ),
                         color=alt.Color("year:N", title="Year"),
                         tooltip=[
                             alt.Tooltip("year:N", title="Year"),
@@ -337,11 +361,10 @@ elif page == p1:
                     st.altair_chart(profit_chart, width="stretch")
 
                 # bar chart
-                
-                with quarter_col:
-                    
-                    st.subheader("Revenue Comparison by Quarter")
 
+                with quarter_col:
+
+                    st.subheader("Revenue Comparison by Quarter")
                     st.caption("")
 
                     quarterly_revenue = chart_data.groupby(["year", "quarter"])["revenue"].sum().reset_index()
@@ -352,7 +375,12 @@ elif page == p1:
                         cornerRadiusTopRight=4
                     ).encode(
                         x=alt.X("Quarter:N", sort=["Q1", "Q2", "Q3", "Q4"], title="Quarter"),
-                        y=alt.Y("revenue:Q", axis=alt.Axis(format="$,.0f"), title="Revenue"),
+                        y=alt.Y(
+                            "revenue:Q",
+                            axis=alt.Axis(format="$,.0f"),
+                            title="Revenue",
+                            scale=alt.Scale(zero=True)
+                        ),
                         color=alt.Color("year:N", title="Year"),
                         xOffset="year:N",
                         tooltip=[
@@ -365,6 +393,7 @@ elif page == p1:
                     st.altair_chart(quarter_chart, width="stretch")
 
             st.divider()
+            
 
     # geographic analysis
     
