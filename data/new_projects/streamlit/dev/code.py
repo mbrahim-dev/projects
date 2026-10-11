@@ -170,21 +170,16 @@ elif page == p1:
 
 
     # time analysis
-    
+
     elif page_analysis == 2:
-    
+
         df1["order_date"] = pd.to_datetime(df1["order_date"])
-    
         df1["year"] = df1["order_date"].dt.year
         df1["month"] = df1["order_date"].dt.month
         df1["month_name"] = df1["order_date"].dt.strftime("%B")
         df1["quarter"] = df1["order_date"].dt.quarter
     
-        months = [
-            "January", "February", "March", "April",
-            "May", "June", "July", "August",
-            "September", "October", "November", "December"
-        ]
+        months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     
         title_col, space_col, filters_col = st.columns([3, 3, 2])
     
@@ -194,14 +189,13 @@ elif page == p1:
     
         with filters_col:
             st.markdown("**Filters**")
-    
             year_col, month_col, quarter_col = st.columns(3)
     
             # year filter
             
             with year_col:
                 with st.popover("Year"):
-                    selected_years = st.multiselect("Select years",sorted(df1["year"].unique()),default=[2025])
+                    selected_years = st.multiselect("Select years", sorted(df1["year"].unique()), default=[2025])
     
             # month filter
             
@@ -214,34 +208,41 @@ elif page == p1:
             with quarter_col:
                 with st.popover("Quarter"):
                     selected_quarters = st.multiselect("Select quarters", [1, 2, 3, 4])
-
-
+    
         st.subheader("")
-
         st.divider()
-
         st.subheader("")
-        
-        # revenue kpi
+    
+        # kpi cards
     
         if selected_years:
-
             selected_year = selected_years[0]
-        
+            previous_year = selected_year - 1
+    
+            current_data = df1[df1["year"] == selected_year]
+            previous_data = df1[df1["year"] == previous_year]
+    
+            revenue = current_data["revenue"].sum()
+            previous_revenue = previous_data["revenue"].sum()
+            profit = current_data["profit"].sum()
+            previous_profit = previous_data["profit"].sum()
+            number_of_orders = current_data["order_id"].nunique()
+            previous_number_of_orders = previous_data["order_id"].nunique()
+    
+            revenue_delta = revenue - previous_revenue
+            profit_delta = profit - previous_profit
+            orders_delta = number_of_orders - previous_number_of_orders
+    
             sp1, kpi1, sp2, kpi2, sp3, kpi3, sp4 = st.columns(7)
-        
-            revenue = df1[df1["year"] == selected_year]["revenue"].sum()
-            profit = df1[df1["year"] == selected_year]["profit"].sum()
-            number_of_orders = df1[df1["year"] == selected_year]["order_id"].nunique()
-        
+    
             with kpi1:
-                st.metric(label="💰 Revenue", value=f"${revenue:,.0f}")
-        
+                st.metric(label="💰 Revenue", value=f"${revenue:,.0f}", delta=f"${revenue_delta:+,.0f} vs {previous_year}")
+    
             with kpi2:
-                st.metric(label="💵 Profit",value=f"${profit:,.0f}")
-        
+                st.metric(label="💵 Profit", value=f"${profit:,.0f}", delta=f"${profit_delta:+,.0f} vs {previous_year}")
+    
             with kpi3:
-                st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}")
+                st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}", delta=f"{orders_delta:+,} vs {previous_year}")
 
 
 
