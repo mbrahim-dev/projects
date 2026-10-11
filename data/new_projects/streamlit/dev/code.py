@@ -88,7 +88,7 @@ elif page == p1:
 
     if page_analysis == 1:
 
-        st.header("Data Overview 📊")
+        st.header("Data Overview 🗂️")
 
         st.subheader("")
 
@@ -191,7 +191,7 @@ elif page == p1:
         title_col, sp6, filters_col = st.columns([3, 1, 4])
 
         with title_col:
-            st.header("Time Analysis 📅")
+            st.header("Business Performance Over Time 📊")
 
         with filters_col:
             st.markdown("**Filters**")
