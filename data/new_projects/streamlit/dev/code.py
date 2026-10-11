@@ -27,7 +27,7 @@ page = st.sidebar.radio(
 
 if page == main:
 
-    col_space, col_txt, col_space = st.columns(0.5,1,0.5)
+    col_space, col_txt, col_space = st.columns([1, 3, 1])
 
     with col_txt:
     
