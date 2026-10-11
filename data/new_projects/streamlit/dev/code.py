@@ -204,6 +204,16 @@ elif page == p1:
                         "Select years",
                         sorted(df1["year"].unique())
                     )
+
+                    if selected_years :
+                        
+                        selected_year = selected_years[0]
+                        revenue = df1[df1["year"] == selected_year]["revenue"].sum()
+                    
+                        st.metric(
+                            label="Revenue",
+                            value=f"{revenue:,.2f}"
+                        )
     
             # month filter
             with month_col:
