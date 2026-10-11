@@ -218,31 +218,43 @@ elif page == p1:
         if selected_years:
             selected_year = selected_years[0]
             previous_year = selected_year - 1
-    
+        
             current_data = df1[df1["year"] == selected_year]
             previous_data = df1[df1["year"] == previous_year]
-    
+        
             revenue = current_data["revenue"].sum()
-            previous_revenue = previous_data["revenue"].sum()
             profit = current_data["profit"].sum()
-            previous_profit = previous_data["profit"].sum()
             number_of_orders = current_data["order_id"].nunique()
-            previous_number_of_orders = previous_data["order_id"].nunique()
-    
-            revenue_delta = revenue - previous_revenue
-            profit_delta = profit - previous_profit
-            orders_delta = number_of_orders - previous_number_of_orders
-    
+        
             sp1, kpi1, sp2, kpi2, sp3, kpi3, sp4 = st.columns(7)
-    
-            with kpi1:
-                st.metric(label="💰 Revenue", value=f"${revenue:,.0f}", delta=f"${revenue_delta:+,.0f} vs {previous_year}")
-    
-            with kpi2:
-                st.metric(label="💵 Profit", value=f"${profit:,.0f}", delta=f"${profit_delta:+,.0f} vs {previous_year}")
-    
-            with kpi3:
-                st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}", delta=f"{orders_delta:+,} vs {previous_year}")
+        
+            if previous_year in df1["year"].unique():
+                previous_revenue = previous_data["revenue"].sum()
+                previous_profit = previous_data["profit"].sum()
+                previous_number_of_orders = previous_data["order_id"].nunique()
+        
+                revenue_delta = revenue - previous_revenue
+                profit_delta = profit - previous_profit
+                orders_delta = number_of_orders - previous_number_of_orders
+        
+                with kpi1:
+                    st.metric(label="💰 Revenue", value=f"${revenue:,.0f}", delta=f"${revenue_delta:+,.0f} vs {previous_year}")
+        
+                with kpi2:
+                    st.metric(label="💵 Profit", value=f"${profit:,.0f}", delta=f"${profit_delta:+,.0f} vs {previous_year}")
+        
+                with kpi3:
+                    st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}", delta=f"{orders_delta:+,} vs {previous_year}")
+        
+            else:
+                with kpi1:
+                    st.metric(label="💰 Revenue", value=f"${revenue:,.0f}")
+        
+                with kpi2:
+                    st.metric(label="💵 Profit", value=f"${profit:,.0f}")
+        
+                with kpi3:
+                    st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}")
 
 
 
