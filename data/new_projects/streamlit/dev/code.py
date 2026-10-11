@@ -271,7 +271,7 @@ elif page == p1:
                 monthly_revenue = monthly_revenue.sort_values("month")
                 monthly_revenue = monthly_revenue.rename(columns={"month_name": "Month", "revenue": "Revenue"})
             
-                st.line_chart(monthly_revenue, x="month_name", y="revenue", color="year")
+                st.line_chart(monthly_revenue, x="Month", y="Revenue", color="year")
     
     # geographic analysis
     
