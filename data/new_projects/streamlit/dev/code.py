@@ -76,9 +76,9 @@ elif page == p1:
 
     # pagination
 
-    p1_col, p2_col, p3_col, p4_col, p5_col = st.columns(5)
+    sp1, sp2, pagination_col, sp4, sp5 = st.columns(5)
 
-    with p3_col:
+    with pagination_col:
         page_analysis = st.pagination(4)
 
     st.subheader("")
@@ -181,7 +181,7 @@ elif page == p1:
     
         months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     
-        title_col, space_col, filters_col = st.columns([3, 3, 2])
+        title_col, sp6, filters_col = st.columns([3, 3, 2])
     
         with title_col:
             st.caption("")
@@ -226,7 +226,7 @@ elif page == p1:
             profit = current_data["profit"].sum()
             number_of_orders = current_data["order_id"].nunique()
         
-            sp1, kpi1, sp2, kpi2, sp3, kpi3, sp4 = st.columns(7)
+            sp7, kpi1, sp8, kpi2, sp9, kpi3, sp10 = st.columns(7)
         
             if previous_year in df1["year"].unique():
                 previous_revenue = previous_data["revenue"].sum()
@@ -256,14 +256,20 @@ elif page == p1:
                 with kpi3:
                     st.metric(label="🛒 Number of Orders", value=f"{number_of_orders:,}")
 
+            # line chart
+
             st.subheader("")
-
-            chart_data = df1[df1["year"].isin([selected_year, previous_year])]
-
-            monthly_revenue = chart_data.groupby(["year", "month"])["revenue"].sum().reset_index()
-
-            st.line_chart(monthly_revenue, x="month", y="revenue", color="year")
-
+            st.subheader("")
+            
+            sp11, line_chart_col, sp12 = st.columns(3)
+            
+            with line_chart_col:
+                chart_data = df1[df1["year"].isin([selected_year, previous_year])]
+            
+                monthly_revenue = chart_data.groupby(["year", "month", "month_name"])["revenue"].sum().reset_index()
+                monthly_revenue = monthly_revenue.sort_values("month")
+            
+                st.line_chart(monthly_revenue, x="month_name", y="revenue", color="year")
 
     
     # geographic analysis
