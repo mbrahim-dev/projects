@@ -523,7 +523,7 @@ elif page == p1:
     
         # calculate category revenue share
         
-        category_sales["sales_share"] = (category_sales["revenue"] / category_sales["revenue"].sum() * 100)
+        category_sales["revenue_share"] = (category_sales["revenue"] / category_sales["revenue"].sum())
     
         # create chart columns
         
@@ -571,7 +571,7 @@ elif page == p1:
                         alt.Tooltip(
                             "sales_share:Q",
                             title="Share of sales",
-                            format=".1f%"
+                            format=".1%"
                         )
                     ]
                 )
@@ -619,7 +619,7 @@ elif page == p1:
                         alt.Tooltip(
                             "sales_share:Q",
                             title="Share of sales",
-                            format=".1f%"
+                            format=".1%"
                         )
                     ]
                 )
