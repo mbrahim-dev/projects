@@ -514,6 +514,8 @@ elif page == p1:
     elif page_analysis == 3:
         
         st.header("Product Sales Analysis 🛍️")
+
+        st.header("")
     
         # aggregate revenue by category
         
@@ -525,7 +527,7 @@ elif page == p1:
     
         # create chart columns
         
-        bar_col, sp8, donut_col = st.columns([1, 0.15, 1])
+        sp8, bar_col, sp9, donut_col, sp10 = st.columns([0.5, 1, 0.5, 1, 0.5])
     
         with bar_col:
             
