@@ -512,10 +512,10 @@ elif page == p1:
     # geographic analysis
     
     elif page_analysis == 3:
-        st.header("Geographic Analysis 🌍")
+        st.header("Product Sales Analysis 🛍️")
     
     
     # product analysis
     
     elif page_analysis == 4:
-        st.header("Product Analysis 🏷️")
+        st.header("Geographic Analysis 🌍")
