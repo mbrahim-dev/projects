@@ -569,7 +569,7 @@ elif page == p1:
                             format=",.2f"
                         ),
                         alt.Tooltip(
-                            "sales_share:Q",
+                            "revenue_share:Q",
                             title="Share of sales",
                             format=".1%"
                         )
@@ -617,7 +617,7 @@ elif page == p1:
                             format=",.2f"
                         ),
                         alt.Tooltip(
-                            "sales_share:Q",
+                            "revenue_share:Q",
                             title="Share of sales",
                             format=".1%"
                         )
