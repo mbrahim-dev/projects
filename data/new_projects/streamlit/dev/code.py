@@ -518,4 +518,4 @@ elif page == p1:
     # product analysis
     
     elif page_analysis == 4:
-        st.header("Geographic Analysis 🌍")
+        st.header("Geographic Analysis 🗺️")
