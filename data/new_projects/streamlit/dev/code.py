@@ -507,15 +507,127 @@ elif page == p1:
 
         else:
             st.info("Please select at least one year to display the analysis.")
+    
 
-
-    # geographic analysis
+    # product analysis
     
     elif page_analysis == 3:
+        
         st.header("Product Sales Analysis 🛍️")
     
+        # aggregate revenue by category
+        
+        category_sales = (df1.groupby("category", as_index=False)["revenue"].sum().sort_values("revenue", ascending=False))
     
-    # product analysis
+        # calculate category revenue share
+        
+        category_sales["sales_share"] = (category_sales["revenue"] / category_sales["revenue"].sum() * 100)
+    
+        # create chart columns
+        
+        bar_col, sp8, donut_col = st.columns([1, 0.15, 1])
+    
+        with bar_col:
+            
+            st.subheader("Sales by Category")
+
+            st.caption("")
+    
+            bar_chart = (
+                alt.Chart(category_sales)
+                .mark_bar(
+                    cornerRadiusTopLeft=5,
+                    cornerRadiusTopRight=5
+                )
+                .encode(
+                    x=alt.X(
+                        "category:N",
+                        title=None,
+                        sort="-y",
+                        axis=alt.Axis(labelAngle=0)
+                    ),
+                    y=alt.Y(
+                        "revenue:Q",
+                        title="Revenue",
+                        axis=alt.Axis(format=",.0f"),
+                        scale=alt.Scale(zero=True)
+                    ),
+                    color=alt.Color(
+                        "category:N",
+                        legend=None,
+                        scale=alt.Scale(
+                            scheme="tableau10"
+                        )
+                    ),
+                    tooltip=[
+                        alt.Tooltip("category:N", title="Category"),
+                        alt.Tooltip(
+                            "revenue:Q",
+                            title="Revenue",
+                            format=",.2f"
+                        ),
+                        alt.Tooltip(
+                            "sales_share:Q",
+                            title="Share of sales",
+                            format=".1f"
+                        )
+                    ]
+                )
+                .properties(height=350)
+            )
+    
+            st.altair_chart(bar_chart, use_container_width=True)
+    
+        with donut_col:
+            
+            st.subheader("Sales Distribution")
+
+            st.caption("")
+
+            donut_chart = (
+                alt.Chart(category_sales)
+                .mark_arc(
+                    innerRadius=75,
+                    outerRadius=125,
+                    cornerRadius=3
+                )
+                .encode(
+                    theta=alt.Theta(
+                        "revenue:Q",
+                        stack=True
+                    ),
+                    color=alt.Color(
+                        "category:N",
+                        title="Category",
+                        scale=alt.Scale(
+                            scheme="tableau10"
+                        )
+                    ),
+                    order=alt.Order(
+                        "revenue:Q",
+                        sort="descending"
+                    ),
+                    tooltip=[
+                        alt.Tooltip("category:N", title="Category"),
+                        alt.Tooltip(
+                            "revenue:Q",
+                            title="Revenue",
+                            format=",.2f"
+                        ),
+                        alt.Tooltip(
+                            "sales_share:Q",
+                            title="Share of sales",
+                            format=".1f"
+                        )
+                    ]
+                )
+                .properties(height=350)
+            )
+    
+            st.altair_chart(donut_chart, use_container_width=True)
+
+    
+    # geographic analysis
     
     elif page_analysis == 4:
         st.header("Geographic Analysis 🗺️")
