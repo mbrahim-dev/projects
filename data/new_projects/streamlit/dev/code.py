@@ -4,8 +4,6 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from streamviz import gauge
-import math
-import numpy as np
 
 # import datasets
 
@@ -522,9 +520,8 @@ elif page == p1:
 
 ##########################################################################################
 
-    # time analysis
-    
-     elif page_analysis == 3:
+
+    elif page_analysis == 3:
 
         # header & filters space
 
@@ -717,7 +714,7 @@ elif page == p1:
 
             st.echarts_chart(
                 units_options,
-                height="300px",
+                height=300,
                 key="product_units_echart"
             )
 
@@ -771,7 +768,7 @@ elif page == p1:
 
             st.echarts_chart(
                 profit_options,
-                height="300px",
+                height=300,
                 key="product_profit_echart"
             )
 
@@ -821,7 +818,7 @@ elif page == p1:
 
             st.echarts_chart(
                 channel_options,
-                height="300px",
+                height=300,
                 key="channel_revenue_echart"
             )
 
@@ -829,15 +826,6 @@ elif page == p1:
 
         st.subheader("")
         st.divider()
-
-
-
-    
-    # geographic analysis
-    
-    elif page_analysis == 4:
-        st.header("Geographic Analysis 🗺️")
-
 
 
 
