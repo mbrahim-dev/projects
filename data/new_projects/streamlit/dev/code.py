@@ -282,7 +282,7 @@ elif page == p1:
 
             with kpi_col:
 
-                st.markdown("**Key Metrics**")
+                st.markdown(" *** Key Metrics ***")
                 st.header("")
 
                 st.metric(
