@@ -523,9 +523,10 @@ elif page == p1:
     # product analysis
     
     
+    
     elif page_analysis == 3:
 
-        # create the header and filter columns
+        # header and filters
 
         h2, sp9, f2, sp10, f3 = st.columns([4, 0.2, 1, 0.2, 1])
 
@@ -535,45 +536,37 @@ elif page == p1:
         with f2:
             selected_category = st.selectbox(
                 "Category",
-                options=["All"] + sorted(
-                    df1["category"].dropna().unique().tolist()
-                ),
+                options=["All"] + sorted(df1["category"].dropna().unique().tolist()),
                 index=0
             )
 
         with f3:
             selected_channel = st.selectbox(
                 "Sales Channel",
-                options=["All"] + sorted(
-                    df1["sales_channel"].dropna().unique().tolist()
-                ),
+                options=["All"] + sorted(df1["sales_channel"].dropna().unique().tolist()),
                 index=0
             )
 
         st.subheader("")
         st.divider()
 
-        # filter the dataset
+        # filter data
 
         filtered_df = df1.copy()
 
         if selected_category != "All":
-            filtered_df = filtered_df[
-                filtered_df["category"] == selected_category
-            ]
+            filtered_df = filtered_df[filtered_df["category"] == selected_category]
 
         if selected_channel != "All":
-            filtered_df = filtered_df[
-                filtered_df["sales_channel"] == selected_channel
-            ]
+            filtered_df = filtered_df[filtered_df["sales_channel"] == selected_channel]
 
-        # calculate the selected metrics
+        # calculate metrics
 
         units_sold = int(filtered_df["quantity"].sum())
         total_revenue = float(filtered_df["revenue"].sum())
         total_profit = float(filtered_df["profit"].sum())
 
-        # format the gauge values for display
+        # format gauge values
 
         units_display = (
             f"{units_sold / 1_000_000:.2f}M"
@@ -599,22 +592,18 @@ elif page == p1:
             else f"${total_profit:.0f}"
         )
 
-        # set fixed gauge ranges
+        # fixed gauge ranges
 
         max_units = 30000
         max_revenue = 5000000
         max_profit = 2000000
 
-        # create the three gauges
+        # create gauges
 
         g1, s11, g2, s12, g3 = st.columns([1, 0.3, 1, 0.3, 1])
 
-        # display the units sold circular gauge
-
         with g1:
-
-            units_gauge_options = {
-                "animation": True,
+            st.echarts_chart({
                 "series": [{
                     "type": "gauge",
                     "startAngle": 90,
@@ -645,32 +634,18 @@ elif page == p1:
                         "color": "#64748B"
                     },
                     "detail": {
-                        "valueAnimation": True,
                         "offsetCenter": [0, "-5%"],
                         "fontSize": 22,
                         "fontWeight": "bold",
                         "color": "#4387C5",
                         "formatter": units_display
                     },
-                    "data": [{
-                        "value": units_sold,
-                        "name": "Units Sold"
-                    }]
+                    "data": [{"value": units_sold, "name": "Units Sold"}]
                 }]
-            }
-
-            st.echarts_chart(
-                units_gauge_options,
-                height=250,
-                key="sales_units_circular_gauge"
-            )
-
-        # display the revenue circular gauge
+            }, height=250, key="sales_units_circular_gauge")
 
         with g2:
-
-            revenue_gauge_options = {
-                "animation": True,
+            st.echarts_chart({
                 "series": [{
                     "type": "gauge",
                     "startAngle": 90,
@@ -701,32 +676,18 @@ elif page == p1:
                         "color": "#64748B"
                     },
                     "detail": {
-                        "valueAnimation": True,
                         "offsetCenter": [0, "-5%"],
                         "fontSize": 17,
                         "fontWeight": "bold",
                         "color": "#8E63CE",
                         "formatter": revenue_display
                     },
-                    "data": [{
-                        "value": total_revenue,
-                        "name": "Revenue"
-                    }]
+                    "data": [{"value": total_revenue, "name": "Revenue"}]
                 }]
-            }
-
-            st.echarts_chart(
-                revenue_gauge_options,
-                height=250,
-                key="sales_revenue_circular_gauge"
-            )
-
-        # display the profit circular gauge
+            }, height=250, key="sales_revenue_circular_gauge")
 
         with g3:
-
-            profit_gauge_options = {
-                "animation": True,
+            st.echarts_chart({
                 "series": [{
                     "type": "gauge",
                     "startAngle": 90,
@@ -757,27 +718,17 @@ elif page == p1:
                         "color": "#64748B"
                     },
                     "detail": {
-                        "valueAnimation": True,
                         "offsetCenter": [0, "-5%"],
                         "fontSize": 17,
                         "fontWeight": "bold",
                         "color": "#2E8B57",
                         "formatter": profit_display
                     },
-                    "data": [{
-                        "value": total_profit,
-                        "name": "Profit"
-                    }]
+                    "data": [{"value": total_profit, "name": "Profit"}]
                 }]
-            }
+            }, height=250, key="sales_profit_circular_gauge")
 
-            st.echarts_chart(
-                profit_gauge_options,
-                height=250,
-                key="sales_profit_circular_gauge"
-            )
-
-        # prepare the top five products by units sold
+        # prepare product rankings
 
         product_units = (
             filtered_df.groupby("product", as_index=False)["quantity"]
@@ -786,8 +737,6 @@ elif page == p1:
             .sort_values("quantity", ascending=True)
         )
 
-        # prepare the top five products by profit
-
         product_profit = (
             filtered_df.groupby("product", as_index=False)["profit"]
             .sum()
@@ -795,15 +744,13 @@ elif page == p1:
             .sort_values("profit", ascending=True)
         )
 
-        # aggregate revenue across all sales channels
+        # prepare revenue by channel independently of the channel filter
 
         channel_performance = (
             df1.groupby("sales_channel", as_index=False)
             .agg(Revenue=("revenue", "sum"))
             .sort_values("Revenue", ascending=False)
         )
-
-        # prepare abbreviated revenue labels
 
         channel_performance["RevenueDisplay"] = channel_performance["Revenue"].apply(
             lambda value: (
@@ -815,18 +762,14 @@ elif page == p1:
             )
         )
 
-        st.subheader("")
-        
-        # create the chart columns
+        # create product and channel charts
 
         c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         with c1:
-
             st.markdown("**Top 5 Products by Units Sold**")
 
-            units_options = {
-                "animation": True,
+            st.echarts_chart({
                 "grid": {
                     "left": 8,
                     "right": 55,
@@ -834,11 +777,7 @@ elif page == p1:
                     "bottom": 35,
                     "containLabel": True
                 },
-                "tooltip": {
-                    "trigger": "axis",
-                    "axisPointer": {"type": "shadow"},
-                    "valueFormatter": "{value}"
-                },
+                "tooltip": {"trigger": "axis"},
                 "xAxis": {
                     "type": "value",
                     "name": "Units Sold",
@@ -846,25 +785,17 @@ elif page == p1:
                     "nameGap": 25,
                     "min": 0,
                     "max": 750,
-                    "axisLabel": {
-                        "show": True,
-                        "formatter": "{value}"
-                    }
+                    "axisLabel": {"formatter": "{value}"}
                 },
                 "yAxis": {
                     "type": "category",
                     "data": product_units["product"].astype(str).tolist(),
-                    "axisLabel": {
-                        "width": 100,
-                        "overflow": "truncate"
-                    }
+                    "axisLabel": {"width": 100, "overflow": "truncate"}
                 },
                 "series": [{
-                    "name": "Units Sold",
                     "type": "bar",
                     "data": [
-                        int(value) if float(value).is_integer()
-                        else int(value) + 1
+                        int(value) if float(value).is_integer() else int(value) + 1
                         for value in product_units["quantity"].tolist()
                     ],
                     "barMaxWidth": 24,
@@ -880,20 +811,12 @@ elif page == p1:
                         "formatter": "{c}"
                     }
                 }]
-            }
-
-            st.echarts_chart(
-                units_options,
-                height=300,
-                key="product_units_echart"
-            )
+            }, height=300, key="product_units_echart")
 
         with c2:
-
             st.markdown("**Top 5 Products by Profit**")
 
-            profit_options = {
-                "animation": True,
+            st.echarts_chart({
                 "grid": {
                     "left": 8,
                     "right": 75,
@@ -901,10 +824,7 @@ elif page == p1:
                     "bottom": 35,
                     "containLabel": True
                 },
-                "tooltip": {
-                    "trigger": "axis",
-                    "axisPointer": {"type": "shadow"}
-                },
+                "tooltip": {"trigger": "axis"},
                 "xAxis": {
                     "type": "value",
                     "name": "Profit ($)",
@@ -913,24 +833,21 @@ elif page == p1:
                     "min": 0,
                     "max": 65000,
                     "axisLabel": {
-                        "show": True,
-                        "formatter": "{value}"
+                        "formatter": (
+                            "{value}" if False else
+                            "{value}"
+                        )
                     }
                 },
                 "yAxis": {
                     "type": "category",
                     "data": product_profit["product"].astype(str).tolist(),
-                    "axisLabel": {
-                        "width": 100,
-                        "overflow": "truncate"
-                    }
+                    "axisLabel": {"width": 100, "overflow": "truncate"}
                 },
                 "series": [{
-                    "name": "Profit ($)",
                     "type": "bar",
                     "data": [
-                        int(value) if float(value).is_integer()
-                        else int(value) + 1
+                        int(value) if float(value).is_integer() else int(value) + 1
                         for value in product_profit["profit"].tolist()
                     ],
                     "barMaxWidth": 24,
@@ -946,29 +863,17 @@ elif page == p1:
                         "formatter": "{c}"
                     }
                 }]
-            }
-
-            st.echarts_chart(
-                profit_options,
-                height=300,
-                key="product_profit_echart"
-            )
+            }, height=300, key="product_profit_echart")
 
         with c3:
-
             st.markdown("**Revenue Share by Channel**")
 
-            channel_options = {
+            st.echarts_chart({
                 "animation": True,
-                "color": [
-                    "#4387C5",
-                    "#FB8C00",
-                    "#8E63CE",
-                    "#2E8B57"
-                ],
+                "color": ["#4387C5", "#FB8C00", "#8E63CE", "#2E8B57"],
                 "tooltip": {
                     "trigger": "item",
-                    "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
+                    "formatter": "{b}<br/>Revenue: {@[2]}<br/>Share: {d}%"
                 },
                 "legend": {
                     "orient": "horizontal",
@@ -981,6 +886,11 @@ elif page == p1:
                     "radius": ["38%", "68%"],
                     "center": ["50%", "44%"],
                     "avoidLabelOverlap": True,
+                    "encode": {
+                        "itemName": "sales_channel",
+                        "value": "Revenue",
+                        "tooltip": ["sales_channel", "RevenueDisplay"]
+                    },
                     "itemStyle": {
                         "borderColor": "#FFFFFF",
                         "borderWidth": 2
@@ -989,9 +899,6 @@ elif page == p1:
                         "show": True,
                         "formatter": "{d}%",
                         "fontSize": 12
-                    },
-                    "labelLine": {
-                        "show": True
                     },
                     "data": [
                         {
@@ -1002,15 +909,9 @@ elif page == p1:
                         for _, row in channel_performance.iterrows()
                     ]
                 }]
-            }
+            }, height=300, key="channel_revenue_echart")
 
-            st.echarts_chart(
-                channel_options,
-                height=300,
-                key="channel_revenue_echart"
-            )
-
-        # create the dashboard footer section
+        # footer
 
         st.subheader("")
         st.divider()
