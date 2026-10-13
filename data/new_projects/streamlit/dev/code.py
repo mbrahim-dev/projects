@@ -803,6 +803,18 @@ elif page == p1:
             .sort_values("Revenue", ascending=False)
         )
 
+        # prepare abbreviated revenue labels
+
+        channel_performance["RevenueDisplay"] = channel_performance["Revenue"].apply(
+            lambda value: (
+                f"${value / 1_000_000:.2f}M"
+                if abs(value) >= 1_000_000
+                else f"${value / 1_000:.1f}K"
+                if abs(value) >= 1_000
+                else f"${value:.0f}"
+            )
+        )
+
         st.subheader("")
         
         # create the chart columns
@@ -956,7 +968,7 @@ elif page == p1:
                 ],
                 "tooltip": {
                     "trigger": "item",
-                    "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
+                    "formatter": "{b}<br/>Revenue: {@[2]}<br/>Share: {d}%"
                 },
                 "legend": {
                     "orient": "horizontal",
@@ -984,7 +996,8 @@ elif page == p1:
                     "data": [
                         {
                             "name": str(row["sales_channel"]),
-                            "value": float(row["Revenue"])
+                            "value": float(row["Revenue"]),
+                            "RevenueDisplay": str(row["RevenueDisplay"])
                         }
                         for _, row in channel_performance.iterrows()
                     ]
