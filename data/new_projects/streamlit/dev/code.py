@@ -654,10 +654,11 @@ elif page == p1:
 
             # display the three charts horizontally
 
-            c1, c2, c3 = st.columns(3, gap="medium")
+            c1, sp9, c2, sp10, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
             with c1:
                 st.markdown("**Monthly Revenue Comparison**")
+                st.caption("")
 
                 st.echarts_chart(
                     revenue_options,
@@ -667,6 +668,8 @@ elif page == p1:
 
             with c2:
                 st.markdown("**Monthly Profit Comparison**")
+                st.caption("")
+
 
                 st.echarts_chart(
                     profit_options,
@@ -676,6 +679,7 @@ elif page == p1:
 
             with c3:
                 st.markdown("**Quarterly Revenue Comparison**")
+                st.caption("")
 
                 st.echarts_chart(
                     quarter_options,
@@ -684,8 +688,7 @@ elif page == p1:
                 )
 
             # add spacing below the charts
-
-            st.subheader("")
+            
             st.divider()
 
         else:
@@ -701,7 +704,7 @@ elif page == p1:
 
         # create the header and filter columns
 
-        h2, sp9, f2, sp10, f3 = st.columns([4, 0.2, 1, 0.2, 1])
+        h2, sp11, f2, sp12, f3 = st.columns([4, 0.2, 1, 0.2, 1])
 
         with h2:
             st.header("Product Sales Analysis 🛍️")
@@ -781,7 +784,7 @@ elif page == p1:
 
         # create the three gauges
 
-        g1, s11, g2, s12, g3 = st.columns([1, 0.3, 1, 0.3, 1])
+        g1, sp13, g2, sp14, g3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         # display the units sold circular gauge
 
@@ -981,7 +984,7 @@ elif page == p1:
 
         # create the chart columns
 
-        c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
+        c1, sp15, c2, sp16, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         with c1:
 
