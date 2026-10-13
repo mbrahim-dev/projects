@@ -827,6 +827,72 @@ elif page == p1:
         st.subheader("")
         st.divider()
 
+    
+        # test
+        
+        gauge_options = {
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 180,
+                    "endAngle": 0,
+                    "min": 0,
+                    "max": 3000,
+                    "splitNumber": 6,
+                    "progress": {
+                        "show": True,
+                        "width": 12
+                    },
+                    "axisLine": {
+                        "lineStyle": {
+                            "width": 12,
+                            "color": [
+                                [0.5, "#E53935"],
+                                [0.75, "#FB8C00"],
+                                [1, "#2E8B57"]
+                            ]
+                        }
+                    },
+                    "pointer": {
+                        "show": True,
+                        "length": "60%",
+                        "width": 4
+                    },
+                    "axisTick": {"show": False},
+                    "splitLine": {
+                        "length": 8,
+                        "lineStyle": {"width": 2}
+                    },
+                    "axisLabel": {
+                        "distance": -25,
+                        "fontSize": 10
+                    },
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-10%"],
+                        "fontSize": 24,
+                        "fontWeight": "bold",
+                        "formatter": "{value}"
+                    },
+                    "title": {
+                        "offsetCenter": [0, "25%"],
+                        "fontSize": 13
+                    },
+                    "data": [{
+                        "value": 2180,
+                        "name": "Units Sold"
+                    }]
+                }]
+            }
+            
+            # display the gauge
+            
+            st.echarts_chart(
+                gauge_options,
+                height=220,
+                key="units_sold_gauge"
+            )
+
+
 
 
     
