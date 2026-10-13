@@ -803,6 +803,8 @@ elif page == p1:
             .sort_values("Revenue", ascending=False)
         )
 
+        st.subheader("")
+        
         # create the chart columns
 
         c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
@@ -954,7 +956,18 @@ elif page == p1:
                 ],
                 "tooltip": {
                     "trigger": "item",
-                    "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
+                    "formatter": (
+                        "function(params) {"
+                        "var v = params.value;"
+                        "var revenue = Math.abs(v) >= 1000000"
+                        " ? '$' + (v / 1000000).toFixed(2) + 'M'"
+                        " : Math.abs(v) >= 1000"
+                        " ? '$' + (v / 1000).toFixed(1) + 'K'"
+                        " : '$' + Math.ceil(v);"
+                        "return params.name + '<br/>Revenue: ' + revenue"
+                        " + '<br/>Share: ' + params.percent + '%';"
+                        "}"
+                    )
                 },
                 "legend": {
                     "orient": "horizontal",
