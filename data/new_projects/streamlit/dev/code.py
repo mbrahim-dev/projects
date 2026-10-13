@@ -522,6 +522,7 @@ elif page == p1:
 
     # product analysis
     
+    
     elif page_analysis == 3:
 
         # create the header and filter columns
@@ -529,11 +530,9 @@ elif page == p1:
         h2, sp9, f2, sp10, f3 = st.columns([4, 0.2, 1, 0.2, 1])
 
         with h2:
-
             st.header("Product Sales Analysis 🛍️")
 
         with f2:
-
             selected_category = st.selectbox(
                 "Category",
                 options=["All"] + sorted(
@@ -543,7 +542,6 @@ elif page == p1:
             )
 
         with f3:
-
             selected_channel = st.selectbox(
                 "Sales Channel",
                 options=["All"] + sorted(
@@ -560,13 +558,11 @@ elif page == p1:
         filtered_df = df1.copy()
 
         if selected_category != "All":
-
             filtered_df = filtered_df[
                 filtered_df["category"] == selected_category
             ]
 
         if selected_channel != "All":
-
             filtered_df = filtered_df[
                 filtered_df["sales_channel"] == selected_channel
             ]
@@ -577,7 +573,15 @@ elif page == p1:
         total_revenue = float(filtered_df["revenue"].sum())
         total_profit = float(filtered_df["profit"].sum())
 
-        # format the revenue value for display
+        # format the gauge values for display
+
+        units_display = (
+            f"{units_sold / 1_000_000:.2f}M"
+            if abs(units_sold) >= 1_000_000
+            else f"{units_sold / 1_000:.1f}K"
+            if abs(units_sold) >= 1_000
+            else str(units_sold)
+        )
 
         revenue_display = (
             f"${total_revenue / 1_000_000:.2f}M"
@@ -587,8 +591,6 @@ elif page == p1:
             else f"${total_revenue:.0f}"
         )
 
-        # format the profit value for display
-
         profit_display = (
             f"${total_profit / 1_000_000:.2f}M"
             if abs(total_profit) >= 1_000_000
@@ -597,32 +599,11 @@ elif page == p1:
             else f"${total_profit:.0f}"
         )
 
-        # calculate gauge ranges
+        # set fixed gauge ranges
 
-        combination_totals = (
-            df1.groupby(["category", "sales_channel"])[
-                ["quantity", "revenue", "profit"]
-            ].sum()
-        )
-
-        max_units = max(
-            int(combination_totals["quantity"].max()),
-            3000,
-            units_sold,
-            1
-        )
-
-        max_revenue = max(
-            float(combination_totals["revenue"].max()),
-            total_revenue,
-            1.0
-        )
-
-        max_profit = max(
-            float(combination_totals["profit"].max()),
-            total_profit,
-            1.0
-        )
+        max_units = 30000
+        max_revenue = 5000000
+        max_profit = 2000000
 
         # create the three gauges
 
@@ -639,7 +620,7 @@ elif page == p1:
                     "startAngle": 90,
                     "endAngle": -270,
                     "min": 0,
-                    "max": float(max(max_units, units_sold, 1)),
+                    "max": max_units,
                     "progress": {
                         "show": True,
                         "width": 16,
@@ -669,10 +650,10 @@ elif page == p1:
                         "fontSize": 22,
                         "fontWeight": "bold",
                         "color": "#4387C5",
-                        "formatter": "{value}"
+                        "formatter": units_display
                     },
                     "data": [{
-                        "value": int(units_sold),
+                        "value": units_sold,
                         "name": "Units Sold"
                     }]
                 }]
@@ -688,8 +669,6 @@ elif page == p1:
 
         with g2:
 
-            revenue_max = max(max_revenue, total_revenue, 1.0)
-
             revenue_gauge_options = {
                 "animation": True,
                 "series": [{
@@ -697,7 +676,7 @@ elif page == p1:
                     "startAngle": 90,
                     "endAngle": -270,
                     "min": 0,
-                    "max": float(revenue_max),
+                    "max": max_revenue,
                     "progress": {
                         "show": True,
                         "width": 16,
@@ -730,8 +709,8 @@ elif page == p1:
                         "formatter": revenue_display
                     },
                     "data": [{
-                        "value": float(total_revenue),
-                        "name": "Revenue ($)"
+                        "value": total_revenue,
+                        "name": "Revenue"
                     }]
                 }]
             }
@@ -746,8 +725,6 @@ elif page == p1:
 
         with g3:
 
-            profit_max = max(max_profit, total_profit, 1.0)
-
             profit_gauge_options = {
                 "animation": True,
                 "series": [{
@@ -755,7 +732,7 @@ elif page == p1:
                     "startAngle": 90,
                     "endAngle": -270,
                     "min": 0,
-                    "max": float(profit_max),
+                    "max": max_profit,
                     "progress": {
                         "show": True,
                         "width": 16,
@@ -788,8 +765,8 @@ elif page == p1:
                         "formatter": profit_display
                     },
                     "data": [{
-                        "value": float(total_profit),
-                        "name": "Profit ($)"
+                        "value": total_profit,
+                        "name": "Profit"
                     }]
                 }]
             }
@@ -838,7 +815,7 @@ elif page == p1:
                 "animation": True,
                 "grid": {
                     "left": 8,
-                    "right": 18,
+                    "right": 55,
                     "top": 15,
                     "bottom": 35,
                     "containLabel": True
@@ -854,7 +831,11 @@ elif page == p1:
                     "nameLocation": "middle",
                     "nameGap": 25,
                     "min": 0,
-                    "axisLabel": {"show": True}
+                    "max": 750,
+                    "axisLabel": {
+                        "show": True,
+                        "formatter": "{value}"
+                    }
                 },
                 "yAxis": {
                     "type": "category",
@@ -868,10 +849,11 @@ elif page == p1:
                     "name": "Units Sold",
                     "type": "bar",
                     "data": [
-                        int(value)
+                        int(value) if float(value).is_integer()
+                        else int(value) + 1
                         for value in product_units["quantity"].tolist()
                     ],
-                    "barMaxWidth": 28,
+                    "barMaxWidth": 24,
                     "itemStyle": {
                         "color": "#4387C5",
                         "borderRadius": [0, 5, 5, 0]
@@ -879,7 +861,9 @@ elif page == p1:
                     "label": {
                         "show": True,
                         "position": "right",
-                        "color": "#4387C5"
+                        "distance": 6,
+                        "color": "#4387C5",
+                        "formatter": "{c}"
                     }
                 }]
             }
@@ -898,7 +882,7 @@ elif page == p1:
                 "animation": True,
                 "grid": {
                     "left": 8,
-                    "right": 25,
+                    "right": 75,
                     "top": 15,
                     "bottom": 35,
                     "containLabel": True
@@ -913,7 +897,11 @@ elif page == p1:
                     "nameLocation": "middle",
                     "nameGap": 25,
                     "min": 0,
-                    "axisLabel": {"show": True}
+                    "max": 65000,
+                    "axisLabel": {
+                        "show": True,
+                        "formatter": "{value}"
+                    }
                 },
                 "yAxis": {
                     "type": "category",
@@ -927,10 +915,11 @@ elif page == p1:
                     "name": "Profit ($)",
                     "type": "bar",
                     "data": [
-                        float(value)
+                        int(value) if float(value).is_integer()
+                        else int(value) + 1
                         for value in product_profit["profit"].tolist()
                     ],
-                    "barMaxWidth": 28,
+                    "barMaxWidth": 24,
                     "itemStyle": {
                         "color": "#8E63CE",
                         "borderRadius": [0, 5, 5, 0]
@@ -938,6 +927,7 @@ elif page == p1:
                     "label": {
                         "show": True,
                         "position": "right",
+                        "distance": 6,
                         "color": "#8E63CE",
                         "formatter": "{c}"
                     }
@@ -1009,6 +999,7 @@ elif page == p1:
 
         st.subheader("")
         st.divider()
+
 
 
     
