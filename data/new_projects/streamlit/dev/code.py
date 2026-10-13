@@ -194,10 +194,11 @@ elif page == p1:
 
         # header and filters
 
-        h1, sp6, f1 = st.columns([3, 1, 4])
+        h1, sp6, f1 = st.columns([3, 2, 3])
 
         with h1:
             st.header("Business Performance Over Time 📊")
+            st.caption("")
 
         with f1:
             st.markdown("**Filters**")
@@ -236,6 +237,7 @@ elif page == p1:
                     )
 
         st.divider()
+        st.caption("")
 
         if selected_years:
 
@@ -340,6 +342,7 @@ elif page == p1:
             # display four key metrics horizontally
 
             st.markdown("**Key Metrics**")
+            st.caption("")
 
             kpi1, kpi2, kpi3, kpi4 = st.columns(4, gap="medium")
 
@@ -391,8 +394,6 @@ elif page == p1:
 
             # add spacing between metrics and charts
 
-            st.subheader("")
-            st.divider()
             st.subheader("")
 
             # prepare year colors
