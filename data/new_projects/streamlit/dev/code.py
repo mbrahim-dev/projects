@@ -520,27 +520,35 @@ elif page == p1:
 
 ##########################################################################################
 
-
+    # product analysis
+    
     elif page_analysis == 3:
 
-        # header & filters space
+        # create the header and filter columns
 
         h2, sp9, f2, sp10, f3 = st.columns([4, 0.2, 1, 0.2, 1])
 
         with h2:
+
             st.header("Product Sales Analysis 🛍️")
 
         with f2:
+
             selected_category = st.selectbox(
                 "Category",
-                options=["All"] + sorted(df1["category"].dropna().unique().tolist()),
+                options=["All"] + sorted(
+                    df1["category"].dropna().unique().tolist()
+                ),
                 index=0
             )
 
         with f3:
+
             selected_channel = st.selectbox(
                 "Sales Channel",
-                options=["All"] + sorted(df1["sales_channel"].dropna().unique().tolist()),
+                options=["All"] + sorted(
+                    df1["sales_channel"].dropna().unique().tolist()
+                ),
                 index=0
             )
 
@@ -552,20 +560,42 @@ elif page == p1:
         filtered_df = df1.copy()
 
         if selected_category != "All":
+
             filtered_df = filtered_df[
                 filtered_df["category"] == selected_category
             ]
 
         if selected_channel != "All":
+
             filtered_df = filtered_df[
                 filtered_df["sales_channel"] == selected_channel
             ]
 
         # calculate the selected metrics
 
-        units_sold = filtered_df["quantity"].sum()
-        total_revenue = filtered_df["revenue"].sum()
-        total_profit = filtered_df["profit"].sum()
+        units_sold = int(filtered_df["quantity"].sum())
+        total_revenue = float(filtered_df["revenue"].sum())
+        total_profit = float(filtered_df["profit"].sum())
+
+        # format the revenue value for display
+
+        revenue_display = (
+            f"${total_revenue / 1_000_000:.2f}M"
+            if abs(total_revenue) >= 1_000_000
+            else f"${total_revenue / 1_000:.1f}K"
+            if abs(total_revenue) >= 1_000
+            else f"${total_revenue:.0f}"
+        )
+
+        # format the profit value for display
+
+        profit_display = (
+            f"${total_profit / 1_000_000:.2f}M"
+            if abs(total_profit) >= 1_000_000
+            else f"${total_profit / 1_000:.1f}K"
+            if abs(total_profit) >= 1_000
+            else f"${total_profit:.0f}"
+        )
 
         # calculate gauge ranges
 
@@ -575,11 +605,25 @@ elif page == p1:
             ].sum()
         )
 
-        max_units = max(combination_totals["quantity"].max(), 3000)
-        max_revenue = max(combination_totals["revenue"].max(), 1)
-        max_profit = max(combination_totals["profit"].max(), 1)
+        max_units = max(
+            int(combination_totals["quantity"].max()),
+            3000,
+            units_sold,
+            1
+        )
 
-        
+        max_revenue = max(
+            float(combination_totals["revenue"].max()),
+            total_revenue,
+            1.0
+        )
+
+        max_profit = max(
+            float(combination_totals["profit"].max()),
+            total_profit,
+            1.0
+        )
+
         # create the three gauges
 
         g1, s11, g2, s12, g3 = st.columns([1, 0.3, 1, 0.3, 1])
@@ -622,7 +666,7 @@ elif page == p1:
                     "detail": {
                         "valueAnimation": True,
                         "offsetCenter": [0, "-5%"],
-                        "fontSize": 23,
+                        "fontSize": 22,
                         "fontWeight": "bold",
                         "color": "#4387C5",
                         "formatter": "{value}"
@@ -644,7 +688,7 @@ elif page == p1:
 
         with g2:
 
-            revenue_max = max(max_revenue, total_revenue, 1)
+            revenue_max = max(max_revenue, total_revenue, 1.0)
 
             revenue_gauge_options = {
                 "animation": True,
@@ -680,10 +724,10 @@ elif page == p1:
                     "detail": {
                         "valueAnimation": True,
                         "offsetCenter": [0, "-5%"],
-                        "fontSize": 19,
+                        "fontSize": 17,
                         "fontWeight": "bold",
                         "color": "#8E63CE",
-                        "formatter": "${value}"
+                        "formatter": revenue_display
                     },
                     "data": [{
                         "value": float(total_revenue),
@@ -702,7 +746,7 @@ elif page == p1:
 
         with g3:
 
-            profit_max = max(max_profit, total_profit, 1)
+            profit_max = max(max_profit, total_profit, 1.0)
 
             profit_gauge_options = {
                 "animation": True,
@@ -738,10 +782,10 @@ elif page == p1:
                     "detail": {
                         "valueAnimation": True,
                         "offsetCenter": [0, "-5%"],
-                        "fontSize": 19,
+                        "fontSize": 17,
                         "fontWeight": "bold",
                         "color": "#2E8B57",
-                        "formatter": "${value}"
+                        "formatter": profit_display
                     },
                     "data": [{
                         "value": float(total_profit),
@@ -755,7 +799,6 @@ elif page == p1:
                 height=250,
                 key="sales_profit_circular_gauge"
             )
-
 
         # prepare the top five products by units sold
 
@@ -775,17 +818,15 @@ elif page == p1:
             .sort_values("profit", ascending=True)
         )
 
-        # aggregate revenue by sales channel
+        # aggregate revenue across all sales channels
 
         channel_performance = (
-            filtered_df.groupby("sales_channel", as_index=False)
+            df1.groupby("sales_channel", as_index=False)
             .agg(Revenue=("revenue", "sum"))
             .sort_values("Revenue", ascending=False)
         )
 
         # create the chart columns
-
-        st.subheader("Product & Channel Performance")
 
         c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
@@ -817,13 +858,19 @@ elif page == p1:
                 },
                 "yAxis": {
                     "type": "category",
-                    "data": product_units["product"].tolist(),
-                    "axisLabel": {"width": 100, "overflow": "truncate"}
+                    "data": product_units["product"].astype(str).tolist(),
+                    "axisLabel": {
+                        "width": 100,
+                        "overflow": "truncate"
+                    }
                 },
                 "series": [{
                     "name": "Units Sold",
                     "type": "bar",
-                    "data": product_units["quantity"].tolist(),
+                    "data": [
+                        int(value)
+                        for value in product_units["quantity"].tolist()
+                    ],
                     "barMaxWidth": 28,
                     "itemStyle": {
                         "color": "#4387C5",
@@ -870,13 +917,19 @@ elif page == p1:
                 },
                 "yAxis": {
                     "type": "category",
-                    "data": product_profit["product"].tolist(),
-                    "axisLabel": {"width": 100, "overflow": "truncate"}
+                    "data": product_profit["product"].astype(str).tolist(),
+                    "axisLabel": {
+                        "width": 100,
+                        "overflow": "truncate"
+                    }
                 },
                 "series": [{
                     "name": "Profit ($)",
                     "type": "bar",
-                    "data": product_profit["profit"].tolist(),
+                    "data": [
+                        float(value)
+                        for value in product_profit["profit"].tolist()
+                    ],
                     "barMaxWidth": 28,
                     "itemStyle": {
                         "color": "#8E63CE",
@@ -903,7 +956,12 @@ elif page == p1:
 
             channel_options = {
                 "animation": True,
-                "color": ["#4387C5", "#FB8C00", "#8E63CE", "#2E8B57"],
+                "color": [
+                    "#4387C5",
+                    "#FB8C00",
+                    "#8E63CE",
+                    "#2E8B57"
+                ],
                 "tooltip": {
                     "trigger": "item",
                     "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
@@ -933,7 +991,7 @@ elif page == p1:
                     },
                     "data": [
                         {
-                            "name": row["sales_channel"],
+                            "name": str(row["sales_channel"]),
                             "value": float(row["Revenue"])
                         }
                         for _, row in channel_performance.iterrows()
@@ -953,6 +1011,11 @@ elif page == p1:
         st.divider()
 
 
-
     
+
+
+
+
+
+
 
