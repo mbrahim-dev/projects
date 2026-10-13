@@ -188,12 +188,12 @@ elif page == p1:
 
         # header and filters
 
-        title_col, sp6, filters_col = st.columns([3, 1, 4])
+        h1, sp6, f1 = st.columns([3, 1, 4])
 
-        with title_col:
+        with h1:
             st.header("Business Performance Over Time 📊")
 
-        with filters_col:
+        with f1:
             st.markdown("**Filters**")
             year_col, month_col, quarter_col = st.columns(3)
 
@@ -511,329 +511,96 @@ elif page == p1:
 
         else:
             st.info("Please select at least one year to display the analysis.")
-    
 
     
-
 ##########################################################################################
-
     
-    
-    # product sales analysis
 
     elif page_analysis == 3:
-        
-        st.header("Product Sales Analysis 🛍️")
-
-        st.subheader("")
-
+    
+        # header & filters space
+    
+        h2, sp9, f2 = st.columns([5, 0.3, 1.5])
+    
+        with h2:
+            st.header("Product Sales Analysis 🛍️")
+    
+        with f2:
+            selected_category = st.selectbox(
+                "Category",
+                options=["All"] + sorted(df1["category"].dropna().unique().tolist()),
+                index=0
+            )
+    
         st.divider()
     
-        # aggregate revenue by category
+        # main section
     
-        category_sales = (
-            df1.groupby("category", as_index=False)["revenue"]
-            .sum()
-            .sort_values("revenue", ascending=False)
-        )
+        st.subheader("Category Overview")
     
-        # calculate revenue share
+        if selected_category == "All":
+            filtered_df = df1.copy()
+        else:
+            filtered_df = df1[df1["category"] == selected_category]
     
-        total_revenue = category_sales["revenue"].sum()
+        # calculate the category metrics
     
-        category_sales["revenue_share"] = (
-            category_sales["revenue"] / total_revenue
-            if total_revenue != 0
-            else 0
-        )
+        units_sold = filtered_df["quantity"].sum()
+        total_revenue = filtered_df["revenue"].sum()
+        total_profit = filtered_df["profit"].sum()
     
-        # aggregate units sold by category
+        # calculate the maximum values for the gauges
     
-        category_quantity = (
-            df1.groupby("category", as_index=False)["quantity"]
-            .sum()
-            .sort_values("quantity", ascending=False)
-        )
+        category_totals = df1.groupby("category")[["quantity", "revenue", "profit"]].sum()
     
-        # aggregate revenue by product and select top 5
+        max_units = max(category_totals["quantity"].max(), 1)
+        max_revenue = max(category_totals["revenue"].max(), 1)
+        max_profit = max(category_totals["profit"].max(), 1)
     
-        top_products = (
-            df1.groupby("product", as_index=False)["revenue"]
-            .sum()
-            .nlargest(5, "revenue")
-            .sort_values("revenue", ascending=True)
-        )
+        # create three gauge columns with spacing between them
     
-        # create chart layout
+        g1, s10, g2, s11, g3 = st.columns([1, 0.2, 1, 0.2, 1])
     
-        bar_col, donut_col = st.columns(2)
-    
-        # sales by category
-    
-        with bar_col:
-            st.subheader("Sales by Category")
-    
-            category_bars = (
-                alt.Chart(category_sales)
-                .mark_bar(
-                    cornerRadiusTopLeft=5,
-                    cornerRadiusTopRight=5
-                )
-                .encode(
-                    x=alt.X(
-                        "category:N",
-                        title=None,
-                        sort="-y",
-                        axis=alt.Axis(labelAngle=0)
-                    ),
-                    y=alt.Y(
-                        "revenue:Q",
-                        title="Revenue",
-                        axis=alt.Axis(format=",.0f"),
-                        scale=alt.Scale(zero=True)
-                    ),
-                    color=alt.Color(
-                        "category:N",
-                        legend=None,
-                        scale=alt.Scale(scheme="tableau10")
-                    ),
-                    tooltip=[
-                        alt.Tooltip("category:N", title="Category"),
-                        alt.Tooltip(
-                            "revenue:Q",
-                            title="Revenue",
-                            format=",.2f"
-                        )
-                    ]
-                )
+        with g1:
+            gauge(
+                gVal=units_sold,
+                gTitle="Units Sold",
+                gSize="FULL",
+                arBot=0,
+                arTop=max_units,
+                grLow=max_units * 0.3,
+                grMid=max_units * 0.7
             )
     
-            category_labels = (
-                alt.Chart(category_sales)
-                .mark_text(
-                    dy=-8,
-                    fontSize=11
-                )
-                .encode(
-                    x=alt.X("category:N", sort="-y"),
-                    y=alt.Y("revenue:Q"),
-                    text=alt.Text("revenue:Q", format=",.0f")
-                )
+        with g2:
+            gauge(
+                gVal=total_revenue,
+                gTitle="Revenue",
+                gSize="FULL",
+                arBot=0,
+                arTop=max_revenue,
+                grLow=max_revenue * 0.3,
+                grMid=max_revenue * 0.7,
+                sFix=None
             )
     
-            category_chart = (
-                (category_bars + category_labels)
-                .properties(height=350)
+        with g3:
+            gauge(
+                gVal=total_profit,
+                gTitle="Profit",
+                gSize="FULL",
+                arBot=0,
+                arTop=max_profit,
+                grLow=max_profit * 0.3,
+                grMid=max_profit * 0.7,
+                sFix=None
             )
     
-            st.altair_chart(
-                category_chart,
-                use_container_width=True
-            )
+        # create the dashboard footer section
     
-        # sales distribution
-    
-        with donut_col:
-            st.subheader("Sales Distribution")
-    
-            donut_base = alt.Chart(category_sales)
-    
-            donut_chart = (
-                donut_base
-                .mark_arc(
-                    innerRadius=65,
-                    outerRadius=115,
-                    cornerRadius=3
-                )
-                .encode(
-                    theta=alt.Theta(
-                        "revenue:Q",
-                        stack=True
-                    ),
-                    color=alt.Color(
-                        "category:N",
-                        title="Category",
-                        scale=alt.Scale(scheme="tableau10")
-                    ),
-                    order=alt.Order(
-                        "revenue:Q",
-                        sort="descending"
-                    ),
-                    tooltip=[
-                        alt.Tooltip("category:N", title="Category"),
-                        alt.Tooltip(
-                            "revenue:Q",
-                            title="Revenue",
-                            format=",.2f"
-                        ),
-                        alt.Tooltip(
-                            "revenue_share:Q",
-                            title="Revenue Share",
-                            format=".1%"
-                        )
-                    ]
-                )
-            )
-    
-            donut_labels = (
-                donut_base
-                .transform_filter(
-                    alt.datum.revenue_share >= 0.05
-                )
-                .mark_text(
-                    radius=92,
-                    fontSize=11,
-                    fontWeight="bold",
-                    color="white"
-                )
-                .encode(
-                    theta=alt.Theta(
-                        "revenue:Q",
-                        stack=True
-                    ),
-                    order=alt.Order(
-                        "revenue:Q",
-                        sort="descending"
-                    ),
-                    text=alt.Text(
-                        "revenue_share:Q",
-                        format=".1%"
-                    )
-                )
-            )
-    
-            donut = (
-                (donut_chart + donut_labels)
-                .properties(height=350)
-            )
-    
-            st.altair_chart(
-                donut,
-                use_container_width=True
-            )
-    
-        # add spacing between chart rows
-    
-        st.write("")
-    
-        top_col, quantity_col = st.columns(2)
-    
-        # top 5 products by revenue
-    
-        with top_col:
-            st.subheader("Top 5 Products by Revenue")
-    
-            top_products_chart = (
-                alt.Chart(top_products)
-                .mark_bar(
-                    cornerRadiusEnd=5,
-                    color="#4C78A8"
-                )
-                .encode(
-                    y=alt.Y(
-                        "product:N",
-                        title=None,
-                        sort="-x"
-                    ),
-                    x=alt.X(
-                        "revenue:Q",
-                        title="Revenue",
-                        axis=alt.Axis(format=",.0f"),
-                        scale=alt.Scale(zero=True)
-                    ),
-                    tooltip=[
-                        alt.Tooltip("product:N", title="Product"),
-                        alt.Tooltip(
-                            "revenue:Q",
-                            title="Revenue",
-                            format=",.2f"
-                        )
-                    ]
-                )
-            )
-    
-            top_products_labels = (
-                alt.Chart(top_products)
-                .mark_text(
-                    align="left",
-                    dx=5,
-                    fontSize=11
-                )
-                .encode(
-                    y=alt.Y("product:N", sort="-x"),
-                    x=alt.X("revenue:Q"),
-                    text=alt.Text("revenue:Q", format=",.0f")
-                )
-            )
-    
-            top_products_chart = (
-                (top_products_chart + top_products_labels)
-                .properties(height=350)
-            )
-    
-            st.altair_chart(
-                top_products_chart,
-                use_container_width=True
-            )
-    
-        # units sold by category
-    
-        with quantity_col:
-            st.subheader("Units Sold by Category")
-    
-            quantity_bars = (
-                alt.Chart(category_quantity)
-                .mark_bar(
-                    cornerRadiusTopLeft=5,
-                    cornerRadiusTopRight=5,
-                    color="#59A14F"
-                )
-                .encode(
-                    x=alt.X(
-                        "category:N",
-                        title=None,
-                        sort="-y",
-                        axis=alt.Axis(labelAngle=0)
-                    ),
-                    y=alt.Y(
-                        "quantity:Q",
-                        title="Units Sold",
-                        axis=alt.Axis(format=",.0f"),
-                        scale=alt.Scale(zero=True)
-                    ),
-                    tooltip=[
-                        alt.Tooltip("category:N", title="Category"),
-                        alt.Tooltip(
-                            "quantity:Q",
-                            title="Units Sold",
-                            format=",.0f"
-                        )
-                    ]
-                )
-            )
-    
-            quantity_labels = (
-                alt.Chart(category_quantity)
-                .mark_text(
-                    dy=-8,
-                    fontSize=11
-                )
-                .encode(
-                    x=alt.X("category:N", sort="-y"),
-                    y=alt.Y("quantity:Q"),
-                    text=alt.Text("quantity:Q", format=",.0f")
-                )
-            )
-    
-            quantity_chart = (
-                (quantity_bars + quantity_labels)
-                .properties(height=350)
-            )
-    
-            st.altair_chart(
-                quantity_chart,
-                use_container_width=True
-            )
+        st.subheader("")
+        st.divider()
+
 
     
     # geographic analysis
