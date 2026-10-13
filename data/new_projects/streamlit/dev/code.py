@@ -282,7 +282,7 @@ elif page == p1:
 
             with kpi_col:
 
-                st.subheader("Key Metrics")
+                st.markdown("**Key Metrics**")
                 st.header("")
 
                 st.metric(
@@ -340,7 +340,7 @@ elif page == p1:
 
             with charts_col:
 
-                st.subheader("Monthly Revenue Comparison")
+                st.markdown("**Monthly Revenue Comparison**")
                 st.caption("")
 
                 monthly_revenue = chart_data.groupby(
@@ -404,7 +404,7 @@ elif page == p1:
 
                 with profit_col:
 
-                    st.subheader("Monthly Profit Comparison")
+                    st.markdown("**Monthly Profit Comparison**")
                     st.caption("")
 
                     monthly_profit = chart_data.groupby(
@@ -462,7 +462,7 @@ elif page == p1:
 
                 with quarter_col:
 
-                    st.subheader("Quarterly Revenue Comparison")
+                    st.markdown("**Quarterly Revenue Comparison**")
                     st.caption("")
 
                     quarterly_revenue = chart_data.groupby(
