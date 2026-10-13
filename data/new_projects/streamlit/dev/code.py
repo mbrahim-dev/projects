@@ -567,7 +567,7 @@ elif page == p1:
         total_revenue = filtered_df["revenue"].sum()
         total_profit = filtered_df["profit"].sum()
 
-        # calculate gauge ranges using category and channel combinations
+        # calculate gauge ranges
 
         combination_totals = (
             df1.groupby(["category", "sales_channel"])[
@@ -590,7 +590,7 @@ elif page == p1:
                 gSize="SML",
                 gTheme="Black",
                 arBot=0,
-                arTop=max(max_units, units_sold),
+                arTop=max(max_units, units_sold, 1),
                 grLow=1500,
                 grMid=3000,
                 gcLow="#E53935",
@@ -599,30 +599,34 @@ elif page == p1:
             )
 
         with g2:
+            revenue_max = max(max_revenue, total_revenue, 1)
+
             gauge(
                 gVal=total_revenue,
                 gTitle="Revenue ($)",
                 gSize="SML",
                 gTheme="Black",
                 arBot=0,
-                arTop=max(max_revenue, total_revenue, 1),
-                grLow=max(max_revenue, total_revenue, 1) * 0.3,
-                grMid=max(max_revenue, total_revenue, 1) * 0.7,
+                arTop=revenue_max,
+                grLow=revenue_max * 0.3,
+                grMid=revenue_max * 0.7,
                 gcLow="#E53935",
                 gcMid="#FB8C00",
                 gcHigh="#2E8B57"
             )
 
         with g3:
+            profit_max = max(max_profit, total_profit, 1)
+
             gauge(
                 gVal=total_profit,
                 gTitle="Profit ($)",
                 gSize="SML",
                 gTheme="Black",
                 arBot=0,
-                arTop=max(max_profit, total_profit, 1),
-                grLow=max(max_profit, total_profit, 1) * 0.3,
-                grMid=max(max_profit, total_profit, 1) * 0.7,
+                arTop=profit_max,
+                grLow=profit_max * 0.3,
+                grMid=profit_max * 0.7,
                 gcLow="#E53935",
                 gcMid="#FB8C00",
                 gcHigh="#2E8B57"
@@ -651,6 +655,7 @@ elif page == p1:
         channel_performance = (
             filtered_df.groupby("sales_channel", as_index=False)
             .agg(Revenue=("revenue", "sum"))
+            .sort_values("Revenue", ascending=False)
         )
 
         # create the chart columns
@@ -662,122 +667,160 @@ elif page == p1:
         with c1:
 
             st.markdown("**Top 5 Products by Units Sold**")
-            st.caption("")
 
-            chart_units = alt.Chart(product_units).mark_bar(
-                color="#4387C5"
-            ).encode(
-                x=alt.X(
-                    "quantity:Q",
-                    title="Units Sold",
-                    axis=alt.Axis(format=",")
-                ),
-                y=alt.Y(
-                    "product:N",
-                    sort=None,
-                    title=None,
-                    axis=alt.Axis(labelLimit=110)
-                ),
-                tooltip=[
-                    alt.Tooltip("product:N", title="Product"),
-                    alt.Tooltip(
-                        "quantity:Q",
-                        title="Units Sold",
-                        format=","
-                    )
-                ]
-            ).properties(
-                height=260
+            units_options = {
+                "animation": True,
+                "grid": {
+                    "left": 8,
+                    "right": 18,
+                    "top": 15,
+                    "bottom": 35,
+                    "containLabel": True
+                },
+                "tooltip": {
+                    "trigger": "axis",
+                    "axisPointer": {"type": "shadow"},
+                    "valueFormatter": "{value}"
+                },
+                "xAxis": {
+                    "type": "value",
+                    "name": "Units Sold",
+                    "nameLocation": "middle",
+                    "nameGap": 25,
+                    "min": 0,
+                    "axisLabel": {"show": True}
+                },
+                "yAxis": {
+                    "type": "category",
+                    "data": product_units["product"].tolist(),
+                    "axisLabel": {"width": 100, "overflow": "truncate"}
+                },
+                "series": [{
+                    "name": "Units Sold",
+                    "type": "bar",
+                    "data": product_units["quantity"].tolist(),
+                    "barMaxWidth": 28,
+                    "itemStyle": {
+                        "color": "#4387C5",
+                        "borderRadius": [0, 5, 5, 0]
+                    },
+                    "label": {
+                        "show": True,
+                        "position": "right",
+                        "color": "#4387C5"
+                    }
+                }]
+            }
+
+            st.echarts_chart(
+                units_options,
+                height="300px",
+                key="product_units_echart"
             )
-
-            st.altair_chart(chart_units, use_container_width=True)
 
         with c2:
 
             st.markdown("**Top 5 Products by Profit**")
-            st.caption("")
 
-            chart_profit = alt.Chart(product_profit).mark_bar(
-                color="#8E63CE"
-            ).encode(
-                x=alt.X(
-                    "profit:Q",
-                    title="Profit ($)",
-                    axis=alt.Axis(format=",.0f")
-                ),
-                y=alt.Y(
-                    "product:N",
-                    sort=None,
-                    title=None,
-                    axis=alt.Axis(labelLimit=110)
-                ),
-                tooltip=[
-                    alt.Tooltip("product:N", title="Product"),
-                    alt.Tooltip(
-                        "profit:Q",
-                        title="Profit",
-                        format=",.2f"
-                    )
-                ]
-            ).properties(
-                height=260
+            profit_options = {
+                "animation": True,
+                "grid": {
+                    "left": 8,
+                    "right": 25,
+                    "top": 15,
+                    "bottom": 35,
+                    "containLabel": True
+                },
+                "tooltip": {
+                    "trigger": "axis",
+                    "axisPointer": {"type": "shadow"}
+                },
+                "xAxis": {
+                    "type": "value",
+                    "name": "Profit ($)",
+                    "nameLocation": "middle",
+                    "nameGap": 25,
+                    "min": 0,
+                    "axisLabel": {"show": True}
+                },
+                "yAxis": {
+                    "type": "category",
+                    "data": product_profit["product"].tolist(),
+                    "axisLabel": {"width": 100, "overflow": "truncate"}
+                },
+                "series": [{
+                    "name": "Profit ($)",
+                    "type": "bar",
+                    "data": product_profit["profit"].tolist(),
+                    "barMaxWidth": 28,
+                    "itemStyle": {
+                        "color": "#8E63CE",
+                        "borderRadius": [0, 5, 5, 0]
+                    },
+                    "label": {
+                        "show": True,
+                        "position": "right",
+                        "color": "#8E63CE",
+                        "formatter": "{c}"
+                    }
+                }]
+            }
+
+            st.echarts_chart(
+                profit_options,
+                height="300px",
+                key="product_profit_echart"
             )
-
-            st.altair_chart(chart_profit, use_container_width=True)
 
         with c3:
 
             st.markdown("**Revenue Share by Channel**")
-            st.caption("")
 
-            chart_channel = alt.Chart(channel_performance).mark_arc(
-                outerRadius=95,
-                stroke="white",
-                strokeWidth=2
-            ).encode(
-                theta=alt.Theta(
-                    "Revenue:Q",
-                    stack=True
-                ),
-                color=alt.Color(
-                    "sales_channel:N",
-                    title="Sales Channel",
-                    scale=alt.Scale(
-                        range=["#4387C5", "#FB8C00", "#8E63CE", "#2E8B57"]
-                    )
-                ),
-                tooltip=[
-                    alt.Tooltip(
-                        "sales_channel:N",
-                        title="Sales Channel"
-                    ),
-                    alt.Tooltip(
-                        "Revenue:Q",
-                        title="Revenue ($)",
-                        format=",.2f"
-                    ),
-                    alt.Tooltip(
-                        "Revenue:Q",
-                        title="Revenue Share",
-                        format=".1%",
-                        aggregate="sum"
-                    )
-                ]
-            ).transform_joinaggregate(
-                TotalRevenue="sum(Revenue)"
-            ).transform_calculate(
-                RevenueShare="datum.Revenue / datum.TotalRevenue"
-            ).encode(
-                tooltip=[
-                    alt.Tooltip("sales_channel:N", title="Sales Channel"),
-                    alt.Tooltip("Revenue:Q", title="Revenue ($)", format=",.2f"),
-                    alt.Tooltip("RevenueShare:Q", title="Revenue Share", format=".1%")
-                ]
-            ).properties(
-                height=260
+            channel_options = {
+                "animation": True,
+                "color": ["#4387C5", "#FB8C00", "#8E63CE", "#2E8B57"],
+                "tooltip": {
+                    "trigger": "item",
+                    "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
+                },
+                "legend": {
+                    "orient": "horizontal",
+                    "bottom": 0,
+                    "left": "center"
+                },
+                "series": [{
+                    "name": "Revenue",
+                    "type": "pie",
+                    "radius": ["38%", "68%"],
+                    "center": ["50%", "44%"],
+                    "avoidLabelOverlap": True,
+                    "itemStyle": {
+                        "borderColor": "#FFFFFF",
+                        "borderWidth": 2
+                    },
+                    "label": {
+                        "show": True,
+                        "formatter": "{d}%",
+                        "fontSize": 12
+                    },
+                    "labelLine": {
+                        "show": True
+                    },
+                    "data": [
+                        {
+                            "name": row["sales_channel"],
+                            "value": float(row["Revenue"])
+                        }
+                        for _, row in channel_performance.iterrows()
+                    ]
+                }]
+            }
+
+            st.echarts_chart(
+                channel_options,
+                height="300px",
+                key="channel_revenue_echart"
             )
-
-            st.altair_chart(chart_channel, use_container_width=True)
 
         # create the dashboard footer section
 
