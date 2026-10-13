@@ -583,53 +583,141 @@ elif page == p1:
 
         g1, s11, g2, s12, g3 = st.columns([1, 0.3, 1, 0.3, 1])
 
+        # configure and display the units sold gauge
+
         with g1:
-            gauge(
-                gVal=units_sold,
-                gTitle="Units Sold",
-                gSize="SML",
-                gTheme="Black",
-                arBot=0,
-                arTop=max(max_units, units_sold, 1),
-                grLow=1500,
-                grMid=3000,
-                gcLow="#E53935",
-                gcMid="#FB8C00",
-                gcHigh="#2E8B57"
+            units_gauge_options = {
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 180,
+                    "endAngle": 0,
+                    "min": 0,
+                    "max": max(max_units, units_sold, 1),
+                    "progress": {"show": True, "width": 12},
+                    "axisLine": {
+                        "lineStyle": {
+                            "width": 12,
+                            "color": [
+                                [0.5, "#E53935"],
+                                [0.75, "#FB8C00"],
+                                [1, "#2E8B57"]
+                            ]
+                        }
+                    },
+                    "pointer": {"show": True, "length": "60%", "width": 4},
+                    "axisTick": {"show": False},
+                    "splitLine": {"length": 7, "lineStyle": {"width": 2}},
+                    "axisLabel": {"distance": -22, "fontSize": 9},
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-10%"],
+                        "fontSize": 22,
+                        "fontWeight": "bold",
+                        "formatter": "{value}"
+                    },
+                    "title": {"offsetCenter": [0, "25%"], "fontSize": 12},
+                    "data": [{"value": units_sold, "name": "Units Sold"}]
+                }]
+            }
+
+            st.echarts_chart(
+                units_gauge_options,
+                height=220,
+                key="units_sold_gauge"
             )
+
+        # configure and display the revenue gauge
 
         with g2:
-            revenue_max = max(max_revenue, total_revenue, 1)
+            revenue_gauge_max = max(max_revenue, total_revenue, 1)
 
-            gauge(
-                gVal=total_revenue,
-                gTitle="Revenue ($)",
-                gSize="SML",
-                gTheme="Black",
-                arBot=0,
-                arTop=revenue_max,
-                grLow=revenue_max * 0.3,
-                grMid=revenue_max * 0.7,
-                gcLow="#E53935",
-                gcMid="#FB8C00",
-                gcHigh="#2E8B57"
+            revenue_gauge_options = {
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 180,
+                    "endAngle": 0,
+                    "min": 0,
+                    "max": revenue_gauge_max,
+                    "progress": {"show": True, "width": 12},
+                    "axisLine": {
+                        "lineStyle": {
+                            "width": 12,
+                            "color": [
+                                [0.3, "#E53935"],
+                                [0.7, "#FB8C00"],
+                                [1, "#2E8B57"]
+                            ]
+                        }
+                    },
+                    "pointer": {"show": True, "length": "60%", "width": 4},
+                    "axisTick": {"show": False},
+                    "splitLine": {"length": 7, "lineStyle": {"width": 2}},
+                    "axisLabel": {
+                        "distance": -22,
+                        "fontSize": 9,
+                        "formatter": "{value}"
+                    },
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-10%"],
+                        "fontSize": 18,
+                        "fontWeight": "bold",
+                        "formatter": "${value}"
+                    },
+                    "title": {"offsetCenter": [0, "25%"], "fontSize": 12},
+                    "data": [{"value": total_revenue, "name": "Revenue ($)"}]
+                }]
+            }
+
+            st.echarts_chart(
+                revenue_gauge_options,
+                height=220,
+                key="revenue_gauge"
             )
 
-        with g3:
-            profit_max = max(max_profit, total_profit, 1)
+        # configure and display the profit gauge
 
-            gauge(
-                gVal=total_profit,
-                gTitle="Profit ($)",
-                gSize="SML",
-                gTheme="Black",
-                arBot=0,
-                arTop=profit_max,
-                grLow=profit_max * 0.3,
-                grMid=profit_max * 0.7,
-                gcLow="#E53935",
-                gcMid="#FB8C00",
-                gcHigh="#2E8B57"
+        with g3:
+            profit_gauge_max = max(max_profit, total_profit, 1)
+
+            profit_gauge_options = {
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 180,
+                    "endAngle": 0,
+                    "min": 0,
+                    "max": profit_gauge_max,
+                    "progress": {"show": True, "width": 12},
+                    "axisLine": {
+                        "lineStyle": {
+                            "width": 12,
+                            "color": [
+                                [0.3, "#E53935"],
+                                [0.7, "#FB8C00"],
+                                [1, "#2E8B57"]
+                            ]
+                        }
+                    },
+                    "pointer": {"show": True, "length": "60%", "width": 4},
+                    "axisTick": {"show": False},
+                    "splitLine": {"length": 7, "lineStyle": {"width": 2}},
+                    "axisLabel": {"distance": -22, "fontSize": 9},
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-10%"],
+                        "fontSize": 18,
+                        "fontWeight": "bold",
+                        "formatter": "${value}"
+                    },
+                    "title": {"offsetCenter": [0, "25%"], "fontSize": 12},
+                    "data": [{"value": total_profit, "name": "Profit ($)"}]
+                }]
+            }
+
+            st.echarts_chart(
+                profit_gauge_options,
+                height=220,
+                key="profit_gauge"
             )
 
         # prepare the top five products by units sold
@@ -665,30 +753,15 @@ elif page == p1:
         c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         with c1:
-
             st.markdown("**Top 5 Products by Units Sold**")
 
             units_options = {
-                "animation": True,
-                "grid": {
-                    "left": 8,
-                    "right": 18,
-                    "top": 15,
-                    "bottom": 35,
-                    "containLabel": True
-                },
-                "tooltip": {
-                    "trigger": "axis",
-                    "axisPointer": {"type": "shadow"},
-                    "valueFormatter": "{value}"
-                },
+                "grid": {"left": 8, "right": 20, "top": 15, "bottom": 35, "containLabel": True},
+                "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
                 "xAxis": {
                     "type": "value",
                     "name": "Units Sold",
-                    "nameLocation": "middle",
-                    "nameGap": 25,
-                    "min": 0,
-                    "axisLabel": {"show": True}
+                    "axisLabel": {"formatter": "{value}"}
                 },
                 "yAxis": {
                     "type": "category",
@@ -696,52 +769,29 @@ elif page == p1:
                     "axisLabel": {"width": 100, "overflow": "truncate"}
                 },
                 "series": [{
-                    "name": "Units Sold",
                     "type": "bar",
                     "data": product_units["quantity"].tolist(),
-                    "barMaxWidth": 28,
-                    "itemStyle": {
-                        "color": "#4387C5",
-                        "borderRadius": [0, 5, 5, 0]
-                    },
-                    "label": {
-                        "show": True,
-                        "position": "right",
-                        "color": "#4387C5"
-                    }
+                    "itemStyle": {"color": "#4387C5", "borderRadius": [0, 5, 5, 0]},
+                    "label": {"show": True, "position": "right"}
                 }]
             }
 
-            st.echarts_chart(
-                units_options,
-                height=300,
-                key="product_units_echart"
-            )
+            st.echarts_chart(units_options, height=300, key="product_units_echart")
 
         with c2:
-
             st.markdown("**Top 5 Products by Profit**")
 
             profit_options = {
-                "animation": True,
-                "grid": {
-                    "left": 8,
-                    "right": 25,
-                    "top": 15,
-                    "bottom": 35,
-                    "containLabel": True
-                },
+                "grid": {"left": 8, "right": 25, "top": 15, "bottom": 35, "containLabel": True},
                 "tooltip": {
                     "trigger": "axis",
-                    "axisPointer": {"type": "shadow"}
+                    "axisPointer": {"type": "shadow"},
+                    "valueFormatter": "${value}"
                 },
                 "xAxis": {
                     "type": "value",
                     "name": "Profit ($)",
-                    "nameLocation": "middle",
-                    "nameGap": 25,
-                    "min": 0,
-                    "axisLabel": {"show": True}
+                    "axisLabel": {"formatter": "${value}"}
                 },
                 "yAxis": {
                     "type": "category",
@@ -749,148 +799,45 @@ elif page == p1:
                     "axisLabel": {"width": 100, "overflow": "truncate"}
                 },
                 "series": [{
-                    "name": "Profit ($)",
                     "type": "bar",
                     "data": product_profit["profit"].tolist(),
-                    "barMaxWidth": 28,
-                    "itemStyle": {
-                        "color": "#8E63CE",
-                        "borderRadius": [0, 5, 5, 0]
-                    },
-                    "label": {
-                        "show": True,
-                        "position": "right",
-                        "color": "#8E63CE",
-                        "formatter": "{c}"
-                    }
+                    "itemStyle": {"color": "#8E63CE", "borderRadius": [0, 5, 5, 0]},
+                    "label": {"show": True, "position": "right", "formatter": "${c}"}
                 }]
             }
 
-            st.echarts_chart(
-                profit_options,
-                height=300,
-                key="product_profit_echart"
-            )
+            st.echarts_chart(profit_options, height=300, key="product_profit_echart")
 
         with c3:
-
             st.markdown("**Revenue Share by Channel**")
 
             channel_options = {
-                "animation": True,
                 "color": ["#4387C5", "#FB8C00", "#8E63CE", "#2E8B57"],
                 "tooltip": {
                     "trigger": "item",
                     "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
                 },
-                "legend": {
-                    "orient": "horizontal",
-                    "bottom": 0,
-                    "left": "center"
-                },
+                "legend": {"orient": "horizontal", "bottom": 0, "left": "center"},
                 "series": [{
                     "name": "Revenue",
                     "type": "pie",
                     "radius": ["38%", "68%"],
                     "center": ["50%", "44%"],
-                    "avoidLabelOverlap": True,
-                    "itemStyle": {
-                        "borderColor": "#FFFFFF",
-                        "borderWidth": 2
-                    },
-                    "label": {
-                        "show": True,
-                        "formatter": "{d}%",
-                        "fontSize": 12
-                    },
-                    "labelLine": {
-                        "show": True
-                    },
+                    "itemStyle": {"borderColor": "#FFFFFF", "borderWidth": 2},
+                    "label": {"show": True, "formatter": "{d}%"},
                     "data": [
-                        {
-                            "name": row["sales_channel"],
-                            "value": float(row["Revenue"])
-                        }
+                        {"name": row["sales_channel"], "value": float(row["Revenue"])}
                         for _, row in channel_performance.iterrows()
                     ]
                 }]
             }
 
-            st.echarts_chart(
-                channel_options,
-                height=300,
-                key="channel_revenue_echart"
-            )
+            st.echarts_chart(channel_options, height=300, key="channel_revenue_echart")
 
         # create the dashboard footer section
 
         st.subheader("")
         st.divider()
-
-    
-        # test
-        
-        gauge_options = {
-                "series": [{
-                    "type": "gauge",
-                    "startAngle": 180,
-                    "endAngle": 0,
-                    "min": 0,
-                    "max": 3000,
-                    "splitNumber": 6,
-                    "progress": {
-                        "show": True,
-                        "width": 12
-                    },
-                    "axisLine": {
-                        "lineStyle": {
-                            "width": 12,
-                            "color": [
-                                [0.5, "#E53935"],
-                                [0.75, "#FB8C00"],
-                                [1, "#2E8B57"]
-                            ]
-                        }
-                    },
-                    "pointer": {
-                        "show": True,
-                        "length": "60%",
-                        "width": 4
-                    },
-                    "axisTick": {"show": False},
-                    "splitLine": {
-                        "length": 8,
-                        "lineStyle": {"width": 2}
-                    },
-                    "axisLabel": {
-                        "distance": -25,
-                        "fontSize": 10
-                    },
-                    "detail": {
-                        "valueAnimation": True,
-                        "offsetCenter": [0, "-10%"],
-                        "fontSize": 24,
-                        "fontWeight": "bold",
-                        "formatter": "{value}"
-                    },
-                    "title": {
-                        "offsetCenter": [0, "25%"],
-                        "fontSize": 13
-                    },
-                    "data": [{
-                        "value": 2180,
-                        "name": "Units Sold"
-                    }]
-                }]
-            }
-            
-            # display the gauge
-            
-            st.echarts_chart(
-                gauge_options,
-                height=220,
-                key="units_sold_gauge"
-            )
 
 
 
