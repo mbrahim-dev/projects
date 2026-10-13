@@ -968,7 +968,7 @@ elif page == p1:
                 ],
                 "tooltip": {
                     "trigger": "item",
-                    "formatter": "{b}<br/>Revenue: {@[2]}<br/>Share: {d}%"
+                    "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
                 },
                 "legend": {
                     "orient": "horizontal",
