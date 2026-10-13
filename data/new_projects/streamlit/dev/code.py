@@ -170,6 +170,10 @@ elif page == p1:
             hide_index=True
         )
 
+
+    
+##########################################################################################
+
     
     # time analysis
 
@@ -282,7 +286,7 @@ elif page == p1:
 
             with kpi_col:
 
-                st.markdown(" ***Key Metrics*** ")
+                st.markdown("**Key Metrics**")
                 st.header("")
 
                 st.metric(
@@ -517,7 +521,6 @@ elif page == p1:
 ##########################################################################################
 
 
-    
     elif page_analysis == 3:
 
         # header & filters space
@@ -544,10 +547,8 @@ elif page == p1:
         st.subheader("")
         st.divider()
 
-        # main section
+        # filter the dataset
 
-        st.subheader("")
-        
         filtered_df = df1.copy()
 
         if selected_category != "All":
@@ -566,15 +567,19 @@ elif page == p1:
         total_revenue = filtered_df["revenue"].sum()
         total_profit = filtered_df["profit"].sum()
 
-        # calculate the maximum values for the gauges
+        # calculate gauge ranges using category and channel combinations
 
-        category_totals = df1.groupby("category")[["quantity", "revenue", "profit"]].sum()
+        combination_totals = (
+            df1.groupby(["category", "sales_channel"])[
+                ["quantity", "revenue", "profit"]
+            ].sum()
+        )
 
-        max_units = max(category_totals["quantity"].max(), 3000)
-        max_revenue = max(category_totals["revenue"].max(), 1)
-        max_profit = max(category_totals["profit"].max(), 1)
+        max_units = max(combination_totals["quantity"].max(), 3000)
+        max_revenue = max(combination_totals["revenue"].max(), 1)
+        max_profit = max(combination_totals["profit"].max(), 1)
 
-        # create three gauge columns with spacing between them
+        # create the three gauges
 
         g1, s11, g2, s12, g3 = st.columns([1, 0.3, 1, 0.3, 1])
 
@@ -585,12 +590,12 @@ elif page == p1:
                 gSize="SML",
                 gTheme="Black",
                 arBot=0,
-                arTop=max_units,
+                arTop=max(max_units, units_sold),
                 grLow=1500,
                 grMid=3000,
                 gcLow="#E53935",
                 gcMid="#FB8C00",
-                gcHigh="#2E7D32"
+                gcHigh="#2E8B57"
             )
 
         with g2:
@@ -600,12 +605,12 @@ elif page == p1:
                 gSize="SML",
                 gTheme="Black",
                 arBot=0,
-                arTop=max_revenue,
-                grLow=max_revenue * 0.3,
-                grMid=max_revenue * 0.7,
+                arTop=max(max_revenue, total_revenue, 1),
+                grLow=max(max_revenue, total_revenue, 1) * 0.3,
+                grMid=max(max_revenue, total_revenue, 1) * 0.7,
                 gcLow="#E53935",
                 gcMid="#FB8C00",
-                gcHigh="#2E7D32"
+                gcHigh="#2E8B57"
             )
 
         with g3:
@@ -615,55 +620,58 @@ elif page == p1:
                 gSize="SML",
                 gTheme="Black",
                 arBot=0,
-                arTop=max_profit,
-                grLow=max_profit * 0.3,
-                grMid=max_profit * 0.7,
+                arTop=max(max_profit, total_profit, 1),
+                grLow=max(max_profit, total_profit, 1) * 0.3,
+                grMid=max(max_profit, total_profit, 1) * 0.7,
                 gcLow="#E53935",
                 gcMid="#FB8C00",
-                gcHigh="#2E7D32"
+                gcHigh="#2E8B57"
             )
 
-        # prepare data for the charts
+        # prepare the top five products by units sold
 
         product_units = (
             filtered_df.groupby("product", as_index=False)["quantity"]
             .sum()
-            .sort_values("quantity", ascending=False)
-            .head(5)
+            .nlargest(5, "quantity")
             .sort_values("quantity", ascending=True)
         )
+
+        # prepare the top five products by profit
 
         product_profit = (
             filtered_df.groupby("product", as_index=False)["profit"]
             .sum()
-            .sort_values("profit", ascending=False)
-            .head(5)
+            .nlargest(5, "profit")
             .sort_values("profit", ascending=True)
         )
 
-        # aggregate revenue and profit by sales channel
+        # aggregate revenue by sales channel
 
         channel_performance = (
             filtered_df.groupby("sales_channel", as_index=False)
-            .agg(
-                Revenue=("revenue", "sum"),
-                Profit=("profit", "sum")
-            )
+            .agg(Revenue=("revenue", "sum"))
         )
 
-        # create three chart columns with spacing between them
+        # create the chart columns
+
+        st.subheader("Product & Channel Performance")
 
         c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         with c1:
-            
+
             st.markdown("**Top 5 Products by Units Sold**")
             st.caption("")
 
             chart_units = alt.Chart(product_units).mark_bar(
                 color="#4387C5"
             ).encode(
-                x=alt.X("quantity:Q", title="Units Sold"),
+                x=alt.X(
+                    "quantity:Q",
+                    title="Units Sold",
+                    axis=alt.Axis(format=",")
+                ),
                 y=alt.Y(
                     "product:N",
                     sort=None,
@@ -672,7 +680,11 @@ elif page == p1:
                 ),
                 tooltip=[
                     alt.Tooltip("product:N", title="Product"),
-                    alt.Tooltip("quantity:Q", title="Units Sold", format=",")
+                    alt.Tooltip(
+                        "quantity:Q",
+                        title="Units Sold",
+                        format=","
+                    )
                 ]
             ).properties(
                 height=260
@@ -681,14 +693,18 @@ elif page == p1:
             st.altair_chart(chart_units, use_container_width=True)
 
         with c2:
-            
+
             st.markdown("**Top 5 Products by Profit**")
             st.caption("")
 
             chart_profit = alt.Chart(product_profit).mark_bar(
-                color="#2E8B57"
+                color="#8E63CE"
             ).encode(
-                x=alt.X("profit:Q", title="Profit ($)", axis=alt.Axis(format="~s")),
+                x=alt.X(
+                    "profit:Q",
+                    title="Profit ($)",
+                    axis=alt.Axis(format=",.0f")
+                ),
                 y=alt.Y(
                     "product:N",
                     sort=None,
@@ -697,7 +713,11 @@ elif page == p1:
                 ),
                 tooltip=[
                     alt.Tooltip("product:N", title="Product"),
-                    alt.Tooltip("profit:Q", title="Profit ($)", format=",.2f")
+                    alt.Tooltip(
+                        "profit:Q",
+                        title="Profit",
+                        format=",.2f"
+                    )
                 ]
             ).properties(
                 height=260
@@ -706,41 +726,52 @@ elif page == p1:
             st.altair_chart(chart_profit, use_container_width=True)
 
         with c3:
-            
-            st.markdown("**Revenue vs Profit by Channel**")
+
+            st.markdown("**Revenue Share by Channel**")
             st.caption("")
 
-            channel_melted = channel_performance.melt(
-                id_vars="sales_channel",
-                value_vars=["Revenue", "Profit"],
-                var_name="Metric",
-                value_name="Amount"
-            )
-
-            chart_channel = alt.Chart(channel_melted).mark_bar().encode(
-                x=alt.X(
-                    "sales_channel:N",
-                    title=None,
-                    axis=alt.Axis(labelAngle=-35, labelLimit=100)
-                ),
-                xOffset="Metric:N",
-                y=alt.Y(
-                    "Amount:Q",
-                    title="Amount ($)",
-                    axis=alt.Axis(format="~s")
+            chart_channel = alt.Chart(channel_performance).mark_arc(
+                outerRadius=95,
+                stroke="white",
+                strokeWidth=2
+            ).encode(
+                theta=alt.Theta(
+                    "Revenue:Q",
+                    stack=True
                 ),
                 color=alt.Color(
-                    "Metric:N",
+                    "sales_channel:N",
+                    title="Sales Channel",
                     scale=alt.Scale(
-                        domain=["Revenue", "Profit"],
-                        range=["#4387C5", "#2E8B57"]
-                    ),
-                    legend=alt.Legend(title=None)
+                        range=["#4387C5", "#FB8C00", "#8E63CE", "#2E8B57"]
+                    )
                 ),
                 tooltip=[
+                    alt.Tooltip(
+                        "sales_channel:N",
+                        title="Sales Channel"
+                    ),
+                    alt.Tooltip(
+                        "Revenue:Q",
+                        title="Revenue ($)",
+                        format=",.2f"
+                    ),
+                    alt.Tooltip(
+                        "Revenue:Q",
+                        title="Revenue Share",
+                        format=".1%",
+                        aggregate="sum"
+                    )
+                ]
+            ).transform_joinaggregate(
+                TotalRevenue="sum(Revenue)"
+            ).transform_calculate(
+                RevenueShare="datum.Revenue / datum.TotalRevenue"
+            ).encode(
+                tooltip=[
                     alt.Tooltip("sales_channel:N", title="Sales Channel"),
-                    alt.Tooltip("Metric:N", title="Metric"),
-                    alt.Tooltip("Amount:Q", title="Amount ($)", format=",.2f")
+                    alt.Tooltip("Revenue:Q", title="Revenue ($)", format=",.2f"),
+                    alt.Tooltip("RevenueShare:Q", title="Revenue Share", format=".1%")
                 ]
             ).properties(
                 height=260
