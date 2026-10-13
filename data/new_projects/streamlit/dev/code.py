@@ -509,33 +509,65 @@ elif page == p1:
             st.info("Please select at least one year to display the analysis.")
     
 
-    # product analysis
+
+
+
+
+
+
     
+
+    # product sales analysis
+
     elif page_analysis == 3:
         
         st.header("Product Sales Analysis 🛍️")
-
-        st.header("")
     
         # aggregate revenue by category
-        
-        category_sales = (df1.groupby("category", as_index=False)["revenue"].sum().sort_values("revenue", ascending=False))
     
-        # calculate category revenue share
-        
-        category_sales["revenue_share"] = (category_sales["revenue"] / category_sales["revenue"].sum())
+        category_sales = (
+            df1.groupby("category", as_index=False)["revenue"]
+            .sum()
+            .sort_values("revenue", ascending=False)
+        )
     
-        # create chart columns
-        
-        sp8, bar_col, sp9, donut_col, sp10 = st.columns([0.5, 1, 0.5, 1, 0.5])
+        # calculate revenue share
+    
+        total_revenue = category_sales["revenue"].sum()
+    
+        category_sales["revenue_share"] = (
+            category_sales["revenue"] / total_revenue
+            if total_revenue != 0
+            else 0
+        )
+    
+        # aggregate units sold by category
+    
+        category_quantity = (
+            df1.groupby("category", as_index=False)["quantity"]
+            .sum()
+            .sort_values("quantity", ascending=False)
+        )
+    
+        # aggregate revenue by product and select top 5
+    
+        top_products = (
+            df1.groupby("product", as_index=False)["revenue"]
+            .sum()
+            .nlargest(5, "revenue")
+            .sort_values("revenue", ascending=True)
+        )
+    
+        # create chart layout
+    
+        bar_col, donut_col = st.columns(2)
+    
+        # sales by category
     
         with bar_col:
-            
             st.subheader("Sales by Category")
-
-            st.caption("")
     
-            bar_chart = (
+            category_bars = (
                 alt.Chart(category_sales)
                 .mark_bar(
                     cornerRadiusTopLeft=5,
@@ -557,9 +589,7 @@ elif page == p1:
                     color=alt.Color(
                         "category:N",
                         legend=None,
-                        scale=alt.Scale(
-                            scheme="tableau10"
-                        )
+                        scale=alt.Scale(scheme="tableau10")
                     ),
                     tooltip=[
                         alt.Tooltip("category:N", title="Category"),
@@ -567,30 +597,46 @@ elif page == p1:
                             "revenue:Q",
                             title="Revenue",
                             format=",.2f"
-                        ),
-                        alt.Tooltip(
-                            "revenue_share:Q",
-                            title="Share of sales",
-                            format=".1%"
                         )
                     ]
                 )
+            )
+    
+            category_labels = (
+                alt.Chart(category_sales)
+                .mark_text(
+                    dy=-8,
+                    fontSize=11
+                )
+                .encode(
+                    x=alt.X("category:N", sort="-y"),
+                    y=alt.Y("revenue:Q"),
+                    text=alt.Text("revenue:Q", format=",.0f")
+                )
+            )
+    
+            category_chart = (
+                (category_bars + category_labels)
                 .properties(height=350)
             )
     
-            st.altair_chart(bar_chart, use_container_width=True)
+            st.altair_chart(
+                category_chart,
+                use_container_width=True
+            )
+    
+        # sales distribution
     
         with donut_col:
-            
             st.subheader("Sales Distribution")
-
-            st.caption("")
-
+    
+            donut_base = alt.Chart(category_sales)
+    
             donut_chart = (
-                alt.Chart(category_sales)
+                donut_base
                 .mark_arc(
-                    innerRadius=75,
-                    outerRadius=125,
+                    innerRadius=65,
+                    outerRadius=115,
                     cornerRadius=3
                 )
                 .encode(
@@ -601,9 +647,7 @@ elif page == p1:
                     color=alt.Color(
                         "category:N",
                         title="Category",
-                        scale=alt.Scale(
-                            scheme="tableau10"
-                        )
+                        scale=alt.Scale(scheme="tableau10")
                     ),
                     order=alt.Order(
                         "revenue:Q",
@@ -618,15 +662,172 @@ elif page == p1:
                         ),
                         alt.Tooltip(
                             "revenue_share:Q",
-                            title="Share of sales",
+                            title="Revenue Share",
                             format=".1%"
                         )
                     ]
                 )
+            )
+    
+            donut_labels = (
+                donut_base
+                .transform_filter(
+                    alt.datum.revenue_share >= 0.05
+                )
+                .mark_text(
+                    radius=92,
+                    fontSize=11,
+                    fontWeight="bold",
+                    color="white"
+                )
+                .encode(
+                    theta=alt.Theta(
+                        "revenue:Q",
+                        stack=True
+                    ),
+                    order=alt.Order(
+                        "revenue:Q",
+                        sort="descending"
+                    ),
+                    text=alt.Text(
+                        "revenue_share:Q",
+                        format=".1%"
+                    )
+                )
+            )
+    
+            donut = (
+                (donut_chart + donut_labels)
                 .properties(height=350)
             )
     
-            st.altair_chart(donut_chart, use_container_width=True)
+            st.altair_chart(
+                donut,
+                use_container_width=True
+            )
+    
+        # add spacing between chart rows
+    
+        st.write("")
+    
+        top_col, quantity_col = st.columns(2)
+    
+        # top 5 products by revenue
+    
+        with top_col:
+            st.subheader("Top 5 Products by Revenue")
+    
+            top_products_chart = (
+                alt.Chart(top_products)
+                .mark_bar(
+                    cornerRadiusEnd=5,
+                    color="#4C78A8"
+                )
+                .encode(
+                    y=alt.Y(
+                        "product:N",
+                        title=None,
+                        sort="-x"
+                    ),
+                    x=alt.X(
+                        "revenue:Q",
+                        title="Revenue",
+                        axis=alt.Axis(format=",.0f"),
+                        scale=alt.Scale(zero=True)
+                    ),
+                    tooltip=[
+                        alt.Tooltip("product:N", title="Product"),
+                        alt.Tooltip(
+                            "revenue:Q",
+                            title="Revenue",
+                            format=",.2f"
+                        )
+                    ]
+                )
+            )
+    
+            top_products_labels = (
+                alt.Chart(top_products)
+                .mark_text(
+                    align="left",
+                    dx=5,
+                    fontSize=11
+                )
+                .encode(
+                    y=alt.Y("product:N", sort="-x"),
+                    x=alt.X("revenue:Q"),
+                    text=alt.Text("revenue:Q", format=",.0f")
+                )
+            )
+    
+            top_products_chart = (
+                (top_products_chart + top_products_labels)
+                .properties(height=350)
+            )
+    
+            st.altair_chart(
+                top_products_chart,
+                use_container_width=True
+            )
+    
+        # units sold by category
+    
+        with quantity_col:
+            st.subheader("Units Sold by Category")
+    
+            quantity_bars = (
+                alt.Chart(category_quantity)
+                .mark_bar(
+                    cornerRadiusTopLeft=5,
+                    cornerRadiusTopRight=5,
+                    color="#59A14F"
+                )
+                .encode(
+                    x=alt.X(
+                        "category:N",
+                        title=None,
+                        sort="-y",
+                        axis=alt.Axis(labelAngle=0)
+                    ),
+                    y=alt.Y(
+                        "quantity:Q",
+                        title="Units Sold",
+                        axis=alt.Axis(format=",.0f"),
+                        scale=alt.Scale(zero=True)
+                    ),
+                    tooltip=[
+                        alt.Tooltip("category:N", title="Category"),
+                        alt.Tooltip(
+                            "quantity:Q",
+                            title="Units Sold",
+                            format=",.0f"
+                        )
+                    ]
+                )
+            )
+    
+            quantity_labels = (
+                alt.Chart(category_quantity)
+                .mark_text(
+                    dy=-8,
+                    fontSize=11
+                )
+                .encode(
+                    x=alt.X("category:N", sort="-y"),
+                    y=alt.Y("quantity:Q"),
+                    text=alt.Text("quantity:Q", format=",.0f")
+                )
+            )
+    
+            quantity_chart = (
+                (quantity_bars + quantity_labels)
+                .properties(height=350)
+            )
+    
+            st.altair_chart(
+                quantity_chart,
+                use_container_width=True
+            )
 
     
     # geographic analysis
