@@ -289,6 +289,7 @@ elif page == p1:
                     f"${revenue:,.0f}",
                     delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None
                 )
+                
                 st.header("")
 
                 st.metric(
@@ -296,6 +297,7 @@ elif page == p1:
                     f"${profit:,.0f}",
                     delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None
                 )
+                
                 st.header("")
 
                 st.metric(
@@ -303,6 +305,7 @@ elif page == p1:
                     f"{number_of_orders:,}",
                     delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None
                 )
+                
                 st.header("")
 
                 st.metric("💸 Total Costs", f"${total_costs:,.0f}")
@@ -509,19 +512,21 @@ elif page == p1:
             st.info("Please select at least one year to display the analysis.")
     
 
-
-
-
-
-
-
     
 
+##########################################################################################
+
+    
+    
     # product sales analysis
 
     elif page_analysis == 3:
         
         st.header("Product Sales Analysis 🛍️")
+
+        st.subheader("")
+
+        st.divider()
     
         # aggregate revenue by category
     
