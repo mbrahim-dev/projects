@@ -513,14 +513,16 @@ elif page == p1:
             st.info("Please select at least one year to display the analysis.")
 
     
-##########################################################################################
-    
 
+##########################################################################################
+
+
+    
     elif page_analysis == 3:
 
         # header & filters space
 
-        h2, sp9, f2, sp10 = st.columns([5, 0.3, 1.5, 0.3])
+        h2, sp9, f2, sp10, f3 = st.columns([4, 0.2, 1.5, 0.2, 1.8])
 
         with h2:
             st.header("Product Sales Analysis 🛍️")
@@ -532,19 +534,33 @@ elif page == p1:
                 index=0
             )
 
+        with f3:
+            selected_channel = st.selectbox(
+                "Sales Channel",
+                options=["All"] + sorted(df1["sales_channel"].dropna().unique().tolist()),
+                index=0
+            )
+
         st.subheader("")
         st.divider()
 
         # main section
 
-        st.subheader("")
+        st.subheader("Category & Channel Overview")
 
-        if selected_category == "All":
-            filtered_df = df1.copy()
-        else:
-            filtered_df = df1[df1["category"] == selected_category]
+        filtered_df = df1.copy()
 
-        # calculate the category metrics
+        if selected_category != "All":
+            filtered_df = filtered_df[
+                filtered_df["category"] == selected_category
+            ]
+
+        if selected_channel != "All":
+            filtered_df = filtered_df[
+                filtered_df["sales_channel"] == selected_channel
+            ]
+
+        # calculate the selected metrics
 
         units_sold = filtered_df["quantity"].sum()
         total_revenue = filtered_df["revenue"].sum()
@@ -607,10 +623,133 @@ elif page == p1:
                 gcHigh="#2E7D32"
             )
 
+        # prepare data for the charts
+
+        product_units = (
+            filtered_df.groupby("product", as_index=False)["quantity"]
+            .sum()
+            .sort_values("quantity", ascending=False)
+            .head(5)
+            .sort_values("quantity", ascending=True)
+        )
+
+        product_profit = (
+            filtered_df.groupby("product", as_index=False)["profit"]
+            .sum()
+            .sort_values("profit", ascending=False)
+            .head(5)
+            .sort_values("profit", ascending=True)
+        )
+
+        # aggregate revenue and profit by sales channel
+
+        channel_performance = (
+            filtered_df.groupby("sales_channel", as_index=False)
+            .agg(
+                Revenue=("revenue", "sum"),
+                Profit=("profit", "sum")
+            )
+        )
+
+        # create three chart columns with spacing between them
+
+        st.subheader("Product & Channel Performance")
+
+        c1, s13, c2, s14, c3 = st.columns([1, 0.12, 1, 0.12, 1])
+
+        with c1:
+            st.markdown("**Top 5 Products by Units Sold**")
+
+            chart_units = alt.Chart(product_units).mark_bar(
+                color="#4387C5"
+            ).encode(
+                x=alt.X("quantity:Q", title="Units Sold"),
+                y=alt.Y(
+                    "product:N",
+                    sort=None,
+                    title=None,
+                    axis=alt.Axis(labelLimit=110)
+                ),
+                tooltip=[
+                    alt.Tooltip("product:N", title="Product"),
+                    alt.Tooltip("quantity:Q", title="Units Sold", format=",")
+                ]
+            ).properties(
+                height=260
+            )
+
+            st.altair_chart(chart_units, use_container_width=True)
+
+        with c2:
+            st.markdown("**Top 5 Products by Profit**")
+
+            chart_profit = alt.Chart(product_profit).mark_bar(
+                color="#2E8B57"
+            ).encode(
+                x=alt.X("profit:Q", title="Profit ($)", axis=alt.Axis(format="~s")),
+                y=alt.Y(
+                    "product:N",
+                    sort=None,
+                    title=None,
+                    axis=alt.Axis(labelLimit=110)
+                ),
+                tooltip=[
+                    alt.Tooltip("product:N", title="Product"),
+                    alt.Tooltip("profit:Q", title="Profit ($)", format=",.2f")
+                ]
+            ).properties(
+                height=260
+            )
+
+            st.altair_chart(chart_profit, use_container_width=True)
+
+        with c3:
+            st.markdown("**Revenue vs Profit by Channel**")
+
+            channel_melted = channel_performance.melt(
+                id_vars="sales_channel",
+                value_vars=["Revenue", "Profit"],
+                var_name="Metric",
+                value_name="Amount"
+            )
+
+            chart_channel = alt.Chart(channel_melted).mark_bar().encode(
+                x=alt.X(
+                    "sales_channel:N",
+                    title=None,
+                    axis=alt.Axis(labelAngle=-35, labelLimit=100)
+                ),
+                xOffset="Metric:N",
+                y=alt.Y(
+                    "Amount:Q",
+                    title="Amount ($)",
+                    axis=alt.Axis(format="~s")
+                ),
+                color=alt.Color(
+                    "Metric:N",
+                    scale=alt.Scale(
+                        domain=["Revenue", "Profit"],
+                        range=["#4387C5", "#2E8B57"]
+                    ),
+                    legend=alt.Legend(title=None)
+                ),
+                tooltip=[
+                    alt.Tooltip("sales_channel:N", title="Sales Channel"),
+                    alt.Tooltip("Metric:N", title="Metric"),
+                    alt.Tooltip("Amount:Q", title="Amount ($)", format=",.2f")
+                ]
+            ).properties(
+                height=260
+            )
+
+            st.altair_chart(chart_channel, use_container_width=True)
+
         # create the dashboard footer section
 
         st.subheader("")
         st.divider()
+
+
 
     
     # geographic analysis
