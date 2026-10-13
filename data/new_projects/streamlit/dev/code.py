@@ -531,12 +531,13 @@ elif page == p1:
                 options=["All"] + sorted(df1["category"].dropna().unique().tolist()),
                 index=0
             )
-    
+
+        st.subheader("")
         st.divider()
     
         # main section
     
-        st.subheader("Category Overview")
+        st.subheader("")
     
         if selected_category == "All":
             filtered_df = df1.copy()
@@ -560,12 +561,12 @@ elif page == p1:
         # create three gauge columns with spacing between them
     
         g1, s10, g2, s11, g3 = st.columns([1, 0.2, 1, 0.2, 1])
-    
+
         with g1:
             gauge(
                 gVal=units_sold,
                 gTitle="Units Sold",
-                gSize="FULL",
+                gSize="SML",
                 arBot=0,
                 arTop=max_units,
                 grLow=max_units * 0.3,
@@ -576,24 +577,24 @@ elif page == p1:
             gauge(
                 gVal=total_revenue,
                 gTitle="Revenue",
-                gSize="FULL",
+                gSize="SML",
                 arBot=0,
                 arTop=max_revenue,
                 grLow=max_revenue * 0.3,
                 grMid=max_revenue * 0.7,
-                sFix=None
+                gTheme="Black"
             )
     
         with g3:
             gauge(
                 gVal=total_profit,
                 gTitle="Profit",
-                gSize="FULL",
+                gSize="SML",
                 arBot=0,
                 arTop=max_profit,
                 grLow=max_profit * 0.3,
                 grMid=max_profit * 0.7,
-                sFix=None
+                gTheme="Black"
             )
     
         # create the dashboard footer section
