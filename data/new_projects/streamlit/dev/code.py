@@ -657,7 +657,7 @@ elif page == p1:
 
         with c1:
             
-            st.subheader("Top 5 Products by Units Sold")
+            st.markdown("**Top 5 Products by Units Sold**")
             st.caption("")
 
             chart_units = alt.Chart(product_units).mark_bar(
@@ -682,7 +682,7 @@ elif page == p1:
 
         with c2:
             
-            st.subheader("Top 5 Products by Profit")
+            st.markdown("**Top 5 Products by Profit**")
             st.caption("")
 
             chart_profit = alt.Chart(product_profit).mark_bar(
@@ -707,7 +707,7 @@ elif page == p1:
 
         with c3:
             
-            st.subheader("Revenue vs Profit by Channel")
+            st.markdown("**Revenue vs Profit by Channel**")
             st.caption("")
 
             channel_melted = channel_performance.melt(
