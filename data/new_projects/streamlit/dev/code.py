@@ -955,8 +955,4 @@ elif page == p1:
 
 
     
-    # geographic analysis
-        
-    elif page_analysis == 4:
-    
 
