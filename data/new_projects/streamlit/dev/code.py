@@ -834,3 +834,79 @@ elif page == p1:
     
     elif page_analysis == 4:
         st.header("Geographic Analysis 🗺️")
+
+        import random
+
+        random_value = random.randint(0, 100)
+    
+        gauge_options = {
+            "animation": True,
+            "series": [
+                {
+                    "type": "gauge",
+                    "min": 0,
+                    "max": 100,
+                    "startAngle": 180,
+                    "endAngle": 0,
+                    "progress": {
+                        "show": True,
+                        "width": 12
+                    },
+                    "axisLine": {
+                        "lineStyle": {
+                            "width": 12,
+                            "color": [
+                                [0.5, "#E53935"],
+                                [0.75, "#FB8C00"],
+                                [1, "#2E8B57"]
+                            ]
+                        }
+                    },
+                    "pointer": {
+                        "show": True,
+                        "length": "60%",
+                        "width": 4
+                    },
+                    "axisTick": {
+                        "show": False
+                    },
+                    "splitLine": {
+                        "length": 7,
+                        "lineStyle": {
+                            "width": 2
+                        }
+                    },
+                    "axisLabel": {
+                        "distance": -22,
+                        "fontSize": 10
+                    },
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-10%"],
+                        "fontSize": 24,
+                        "fontWeight": "bold",
+                        "formatter": "{value}"
+                    },
+                    "title": {
+                        "offsetCenter": [0, "25%"],
+                        "fontSize": 13
+                    },
+                    "data": [
+                        {
+                            "value": int(random_value),
+                            "name": "Random Test"
+                        }
+                    ]
+                }
+            ]
+        }
+    
+        st.echarts_chart(
+            gauge_options,
+            height=250,
+            key="geography_test_gauge"
+        )
+    
+        st.caption(f"Test value: {random_value}/100")
+
+
