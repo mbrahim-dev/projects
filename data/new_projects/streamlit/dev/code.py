@@ -653,8 +653,6 @@ elif page == p1:
 
         # create three chart columns with spacing between them
 
-        st.subheader("Product & Channel Performance")
-
         c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         with c1:
