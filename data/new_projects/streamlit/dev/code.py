@@ -264,58 +264,47 @@ elif page == p1:
 
             # calculate comparison metrics
 
-            comparison_years = sorted(
-                [int(year) for year in selected_years],
-                reverse=True
-            )
-
             revenue_delta = None
             profit_delta = None
             orders_delta = None
             costs_delta = None
 
-            if len(comparison_years) >= 2:
+            if len(selected_years) == 1 and int(selected_years[0]) == 2025:
 
-                current_year = comparison_years[0]
-                previous_year = comparison_years[1]
+                comparison_data = df1[df1["year"] == 2024].copy()
 
-                current_data = chart_data[
-                    chart_data["year"] == current_year
-                ]
+                if selected_months:
+                    comparison_data = comparison_data[
+                        comparison_data["month_name"].isin(selected_months)
+                    ]
 
-                previous_data = chart_data[
-                    chart_data["year"] == previous_year
-                ]
+                if selected_quarters:
+                    comparison_data = comparison_data[
+                        comparison_data["quarter"].isin(selected_quarters)
+                    ]
 
-                current_revenue = float(current_data["revenue"].sum())
-                previous_revenue = float(previous_data["revenue"].sum())
-
-                current_profit = float(current_data["profit"].sum())
-                previous_profit = float(previous_data["profit"].sum())
-
-                current_orders = int(current_data["order_id"].nunique())
-                previous_orders = int(previous_data["order_id"].nunique())
-
-                current_costs = float(current_data["cost"].sum())
-                previous_costs = float(previous_data["cost"].sum())
+                previous_revenue = float(comparison_data["revenue"].sum())
+                previous_profit = float(comparison_data["profit"].sum())
+                previous_orders = int(comparison_data["order_id"].nunique())
+                previous_costs = float(comparison_data["cost"].sum())
 
                 revenue_delta = (
-                    (current_revenue - previous_revenue) / abs(previous_revenue) * 100
+                    (revenue - previous_revenue) / abs(previous_revenue) * 100
                     if previous_revenue != 0 else None
                 )
 
                 profit_delta = (
-                    (current_profit - previous_profit) / abs(previous_profit) * 100
+                    (profit - previous_profit) / abs(previous_profit) * 100
                     if previous_profit != 0 else None
                 )
 
                 orders_delta = (
-                    (current_orders - previous_orders) / abs(previous_orders) * 100
+                    (number_of_orders - previous_orders) / abs(previous_orders) * 100
                     if previous_orders != 0 else None
                 )
 
                 costs_delta = (
-                    (current_costs - previous_costs) / abs(previous_costs) * 100
+                    (total_costs - previous_costs) / abs(previous_costs) * 100
                     if previous_costs != 0 else None
                 )
 
@@ -497,7 +486,8 @@ elif page == p1:
                     "tooltip": {
                         "trigger": "axis",
                         "confine": True,
-                        "axisPointer": {"type": "line"}
+                        "axisPointer": {"type": "line"},
+                        "formatter": "{b0}<br/>{a0}: ${c0}K<br/>{a1}: ${c1}K"
                     },
                     "legend": {
                         "data": [str(year) for year in sorted_years],
@@ -587,7 +577,8 @@ elif page == p1:
                         "tooltip": {
                             "trigger": "axis",
                             "confine": True,
-                            "axisPointer": {"type": "line"}
+                            "axisPointer": {"type": "line"},
+                            "formatter": "{b0}<br/>{a0}: ${c0}K<br/>{a1}: ${c1}K"
                         },
                         "legend": {
                             "data": [str(year) for year in sorted_years],
@@ -671,7 +662,8 @@ elif page == p1:
                         "tooltip": {
                             "trigger": "axis",
                             "confine": True,
-                            "axisPointer": {"type": "shadow"}
+                            "axisPointer": {"type": "shadow"},
+                            "formatter": "{b0}<br/>{a0}: ${c0}K<br/>{a1}: ${c1}K"
                         },
                         "legend": {
                             "data": [str(year) for year in sorted_years],
