@@ -522,7 +522,7 @@ elif page == p1:
 
         # header & filters space
 
-        h2, sp9, f2, sp10, f3 = st.columns([4, 0.2, 1.5, 0.2, 1.8])
+        h2, sp9, f2, sp10, f3 = st.columns([4, 0.2, 1, 0.2, 1])
 
         with h2:
             st.header("Product Sales Analysis 🛍️")
@@ -546,8 +546,8 @@ elif page == p1:
 
         # main section
 
-        st.subheader("Category & Channel Overview")
-
+        st.subheader("")
+        
         filtered_df = df1.copy()
 
         if selected_category != "All":
@@ -576,7 +576,7 @@ elif page == p1:
 
         # create three gauge columns with spacing between them
 
-        g1, s11, g2, s12, g3 = st.columns([1, 0.2, 1, 0.2, 1])
+        g1, s11, g2, s12, g3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         with g1:
             gauge(
@@ -655,10 +655,12 @@ elif page == p1:
 
         st.subheader("Product & Channel Performance")
 
-        c1, s13, c2, s14, c3 = st.columns([1, 0.12, 1, 0.12, 1])
+        c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
 
         with c1:
-            st.markdown("**Top 5 Products by Units Sold**")
+            
+            st.subheader("Top 5 Products by Units Sold")
+            st.caption("")
 
             chart_units = alt.Chart(product_units).mark_bar(
                 color="#4387C5"
@@ -681,7 +683,9 @@ elif page == p1:
             st.altair_chart(chart_units, use_container_width=True)
 
         with c2:
-            st.markdown("**Top 5 Products by Profit**")
+            
+            st.subheader("Top 5 Products by Profit")
+            st.caption("")
 
             chart_profit = alt.Chart(product_profit).mark_bar(
                 color="#2E8B57"
@@ -704,7 +708,9 @@ elif page == p1:
             st.altair_chart(chart_profit, use_container_width=True)
 
         with c3:
-            st.markdown("**Revenue vs Profit by Channel**")
+            
+            st.subheader("Revenue vs Profit by Channel")
+            st.caption("")
 
             channel_melted = channel_performance.melt(
                 id_vars="sales_channel",
