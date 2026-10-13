@@ -803,6 +803,8 @@ elif page == p1:
             .sort_values("Revenue", ascending=False)
         )
 
+        st.subheader("")
+
         # create the chart columns
 
         c1, s13, c2, s14, c3 = st.columns([1, 0.3, 1, 0.3, 1])
