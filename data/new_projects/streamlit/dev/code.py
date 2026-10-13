@@ -579,58 +579,183 @@ elif page == p1:
         max_revenue = max(combination_totals["revenue"].max(), 1)
         max_profit = max(combination_totals["profit"].max(), 1)
 
+        
         # create the three gauges
 
         g1, s11, g2, s12, g3 = st.columns([1, 0.3, 1, 0.3, 1])
 
+        # display the units sold circular gauge
+
         with g1:
-            gauge(
-                gVal=units_sold,
-                gTitle="Units Sold",
-                gSize="SML",
-                gTheme="Black",
-                arBot=0,
-                arTop=max(max_units, units_sold, 1),
-                grLow=1500,
-                grMid=3000,
-                gcLow="#E53935",
-                gcMid="#FB8C00",
-                gcHigh="#2E8B57"
+
+            units_gauge_options = {
+                "animation": True,
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 90,
+                    "endAngle": -270,
+                    "min": 0,
+                    "max": float(max(max_units, units_sold, 1)),
+                    "progress": {
+                        "show": True,
+                        "width": 16,
+                        "roundCap": True,
+                        "itemStyle": {"color": "#4387C5"}
+                    },
+                    "axisLine": {
+                        "roundCap": True,
+                        "lineStyle": {
+                            "width": 16,
+                            "color": [[1, "#E8EDF3"]]
+                        }
+                    },
+                    "pointer": {"show": False},
+                    "axisTick": {"show": False},
+                    "splitLine": {"show": False},
+                    "axisLabel": {"show": False},
+                    "title": {
+                        "show": True,
+                        "offsetCenter": [0, "32%"],
+                        "fontSize": 13,
+                        "color": "#64748B"
+                    },
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-5%"],
+                        "fontSize": 23,
+                        "fontWeight": "bold",
+                        "color": "#4387C5",
+                        "formatter": "{value}"
+                    },
+                    "data": [{
+                        "value": int(units_sold),
+                        "name": "Units Sold"
+                    }]
+                }]
+            }
+
+            st.echarts_chart(
+                units_gauge_options,
+                height=250,
+                key="sales_units_circular_gauge"
             )
+
+        # display the revenue circular gauge
 
         with g2:
+
             revenue_max = max(max_revenue, total_revenue, 1)
 
-            gauge(
-                gVal=total_revenue,
-                gTitle="Revenue ($)",
-                gSize="SML",
-                gTheme="Black",
-                arBot=0,
-                arTop=revenue_max,
-                grLow=revenue_max * 0.3,
-                grMid=revenue_max * 0.7,
-                gcLow="#E53935",
-                gcMid="#FB8C00",
-                gcHigh="#2E8B57"
+            revenue_gauge_options = {
+                "animation": True,
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 90,
+                    "endAngle": -270,
+                    "min": 0,
+                    "max": float(revenue_max),
+                    "progress": {
+                        "show": True,
+                        "width": 16,
+                        "roundCap": True,
+                        "itemStyle": {"color": "#8E63CE"}
+                    },
+                    "axisLine": {
+                        "roundCap": True,
+                        "lineStyle": {
+                            "width": 16,
+                            "color": [[1, "#E8EDF3"]]
+                        }
+                    },
+                    "pointer": {"show": False},
+                    "axisTick": {"show": False},
+                    "splitLine": {"show": False},
+                    "axisLabel": {"show": False},
+                    "title": {
+                        "show": True,
+                        "offsetCenter": [0, "32%"],
+                        "fontSize": 13,
+                        "color": "#64748B"
+                    },
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-5%"],
+                        "fontSize": 19,
+                        "fontWeight": "bold",
+                        "color": "#8E63CE",
+                        "formatter": "${value}"
+                    },
+                    "data": [{
+                        "value": float(total_revenue),
+                        "name": "Revenue ($)"
+                    }]
+                }]
+            }
+
+            st.echarts_chart(
+                revenue_gauge_options,
+                height=250,
+                key="sales_revenue_circular_gauge"
             )
+
+        # display the profit circular gauge
 
         with g3:
+
             profit_max = max(max_profit, total_profit, 1)
 
-            gauge(
-                gVal=total_profit,
-                gTitle="Profit ($)",
-                gSize="SML",
-                gTheme="Black",
-                arBot=0,
-                arTop=profit_max,
-                grLow=profit_max * 0.3,
-                grMid=profit_max * 0.7,
-                gcLow="#E53935",
-                gcMid="#FB8C00",
-                gcHigh="#2E8B57"
+            profit_gauge_options = {
+                "animation": True,
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 90,
+                    "endAngle": -270,
+                    "min": 0,
+                    "max": float(profit_max),
+                    "progress": {
+                        "show": True,
+                        "width": 16,
+                        "roundCap": True,
+                        "itemStyle": {"color": "#2E8B57"}
+                    },
+                    "axisLine": {
+                        "roundCap": True,
+                        "lineStyle": {
+                            "width": 16,
+                            "color": [[1, "#E8EDF3"]]
+                        }
+                    },
+                    "pointer": {"show": False},
+                    "axisTick": {"show": False},
+                    "splitLine": {"show": False},
+                    "axisLabel": {"show": False},
+                    "title": {
+                        "show": True,
+                        "offsetCenter": [0, "32%"],
+                        "fontSize": 13,
+                        "color": "#64748B"
+                    },
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-5%"],
+                        "fontSize": 19,
+                        "fontWeight": "bold",
+                        "color": "#2E8B57",
+                        "formatter": "${value}"
+                    },
+                    "data": [{
+                        "value": float(total_profit),
+                        "name": "Profit ($)"
+                    }]
+                }]
+            }
+
+            st.echarts_chart(
+                profit_gauge_options,
+                height=250,
+                key="sales_profit_circular_gauge"
             )
+
 
         # prepare the top five products by units sold
 
@@ -834,169 +959,4 @@ elif page == p1:
         
     elif page_analysis == 4:
     
-        import random
-    
-        # generate a random test value
-    
-        circular_value = random.randint(0, 100)
-    
-        # configure the circular gauge
-    
-        circular_options = {
-            "animation": True,
-            "series": [
-                {
-                    "type": "gauge",
-                    "startAngle": 90,
-                    "endAngle": -270,
-                    "min": 0,
-                    "max": 100,
-                    "progress": {
-                        "show": True,
-                        "width": 18,
-                        "roundCap": True,
-                        "clip": False,
-                        "itemStyle": {
-                            "color": "#4387C5"
-                        }
-                    },
-                    "axisLine": {
-                        "roundCap": True,
-                        "lineStyle": {
-                            "width": 18,
-                            "color": [[1, "#E8EDF3"]]
-                        }
-                    },
-                    "pointer": {
-                        "show": False
-                    },
-                    "axisTick": {
-                        "show": False
-                    },
-                    "splitLine": {
-                        "show": False
-                    },
-                    "axisLabel": {
-                        "show": False
-                    },
-                    "title": {
-                        "show": True,
-                        "offsetCenter": [0, "30%"],
-                        "fontSize": 16,
-                        "color": "#64748B"
-                    },
-                    "detail": {
-                        "valueAnimation": True,
-                        "offsetCenter": [0, "-5%"],
-                        "fontSize": 42,
-                        "fontWeight": "bold",
-                        "color": "#172554",
-                        "formatter": "{value}%"
-                    },
-                    "data": [
-                        {
-                            "value": int(circular_value),
-                            "name": "Performance"
-                        }
-                    ]
-                }
-            ]
-        }
-    
-        # display the circular gauge
-    
-        st.echarts_chart(
-            circular_options,
-            height=350,
-            key="test_circular_gauge"
-        )
 
-
-
-        # generate a random test value
-
-        linear_value = random.randint(0, 100)
-    
-        # configure the linear gauge
-    
-        linear_options = {
-            "animation": True,
-            "grid": {
-                "left": "5%",
-                "right": "5%",
-                "top": "25%",
-                "bottom": "20%"
-            },
-            "xAxis": {
-                "type": "value",
-                "min": 0,
-                "max": 100,
-                "axisLine": {
-                    "show": False
-                },
-                "axisTick": {
-                    "show": False
-                },
-                "splitLine": {
-                    "show": False
-                },
-                "axisLabel": {
-                    "color": "#64748B",
-                    "fontSize": 12,
-                    "formatter": "{value}%"
-                }
-            },
-            "yAxis": {
-                "type": "category",
-                "data": ["Performance"],
-                "axisLine": {
-                    "show": False
-                },
-                "axisTick": {
-                    "show": False
-                },
-                "axisLabel": {
-                    "show": False
-                }
-            },
-            "series": [
-                {
-                    "type": "bar",
-                    "data": [100],
-                    "barWidth": 28,
-                    "barGap": "-100%",
-                    "silent": True,
-                    "itemStyle": {
-                        "color": "#E8EDF3",
-                        "borderRadius": 14
-                    },
-                    "z": 1
-                },
-                {
-                    "type": "bar",
-                    "data": [int(linear_value)],
-                    "barWidth": 28,
-                    "itemStyle": {
-                        "color": "#4387C5",
-                        "borderRadius": 14
-                    },
-                    "label": {
-                        "show": True,
-                        "position": "top",
-                        "formatter": f"{linear_value}% ",
-                        "color": "#172554",
-                        "fontSize": 22,
-                        "fontWeight": "bold"
-                    },
-                    "z": 2
-                }
-            ]
-        }
-    
-        # display the linear gauge
-    
-        st.echarts_chart(
-            linear_options,
-            height=220,
-            key="test_linear_gauge"
-        )
