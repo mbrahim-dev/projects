@@ -517,14 +517,14 @@ elif page == p1:
     
 
     elif page_analysis == 3:
-    
+
         # header & filters space
-    
+
         h2, sp9, f2 = st.columns([5, 0.3, 1.5])
-    
+
         with h2:
             st.header("Product Sales Analysis 🛍️")
-    
+
         with f2:
             selected_category = st.selectbox(
                 "Category",
@@ -534,74 +534,83 @@ elif page == p1:
 
         st.subheader("")
         st.divider()
-    
+
         # main section
-    
+
         st.subheader("")
-    
+
         if selected_category == "All":
             filtered_df = df1.copy()
         else:
             filtered_df = df1[df1["category"] == selected_category]
-    
+
         # calculate the category metrics
-    
+
         units_sold = filtered_df["quantity"].sum()
         total_revenue = filtered_df["revenue"].sum()
         total_profit = filtered_df["profit"].sum()
-    
+
         # calculate the maximum values for the gauges
-    
+
         category_totals = df1.groupby("category")[["quantity", "revenue", "profit"]].sum()
-    
-        max_units = max(category_totals["quantity"].max(), 1)
+
+        max_units = max(category_totals["quantity"].max(), 3000)
         max_revenue = max(category_totals["revenue"].max(), 1)
         max_profit = max(category_totals["profit"].max(), 1)
-    
+
         # create three gauge columns with spacing between them
-    
+
         g1, s10, g2, s11, g3 = st.columns([1, 0.2, 1, 0.2, 1])
 
         with g1:
             gauge(
                 gVal=units_sold,
                 gTitle="Units Sold",
-                gSize="SML",
+                gSize="MED",
+                gTheme="Black",
                 arBot=0,
                 arTop=max_units,
-                grLow=max_units * 0.3,
-                grMid=max_units * 0.7
+                grLow=1500,
+                grMid=3000,
+                gcLow="#E53935",
+                gcMid="#FB8C00",
+                gcHigh="#2E7D32"
             )
-    
+
         with g2:
             gauge(
                 gVal=total_revenue,
-                gTitle="Revenue",
-                gSize="SML",
+                gTitle="Revenue ($)",
+                gSize="MED",
+                gTheme="Black",
                 arBot=0,
                 arTop=max_revenue,
                 grLow=max_revenue * 0.3,
                 grMid=max_revenue * 0.7,
-                gTheme="Black"
+                gcLow="#E53935",
+                gcMid="#FB8C00",
+                gcHigh="#2E7D32"
             )
-    
+
         with g3:
             gauge(
                 gVal=total_profit,
-                gTitle="Profit",
-                gSize="SML",
+                gTitle="Profit ($)",
+                gSize="MED",
+                gTheme="Black",
                 arBot=0,
                 arTop=max_profit,
                 grLow=max_profit * 0.3,
                 grMid=max_profit * 0.7,
-                gTheme="Black"
+                gcLow="#E53935",
+                gcMid="#FB8C00",
+                gcHigh="#2E7D32"
             )
-    
+
         # create the dashboard footer section
-    
+
         st.subheader("")
         st.divider()
-
 
     
     # geographic analysis
