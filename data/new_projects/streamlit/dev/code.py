@@ -520,7 +520,7 @@ elif page == p1:
 
         # header & filters space
 
-        h2, sp9, f2 = st.columns([5, 0.3, 1.5])
+        h2, sp9, f2, sp10 = st.columns([5, 0.3, 1.5, 0.3])
 
         with h2:
             st.header("Product Sales Analysis 🛍️")
@@ -560,13 +560,13 @@ elif page == p1:
 
         # create three gauge columns with spacing between them
 
-        g1, s10, g2, s11, g3 = st.columns([1, 0.2, 1, 0.2, 1])
+        g1, s11, g2, s12, g3 = st.columns([1, 0.2, 1, 0.2, 1])
 
         with g1:
             gauge(
                 gVal=units_sold,
                 gTitle="Units Sold",
-                gSize="MED",
+                gSize="SML",
                 gTheme="Black",
                 arBot=0,
                 arTop=max_units,
@@ -581,7 +581,7 @@ elif page == p1:
             gauge(
                 gVal=total_revenue,
                 gTitle="Revenue ($)",
-                gSize="MED",
+                gSize="SML",
                 gTheme="Black",
                 arBot=0,
                 arTop=max_revenue,
@@ -596,7 +596,7 @@ elif page == p1:
             gauge(
                 gVal=total_profit,
                 gTitle="Profit ($)",
-                gSize="MED",
+                gSize="SML",
                 gTheme="Black",
                 arBot=0,
                 arTop=max_profit,
