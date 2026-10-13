@@ -177,9 +177,10 @@ elif page == p1:
     
     # time analysis
 
+    
     elif page_analysis == 2:
 
-        # prepare data
+        # prepare date fields
 
         df1["order_date"] = pd.to_datetime(df1["order_date"])
         df1["year"] = df1["order_date"].dt.year
@@ -187,8 +188,10 @@ elif page == p1:
         df1["month_name"] = df1["order_date"].dt.strftime("%B")
         df1["quarter"] = df1["order_date"].dt.quarter
 
-        months = ["January", "February", "March", "April", "May", "June",
-                  "July", "August", "September", "October", "November", "December"]
+        months = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ]
 
         # header and filters
 
@@ -203,8 +206,14 @@ elif page == p1:
 
             with year_col:
                 with st.popover("Year"):
-                    available_years = sorted(df1["year"].unique(), reverse=True)
-                    default_years = [year for year in [2025, 2024] if year in available_years]
+                    available_years = sorted(
+                        df1["year"].unique().tolist(),
+                        reverse=True
+                    )
+                    default_years = [
+                        year for year in [2025, 2024]
+                        if year in available_years
+                    ]
 
                     selected_years = st.multiselect(
                         "Select years",
@@ -214,11 +223,17 @@ elif page == p1:
 
             with month_col:
                 with st.popover("Month"):
-                    selected_months = st.multiselect("Select months", months)
+                    selected_months = st.multiselect(
+                        "Select months",
+                        months
+                    )
 
             with quarter_col:
                 with st.popover("Quarter"):
-                    selected_quarters = st.multiselect("Select quarters", [1, 2, 3, 4])
+                    selected_quarters = st.multiselect(
+                        "Select quarters",
+                        [1, 2, 3, 4]
+                    )
 
         st.divider()
 
@@ -229,21 +244,29 @@ elif page == p1:
             chart_data = df1[df1["year"].isin(selected_years)].copy()
 
             if selected_months:
-                chart_data = chart_data[chart_data["month_name"].isin(selected_months)]
+                chart_data = chart_data[
+                    chart_data["month_name"].isin(selected_months)
+                ]
 
             if selected_quarters:
-                chart_data = chart_data[chart_data["quarter"].isin(selected_quarters)]
+                chart_data = chart_data[
+                    chart_data["quarter"].isin(selected_quarters)
+                ]
 
-            # kpi calculations
+            # calculate key metrics
 
-            revenue = chart_data["revenue"].sum()
-            profit = chart_data["profit"].sum()
-            number_of_orders = chart_data["order_id"].nunique()
-            total_costs = chart_data["cost"].sum()
+            revenue = float(chart_data["revenue"].sum())
+            profit = float(chart_data["profit"].sum())
+            number_of_orders = int(chart_data["order_id"].nunique())
+            total_costs = float(chart_data["cost"].sum())
 
-            # compare the two most recent selected years when applicable
+            # compare the two most recent selected years
 
-            comparison_years = sorted(selected_years, reverse=True)
+            comparison_years = sorted(
+                [int(year) for year in selected_years],
+                reverse=True
+            )
+
             revenue_delta = None
             profit_delta = None
             orders_delta = None
@@ -253,34 +276,41 @@ elif page == p1:
                 current_year = comparison_years[0]
                 previous_year = comparison_years[1]
 
-                current_data = chart_data[chart_data["year"] == current_year]
-                previous_data = chart_data[chart_data["year"] == previous_year]
+                current_data = chart_data[
+                    chart_data["year"] == current_year
+                ]
+                previous_data = chart_data[
+                    chart_data["year"] == previous_year
+                ]
 
-                current_revenue = current_data["revenue"].sum()
-                previous_revenue = previous_data["revenue"].sum()
+                current_revenue = float(current_data["revenue"].sum())
+                previous_revenue = float(previous_data["revenue"].sum())
 
-                current_profit = current_data["profit"].sum()
-                previous_profit = previous_data["profit"].sum()
+                current_profit = float(current_data["profit"].sum())
+                previous_profit = float(previous_data["profit"].sum())
 
-                current_orders = current_data["order_id"].nunique()
-                previous_orders = previous_data["order_id"].nunique()
+                current_orders = int(current_data["order_id"].nunique())
+                previous_orders = int(previous_data["order_id"].nunique())
 
                 revenue_delta = (
-                    (current_revenue - previous_revenue) / previous_revenue * 100
+                    (current_revenue - previous_revenue)
+                    / previous_revenue * 100
                     if previous_revenue != 0 else None
                 )
 
                 profit_delta = (
-                    (current_profit - previous_profit) / previous_profit * 100
+                    (current_profit - previous_profit)
+                    / previous_profit * 100
                     if previous_profit != 0 else None
                 )
 
                 orders_delta = (
-                    (current_orders - previous_orders) / previous_orders * 100
+                    (current_orders - previous_orders)
+                    / previous_orders * 100
                     if previous_orders != 0 else None
                 )
 
-            # kpi sidebar
+            # display the metrics and charts in the original layout
 
             kpi_col, sp7, charts_col = st.columns([1.2, 0.1, 4.5])
 
@@ -292,36 +322,46 @@ elif page == p1:
                 st.metric(
                     "💰 Revenue",
                     f"${revenue:,.0f}",
-                    delta=f"{revenue_delta:+.1f}%" if revenue_delta is not None else None
+                    delta=(
+                        f"{revenue_delta:+.1f}%"
+                        if revenue_delta is not None else None
+                    )
                 )
-                
+
                 st.header("")
 
                 st.metric(
                     "📈 Profit",
                     f"${profit:,.0f}",
-                    delta=f"{profit_delta:+.1f}%" if profit_delta is not None else None
+                    delta=(
+                        f"{profit_delta:+.1f}%"
+                        if profit_delta is not None else None
+                    )
                 )
-                
+
                 st.header("")
 
                 st.metric(
                     "🛒 Number of Orders",
                     f"{number_of_orders:,}",
-                    delta=f"{orders_delta:+.1f}%" if orders_delta is not None else None
+                    delta=(
+                        f"{orders_delta:+.1f}%"
+                        if orders_delta is not None else None
+                    )
                 )
-                
+
                 st.header("")
 
-                st.metric("💸 Total Costs", f"${total_costs:,.0f}")
+                st.metric(
+                    "💸 Total Costs",
+                    f"${total_costs:,.0f}"
+                )
 
-            # prepare chart data
+            # prepare year colors
 
-            chart_data["year"] = chart_data["year"].astype(str)
-
-            # dynamic year colors
-
-            sorted_years = sorted(selected_years)
+            sorted_years = sorted(
+                [int(year) for year in selected_years]
+            )
 
             color_palette = [
                 "#0868C9",
@@ -332,189 +372,352 @@ elif page == p1:
                 "#17BECF"
             ]
 
-            year_colors = alt.Scale(
-                domain=[str(year) for year in sorted_years],
-                range=[
-                    color_palette[i % len(color_palette)]
-                    for i in range(len(sorted_years))
-                ]
+            year_color_map = {
+                year: color_palette[i % len(color_palette)]
+                for i, year in enumerate(sorted_years)
+            }
+
+            # prepare monthly revenue data
+
+            monthly_revenue = (
+                chart_data.groupby(
+                    ["year", "month", "month_name"],
+                    as_index=False
+                )["revenue"]
+                .sum()
             )
 
-            # line chart
+            # prepare monthly profit data
+
+            monthly_profit = (
+                chart_data.groupby(
+                    ["year", "month", "month_name"],
+                    as_index=False
+                )["profit"]
+                .sum()
+            )
+
+            # prepare quarterly revenue data
+
+            quarterly_revenue = (
+                chart_data.groupby(
+                    ["year", "quarter"],
+                    as_index=False
+                )["revenue"]
+                .sum()
+            )
+
+            # create the monthly revenue chart
 
             with charts_col:
 
                 st.markdown("**Monthly Revenue Comparison**")
-                st.caption("")
 
-                monthly_revenue = chart_data.groupby(
-                    ["year", "month", "month_name"]
-                )["revenue"].sum().reset_index()
+                revenue_series = []
 
-                monthly_revenue = monthly_revenue.rename(
-                    columns={"month_name": "Month", "revenue": "Revenue"}
-                )
+                for year in sorted_years:
 
-                # dynamic Y-axis range for revenue
+                    year_data = monthly_revenue[
+                        monthly_revenue["year"] == year
+                    ].set_index("month")
 
-                revenue_min = monthly_revenue["Revenue"].min()
-                revenue_max = monthly_revenue["Revenue"].max()
-                revenue_padding = (revenue_max - revenue_min) * 0.15
-
-                if revenue_padding == 0:
-                    revenue_padding = revenue_max * 0.05 if revenue_max != 0 else 1
-
-                revenue_chart = alt.Chart(monthly_revenue).mark_line(
-                    point=True
-                ).encode(
-                    x=alt.X("Month:N", sort=months, title="Month"),
-                    y=alt.Y(
-                        "Revenue:Q",
-                        axis=alt.Axis(format="$,.0f"),
-                        title="Revenue",
-                        scale=alt.Scale(
-                            domain=[
-                                max(0, revenue_min - revenue_padding),
-                                revenue_max + revenue_padding
-                            ],
-                            zero=False
+                    revenue_values = [
+                        (
+                            int(round(float(year_data.loc[month, "revenue"]) / 1000))
+                            if month in year_data.index else None
                         )
-                    ),
-                    color=alt.Color(
-                        "year:N",
-                        title="Year",
-                        scale=year_colors
-                    ),
-                    tooltip=[
-                        alt.Tooltip("year:N", title="Year"),
-                        alt.Tooltip("Month:N", title="Month"),
-                        alt.Tooltip(
-                            "Revenue:Q",
-                            title="Revenue",
-                            format="$,.0f"
-                        )
+                        for month in range(1, 13)
                     ]
-                ).properties(height=350)
 
-                st.altair_chart(revenue_chart, width="stretch")
+                    revenue_series.append({
+                        "name": str(year),
+                        "type": "line",
+                        "smooth": True,
+                        "showSymbol": True,
+                        "symbol": "circle",
+                        "symbolSize": 6,
+                        "connectNulls": False,
+                        "data": revenue_values,
+                        "itemStyle": {
+                            "color": year_color_map[year]
+                        },
+                        "lineStyle": {
+                            "width": 2.5
+                        },
+                        "emphasis": {
+                            "focus": "series"
+                        }
+                    })
+
+                revenue_options = {
+                    "animation": True,
+                    "color": [
+                        year_color_map[year]
+                        for year in sorted_years
+                    ],
+                    "grid": {
+                        "left": 55,
+                        "right": 90,
+                        "top": 35,
+                        "bottom": 70,
+                        "containLabel": True
+                    },
+                    "tooltip": {
+                        "trigger": "axis",
+                        "axisPointer": {
+                            "type": "line"
+                        },
+                        "valueFormatter": "${value}K"
+                    },
+                    "legend": {
+                        "data": [
+                            str(year) for year in sorted_years
+                        ],
+                        "top": 0,
+                        "right": 0
+                    },
+                    "xAxis": {
+                        "type": "category",
+                        "boundaryGap": False,
+                        "data": months,
+                        "name": "Month",
+                        "nameLocation": "middle",
+                        "nameGap": 38,
+                        "axisLabel": {
+                            "rotate": 45,
+                            "fontSize": 10
+                        }
+                    },
+                    "yAxis": {
+                        "type": "value",
+                        "min": 0,
+                        "name": "Revenue ($K)",
+                        "axisLabel": {
+                            "formatter": "${value}K"
+                        },
+                        "splitLine": {
+                            "lineStyle": {
+                                "color": "#E8EDF3"
+                            }
+                        }
+                    },
+                    "series": revenue_series
+                }
+
+                st.echarts_chart(
+                    revenue_options,
+                    height=350,
+                    key="monthly_revenue_echart"
+                )
 
                 st.divider()
 
-                # bottom charts
+                # create the two bottom charts
 
                 profit_col, sp8, quarter_col = st.columns([1, 0.3, 1])
 
-                # profit chart
+                # create the monthly profit chart
 
                 with profit_col:
 
                     st.markdown("**Monthly Profit Comparison**")
-                    st.caption("")
 
-                    monthly_profit = chart_data.groupby(
-                        ["year", "month", "month_name"]
-                    )["profit"].sum().reset_index()
+                    profit_series = []
 
-                    monthly_profit = monthly_profit.rename(
-                        columns={"month_name": "Month", "profit": "Profit"}
+                    for year in sorted_years:
+
+                        year_data = monthly_profit[
+                            monthly_profit["year"] == year
+                        ].set_index("month")
+
+                        profit_values = [
+                            (
+                                int(round(float(year_data.loc[month, "profit"]) / 1000))
+                                if month in year_data.index else None
+                            )
+                            for month in range(1, 13)
+                        ]
+
+                        profit_series.append({
+                            "name": str(year),
+                            "type": "line",
+                            "smooth": True,
+                            "showSymbol": True,
+                            "symbol": "circle",
+                            "symbolSize": 5,
+                            "connectNulls": False,
+                            "data": profit_values,
+                            "itemStyle": {
+                                "color": year_color_map[year]
+                            },
+                            "lineStyle": {
+                                "width": 2.5
+                            },
+                            "emphasis": {
+                                "focus": "series"
+                            }
+                        })
+
+                    profit_options = {
+                        "animation": True,
+                        "color": [
+                            year_color_map[year]
+                            for year in sorted_years
+                        ],
+                        "grid": {
+                            "left": 55,
+                            "right": 20,
+                            "top": 40,
+                            "bottom": 70,
+                            "containLabel": True
+                        },
+                        "tooltip": {
+                            "trigger": "axis",
+                            "axisPointer": {
+                                "type": "line"
+                            },
+                            "valueFormatter": "${value}K"
+                        },
+                        "legend": {
+                            "data": [
+                                str(year) for year in sorted_years
+                            ],
+                            "top": 0,
+                            "right": 0
+                        },
+                        "xAxis": {
+                            "type": "category",
+                            "boundaryGap": False,
+                            "data": months,
+                            "name": "Month",
+                            "nameLocation": "middle",
+                            "nameGap": 38,
+                            "axisLabel": {
+                                "rotate": 45,
+                                "fontSize": 9
+                            }
+                        },
+                        "yAxis": {
+                            "type": "value",
+                            "min": 0,
+                            "name": "Profit ($K)",
+                            "axisLabel": {
+                                "formatter": "${value}K"
+                            },
+                            "splitLine": {
+                                "lineStyle": {
+                                    "color": "#E8EDF3"
+                                }
+                            }
+                        },
+                        "series": profit_series
+                    }
+
+                    st.echarts_chart(
+                        profit_options,
+                        height=300,
+                        key="monthly_profit_echart"
                     )
 
-                    # dynamic Y-axis range for profit
-
-                    profit_min = monthly_profit["Profit"].min()
-                    profit_max = monthly_profit["Profit"].max()
-                    profit_padding = (profit_max - profit_min) * 0.15
-
-                    if profit_padding == 0:
-                        profit_padding = profit_max * 0.05 if profit_max != 0 else 1
-
-                    profit_chart = alt.Chart(monthly_profit).mark_line(
-                        point=True
-                    ).encode(
-                        x=alt.X("Month:N", sort=months, title="Month"),
-                        y=alt.Y(
-                            "Profit:Q",
-                            axis=alt.Axis(format="$,.0f"),
-                            title="Profit",
-                            scale=alt.Scale(
-                                domain=[
-                                    max(0, profit_min - profit_padding),
-                                    profit_max + profit_padding
-                                ],
-                                zero=False
-                            )
-                        ),
-                        color=alt.Color(
-                            "year:N",
-                            title="Year",
-                            scale=year_colors
-                        ),
-                        tooltip=[
-                            alt.Tooltip("year:N", title="Year"),
-                            alt.Tooltip("Month:N", title="Month"),
-                            alt.Tooltip(
-                                "Profit:Q",
-                                title="Profit",
-                                format="$,.0f"
-                            )
-                        ]
-                    ).properties(height=300)
-
-                    st.altair_chart(profit_chart, width="stretch")
-
-                # bar chart
+                # create the quarterly revenue chart
 
                 with quarter_col:
 
                     st.markdown("**Quarterly Revenue Comparison**")
-                    st.caption("")
 
-                    quarterly_revenue = chart_data.groupby(
-                        ["year", "quarter"]
-                    )["revenue"].sum().reset_index()
+                    quarter_labels = ["Q1", "Q2", "Q3", "Q4"]
 
-                    quarterly_revenue["Quarter"] = (
-                        "Q" + quarterly_revenue["quarter"].astype(str)
-                    )
+                    quarter_series = []
 
-                    quarter_chart = alt.Chart(quarterly_revenue).mark_bar(
-                        cornerRadiusTopLeft=4,
-                        cornerRadiusTopRight=4
-                    ).encode(
-                        x=alt.X(
-                            "Quarter:N",
-                            sort=["Q1", "Q2", "Q3", "Q4"],
-                            title="Quarter"
-                        ),
-                        y=alt.Y(
-                            "revenue:Q",
-                            axis=alt.Axis(format="$,.0f"),
-                            title="Revenue",
-                            scale=alt.Scale(zero=True)
-                        ),
-                        color=alt.Color(
-                            "year:N",
-                            title="Year",
-                            scale=year_colors
-                        ),
-                        xOffset="year:N",
-                        tooltip=[
-                            alt.Tooltip("year:N", title="Year"),
-                            alt.Tooltip("Quarter:N", title="Quarter"),
-                            alt.Tooltip(
-                                "revenue:Q",
-                                title="Revenue",
-                                format="$,.0f"
+                    for year in sorted_years:
+
+                        year_data = quarterly_revenue[
+                            quarterly_revenue["year"] == year
+                        ].set_index("quarter")
+
+                        quarter_values = [
+                            (
+                                int(round(float(year_data.loc[quarter, "revenue"]) / 1000))
+                                if quarter in year_data.index else 0
                             )
+                            for quarter in [1, 2, 3, 4]
                         ]
-                    ).properties(height=300)
 
-                    st.altair_chart(quarter_chart, width="stretch")
+                        quarter_series.append({
+                            "name": str(year),
+                            "type": "bar",
+                            "barMaxWidth": 28,
+                            "data": quarter_values,
+                            "itemStyle": {
+                                "color": year_color_map[year],
+                                "borderRadius": [4, 4, 0, 0]
+                            },
+                            "emphasis": {
+                                "focus": "series"
+                            }
+                        })
+
+                    quarter_options = {
+                        "animation": True,
+                        "color": [
+                            year_color_map[year]
+                            for year in sorted_years
+                        ],
+                        "grid": {
+                            "left": 55,
+                            "right": 20,
+                            "top": 40,
+                            "bottom": 45,
+                            "containLabel": True
+                        },
+                        "tooltip": {
+                            "trigger": "axis",
+                            "axisPointer": {
+                                "type": "shadow"
+                            },
+                            "valueFormatter": "${value}K"
+                        },
+                        "legend": {
+                            "data": [
+                                str(year) for year in sorted_years
+                            ],
+                            "top": 0,
+                            "right": 0
+                        },
+                        "xAxis": {
+                            "type": "category",
+                            "data": quarter_labels,
+                            "name": "Quarter",
+                            "nameLocation": "middle",
+                            "nameGap": 28
+                        },
+                        "yAxis": {
+                            "type": "value",
+                            "min": 0,
+                            "name": "Revenue ($K)",
+                            "axisLabel": {
+                                "formatter": "${value}K"
+                            },
+                            "splitLine": {
+                                "lineStyle": {
+                                    "color": "#E8EDF3"
+                                }
+                            }
+                        },
+                        "series": quarter_series
+                    }
+
+                    st.echarts_chart(
+                        quarter_options,
+                        height=300,
+                        key="quarterly_revenue_echart"
+                    )
 
             st.divider()
 
         else:
             st.info("Please select at least one year to display the analysis.")
+
 
     
 
