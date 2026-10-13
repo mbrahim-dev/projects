@@ -714,7 +714,7 @@ elif page == p1:
 
             st.echarts_chart(
                 units_options,
-                height="300px",
+                height=300,
                 key="product_units_echart"
             )
 
@@ -768,7 +768,7 @@ elif page == p1:
 
             st.echarts_chart(
                 profit_options,
-                height="300px",
+                height=300,
                 key="product_profit_echart"
             )
 
@@ -818,7 +818,7 @@ elif page == p1:
 
             st.echarts_chart(
                 channel_options,
-                height="300px",
+                height=300,
                 key="channel_revenue_echart"
             )
 
