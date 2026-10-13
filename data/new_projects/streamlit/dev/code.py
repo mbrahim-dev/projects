@@ -176,7 +176,6 @@ elif page == p1:
 
     
     # time analysis
-
     
     elif page_analysis == 2:
 
@@ -207,9 +206,10 @@ elif page == p1:
             with year_col:
                 with st.popover("Year"):
                     available_years = sorted(
-                        df1["year"].unique().tolist(),
+                        [int(year) for year in df1["year"].dropna().unique()],
                         reverse=True
                     )
+
                     default_years = [
                         year for year in [2025, 2024]
                         if year in available_years
@@ -237,11 +237,13 @@ elif page == p1:
 
         st.divider()
 
-        # apply filters
-
         if selected_years:
 
-            chart_data = df1[df1["year"].isin(selected_years)].copy()
+            # apply filters
+
+            chart_data = df1[
+                df1["year"].isin(selected_years)
+            ].copy()
 
             if selected_months:
                 chart_data = chart_data[
@@ -260,7 +262,7 @@ elif page == p1:
             number_of_orders = int(chart_data["order_id"].nunique())
             total_costs = float(chart_data["cost"].sum())
 
-            # compare the two most recent selected years
+            # calculate comparison metrics
 
             comparison_years = sorted(
                 [int(year) for year in selected_years],
@@ -270,8 +272,9 @@ elif page == p1:
             revenue_delta = None
             profit_delta = None
             orders_delta = None
+            costs_delta = None
 
-            if len(comparison_years) == 2:
+            if len(comparison_years) >= 2:
 
                 current_year = comparison_years[0]
                 previous_year = comparison_years[1]
@@ -279,6 +282,7 @@ elif page == p1:
                 current_data = chart_data[
                     chart_data["year"] == current_year
                 ]
+
                 previous_data = chart_data[
                     chart_data["year"] == previous_year
                 ]
@@ -292,70 +296,117 @@ elif page == p1:
                 current_orders = int(current_data["order_id"].nunique())
                 previous_orders = int(previous_data["order_id"].nunique())
 
+                current_costs = float(current_data["cost"].sum())
+                previous_costs = float(previous_data["cost"].sum())
+
                 revenue_delta = (
-                    (current_revenue - previous_revenue)
-                    / previous_revenue * 100
+                    (current_revenue - previous_revenue) / abs(previous_revenue) * 100
                     if previous_revenue != 0 else None
                 )
 
                 profit_delta = (
-                    (current_profit - previous_profit)
-                    / previous_profit * 100
+                    (current_profit - previous_profit) / abs(previous_profit) * 100
                     if previous_profit != 0 else None
                 )
 
                 orders_delta = (
-                    (current_orders - previous_orders)
-                    / previous_orders * 100
+                    (current_orders - previous_orders) / abs(previous_orders) * 100
                     if previous_orders != 0 else None
                 )
 
-            # display the metrics and charts in the original layout
+                costs_delta = (
+                    (current_costs - previous_costs) / abs(previous_costs) * 100
+                    if previous_costs != 0 else None
+                )
+
+            # prepare the layout
 
             kpi_col, sp7, charts_col = st.columns([1.2, 0.1, 4.5])
 
             with kpi_col:
 
                 st.markdown("**Key Metrics**")
-                st.header("")
 
-                st.metric(
-                    "💰 Revenue",
-                    f"${revenue:,.0f}",
-                    delta=(
-                        f"{revenue_delta:+.1f}%"
-                        if revenue_delta is not None else None
-                    )
-                )
+                # calculate visual progress values
 
-                st.header("")
+                metric_values = [
+                    revenue,
+                    profit,
+                    number_of_orders,
+                    total_costs
+                ]
 
-                st.metric(
-                    "📈 Profit",
-                    f"${profit:,.0f}",
-                    delta=(
-                        f"{profit_delta:+.1f}%"
-                        if profit_delta is not None else None
-                    )
-                )
+                metric_maxima = [
+                    max(abs(value) for value in metric_values) or 1,
+                    max(abs(value) for value in metric_values) or 1,
+                    max(abs(value) for value in metric_values) or 1,
+                    max(abs(value) for value in metric_values) or 1
+                ]
 
-                st.header("")
+                metric_cards = [
+                    {
+                        "title": "Revenue",
+                        "value": f"${revenue:,.0f}",
+                        "delta": revenue_delta,
+                        "color": "#4387C5",
+                        "progress": 100 * abs(revenue) / metric_maxima[0]
+                    },
+                    {
+                        "title": "Profit",
+                        "value": f"${profit:,.0f}",
+                        "delta": profit_delta,
+                        "color": "#8E63CE",
+                        "progress": 100 * abs(profit) / metric_maxima[1]
+                    },
+                    {
+                        "title": "Number of Orders",
+                        "value": f"{number_of_orders:,}",
+                        "delta": orders_delta,
+                        "color": "#FB8C00",
+                        "progress": 100 * abs(number_of_orders) / metric_maxima[2]
+                    },
+                    {
+                        "title": "Total Costs",
+                        "value": f"${total_costs:,.0f}",
+                        "delta": costs_delta,
+                        "color": "#2E8B57",
+                        "progress": 100 * abs(total_costs) / metric_maxima[3]
+                    }
+                ]
 
-                st.metric(
-                    "🛒 Number of Orders",
-                    f"{number_of_orders:,}",
-                    delta=(
-                        f"{orders_delta:+.1f}%"
-                        if orders_delta is not None else None
-                    )
-                )
+                for i, metric in enumerate(metric_cards):
 
-                st.header("")
+                    with st.container(border=True):
 
-                st.metric(
-                    "💸 Total Costs",
-                    f"${total_costs:,.0f}"
-                )
+                        st.markdown(
+                            f"<span style='color:{metric['color']};font-weight:600'>"
+                            f"{metric['title']}</span>",
+                            unsafe_allow_html=True
+                        )
+
+                        st.markdown(
+                            f"<h3 style='margin:0;color:{metric['color']}'>"
+                            f"{metric['value']}</h3>",
+                            unsafe_allow_html=True
+                        )
+
+                        if metric["delta"] is not None:
+
+                            delta_color = (
+                                "#2E8B57"
+                                if metric["delta"] >= 0
+                                else "#E53935"
+                            )
+
+                            st.markdown(
+                                f"<span style='color:{delta_color};font-size:12px'>"
+                                f"{metric['delta']:+.1f}% vs previous year</span>",
+                                unsafe_allow_html=True
+                            )
+
+                        st.progress(
+                            min(1.0, max(0.0, float(metric["progress"]) / 100))
+                        )
 
             # prepare year colors
 
@@ -377,41 +428,30 @@ elif page == p1:
                 for i, year in enumerate(sorted_years)
             }
 
-            # prepare monthly revenue data
+            # prepare monthly and quarterly data
 
             monthly_revenue = (
-                chart_data.groupby(
-                    ["year", "month", "month_name"],
-                    as_index=False
-                )["revenue"]
+                chart_data.groupby(["year", "month"], as_index=False)["revenue"]
                 .sum()
             )
-
-            # prepare monthly profit data
 
             monthly_profit = (
-                chart_data.groupby(
-                    ["year", "month", "month_name"],
-                    as_index=False
-                )["profit"]
+                chart_data.groupby(["year", "month"], as_index=False)["profit"]
                 .sum()
             )
-
-            # prepare quarterly revenue data
 
             quarterly_revenue = (
-                chart_data.groupby(
-                    ["year", "quarter"],
-                    as_index=False
-                )["revenue"]
+                chart_data.groupby(["year", "quarter"], as_index=False)["revenue"]
                 .sum()
             )
 
-            # create the monthly revenue chart
+            # create the chart layout
 
             with charts_col:
 
                 st.markdown("**Monthly Revenue Comparison**")
+
+                # configure monthly revenue series
 
                 revenue_series = []
 
@@ -438,41 +478,29 @@ elif page == p1:
                         "symbolSize": 6,
                         "connectNulls": False,
                         "data": revenue_values,
-                        "itemStyle": {
-                            "color": year_color_map[year]
-                        },
-                        "lineStyle": {
-                            "width": 2.5
-                        },
-                        "emphasis": {
-                            "focus": "series"
-                        }
+                        "itemStyle": {"color": year_color_map[year]},
+                        "lineStyle": {"width": 2.5},
+                        "emphasis": {"focus": "series"}
                     })
+
+                # configure the monthly revenue chart
 
                 revenue_options = {
                     "animation": True,
-                    "color": [
-                        year_color_map[year]
-                        for year in sorted_years
-                    ],
                     "grid": {
                         "left": 55,
-                        "right": 90,
-                        "top": 35,
+                        "right": 30,
+                        "top": 45,
                         "bottom": 70,
                         "containLabel": True
                     },
                     "tooltip": {
                         "trigger": "axis",
-                        "axisPointer": {
-                            "type": "line"
-                        },
-                        "valueFormatter": "${value}K"
+                        "confine": True,
+                        "axisPointer": {"type": "line"}
                     },
                     "legend": {
-                        "data": [
-                            str(year) for year in sorted_years
-                        ],
+                        "data": [str(year) for year in sorted_years],
                         "top": 0,
                         "right": 0
                     },
@@ -483,22 +511,15 @@ elif page == p1:
                         "name": "Month",
                         "nameLocation": "middle",
                         "nameGap": 38,
-                        "axisLabel": {
-                            "rotate": 45,
-                            "fontSize": 10
-                        }
+                        "axisLabel": {"rotate": 45, "fontSize": 10}
                     },
                     "yAxis": {
                         "type": "value",
                         "min": 0,
                         "name": "Revenue ($K)",
-                        "axisLabel": {
-                            "formatter": "${value}K"
-                        },
+                        "axisLabel": {"formatter": "${value}K"},
                         "splitLine": {
-                            "lineStyle": {
-                                "color": "#E8EDF3"
-                            }
+                            "lineStyle": {"color": "#E8EDF3"}
                         }
                     },
                     "series": revenue_series
@@ -516,11 +537,11 @@ elif page == p1:
 
                 profit_col, sp8, quarter_col = st.columns([1, 0.3, 1])
 
-                # create the monthly profit chart
-
                 with profit_col:
 
                     st.markdown("**Monthly Profit Comparison**")
+
+                    # configure monthly profit series
 
                     profit_series = []
 
@@ -547,23 +568,15 @@ elif page == p1:
                             "symbolSize": 5,
                             "connectNulls": False,
                             "data": profit_values,
-                            "itemStyle": {
-                                "color": year_color_map[year]
-                            },
-                            "lineStyle": {
-                                "width": 2.5
-                            },
-                            "emphasis": {
-                                "focus": "series"
-                            }
+                            "itemStyle": {"color": year_color_map[year]},
+                            "lineStyle": {"width": 2.5},
+                            "emphasis": {"focus": "series"}
                         })
+
+                    # configure the monthly profit chart
 
                     profit_options = {
                         "animation": True,
-                        "color": [
-                            year_color_map[year]
-                            for year in sorted_years
-                        ],
                         "grid": {
                             "left": 55,
                             "right": 20,
@@ -573,15 +586,11 @@ elif page == p1:
                         },
                         "tooltip": {
                             "trigger": "axis",
-                            "axisPointer": {
-                                "type": "line"
-                            },
-                            "valueFormatter": "${value}K"
+                            "confine": True,
+                            "axisPointer": {"type": "line"}
                         },
                         "legend": {
-                            "data": [
-                                str(year) for year in sorted_years
-                            ],
+                            "data": [str(year) for year in sorted_years],
                             "top": 0,
                             "right": 0
                         },
@@ -592,22 +601,15 @@ elif page == p1:
                             "name": "Month",
                             "nameLocation": "middle",
                             "nameGap": 38,
-                            "axisLabel": {
-                                "rotate": 45,
-                                "fontSize": 9
-                            }
+                            "axisLabel": {"rotate": 45, "fontSize": 9}
                         },
                         "yAxis": {
                             "type": "value",
                             "min": 0,
                             "name": "Profit ($K)",
-                            "axisLabel": {
-                                "formatter": "${value}K"
-                            },
+                            "axisLabel": {"formatter": "${value}K"},
                             "splitLine": {
-                                "lineStyle": {
-                                    "color": "#E8EDF3"
-                                }
+                                "lineStyle": {"color": "#E8EDF3"}
                             }
                         },
                         "series": profit_series
@@ -619,13 +621,13 @@ elif page == p1:
                         key="monthly_profit_echart"
                     )
 
-                # create the quarterly revenue chart
-
                 with quarter_col:
 
                     st.markdown("**Quarterly Revenue Comparison**")
 
                     quarter_labels = ["Q1", "Q2", "Q3", "Q4"]
+
+                    # configure quarterly revenue series
 
                     quarter_series = []
 
@@ -652,17 +654,13 @@ elif page == p1:
                                 "color": year_color_map[year],
                                 "borderRadius": [4, 4, 0, 0]
                             },
-                            "emphasis": {
-                                "focus": "series"
-                            }
+                            "emphasis": {"focus": "series"}
                         })
+
+                    # configure the quarterly revenue chart
 
                     quarter_options = {
                         "animation": True,
-                        "color": [
-                            year_color_map[year]
-                            for year in sorted_years
-                        ],
                         "grid": {
                             "left": 55,
                             "right": 20,
@@ -672,15 +670,11 @@ elif page == p1:
                         },
                         "tooltip": {
                             "trigger": "axis",
-                            "axisPointer": {
-                                "type": "shadow"
-                            },
-                            "valueFormatter": "${value}K"
+                            "confine": True,
+                            "axisPointer": {"type": "shadow"}
                         },
                         "legend": {
-                            "data": [
-                                str(year) for year in sorted_years
-                            ],
+                            "data": [str(year) for year in sorted_years],
                             "top": 0,
                             "right": 0
                         },
@@ -695,13 +689,9 @@ elif page == p1:
                             "type": "value",
                             "min": 0,
                             "name": "Revenue ($K)",
-                            "axisLabel": {
-                                "formatter": "${value}K"
-                            },
+                            "axisLabel": {"formatter": "${value}K"},
                             "splitLine": {
-                                "lineStyle": {
-                                    "color": "#E8EDF3"
-                                }
+                                "lineStyle": {"color": "#E8EDF3"}
                             }
                         },
                         "series": quarter_series
@@ -717,6 +707,7 @@ elif page == p1:
 
         else:
             st.info("Please select at least one year to display the analysis.")
+
 
 
     
