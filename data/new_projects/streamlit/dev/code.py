@@ -831,82 +831,172 @@ elif page == p1:
 
     
     # geographic analysis
-    
+        
     elif page_analysis == 4:
-        st.header("Geographic Analysis 🗺️")
-
-        import random
-
-        random_value = random.randint(0, 100)
     
-        gauge_options = {
+        import random
+    
+        # generate a random test value
+    
+        circular_value = random.randint(0, 100)
+    
+        # configure the circular gauge
+    
+        circular_options = {
             "animation": True,
             "series": [
                 {
                     "type": "gauge",
+                    "startAngle": 90,
+                    "endAngle": -270,
                     "min": 0,
                     "max": 100,
-                    "startAngle": 180,
-                    "endAngle": 0,
                     "progress": {
                         "show": True,
-                        "width": 12
+                        "width": 18,
+                        "roundCap": True,
+                        "clip": False,
+                        "itemStyle": {
+                            "color": "#4387C5"
+                        }
                     },
                     "axisLine": {
+                        "roundCap": True,
                         "lineStyle": {
-                            "width": 12,
-                            "color": [
-                                [0.5, "#E53935"],
-                                [0.75, "#FB8C00"],
-                                [1, "#2E8B57"]
-                            ]
+                            "width": 18,
+                            "color": [[1, "#E8EDF3"]]
                         }
                     },
                     "pointer": {
-                        "show": True,
-                        "length": "60%",
-                        "width": 4
+                        "show": False
                     },
                     "axisTick": {
                         "show": False
                     },
                     "splitLine": {
-                        "length": 7,
-                        "lineStyle": {
-                            "width": 2
-                        }
+                        "show": False
                     },
                     "axisLabel": {
-                        "distance": -22,
-                        "fontSize": 10
+                        "show": False
+                    },
+                    "title": {
+                        "show": True,
+                        "offsetCenter": [0, "30%"],
+                        "fontSize": 16,
+                        "color": "#64748B"
                     },
                     "detail": {
                         "valueAnimation": True,
-                        "offsetCenter": [0, "-10%"],
-                        "fontSize": 24,
+                        "offsetCenter": [0, "-5%"],
+                        "fontSize": 42,
                         "fontWeight": "bold",
-                        "formatter": "{value}"
-                    },
-                    "title": {
-                        "offsetCenter": [0, "25%"],
-                        "fontSize": 13
+                        "color": "#172554",
+                        "formatter": "{value}%"
                     },
                     "data": [
                         {
-                            "value": int(random_value),
-                            "name": "Random Test"
+                            "value": int(circular_value),
+                            "name": "Performance"
                         }
                     ]
                 }
             ]
         }
     
-        st.echarts_chart(
-            gauge_options,
-            height=250,
-            key="geography_test_gauge"
-        )
+        # display the circular gauge
     
-        st.caption(f"Test value: {random_value}/100")
+        st.echarts_chart(
+            circular_options,
+            height=350,
+            key="test_circular_gauge"
+        )
 
 
+
+        # generate a random test value
+
+        linear_value = random.randint(0, 100)
+    
+        # configure the linear gauge
+    
+        linear_options = {
+            "animation": True,
+            "grid": {
+                "left": "5%",
+                "right": "5%",
+                "top": "25%",
+                "bottom": "20%"
+            },
+            "xAxis": {
+                "type": "value",
+                "min": 0,
+                "max": 100,
+                "axisLine": {
+                    "show": False
+                },
+                "axisTick": {
+                    "show": False
+                },
+                "splitLine": {
+                    "show": False
+                },
+                "axisLabel": {
+                    "color": "#64748B",
+                    "fontSize": 12,
+                    "formatter": "{value}%"
+                }
+            },
+            "yAxis": {
+                "type": "category",
+                "data": ["Performance"],
+                "axisLine": {
+                    "show": False
+                },
+                "axisTick": {
+                    "show": False
+                },
+                "axisLabel": {
+                    "show": False
+                }
+            },
+            "series": [
+                {
+                    "type": "bar",
+                    "data": [100],
+                    "barWidth": 28,
+                    "barGap": "-100%",
+                    "silent": True,
+                    "itemStyle": {
+                        "color": "#E8EDF3",
+                        "borderRadius": 14
+                    },
+                    "z": 1
+                },
+                {
+                    "type": "bar",
+                    "data": [int(linear_value)],
+                    "barWidth": 28,
+                    "itemStyle": {
+                        "color": "#4387C5",
+                        "borderRadius": 14
+                    },
+                    "label": {
+                        "show": True,
+                        "position": "top",
+                        "formatter": f"{linear_value}% ",
+                        "color": "#172554",
+                        "fontSize": 22,
+                        "fontWeight": "bold"
+                    },
+                    "z": 2
+                }
+            ]
+        }
+    
+        # display the linear gauge
+    
+        st.echarts_chart(
+            linear_options,
+            height=220,
+            key="test_linear_gauge"
+        )
