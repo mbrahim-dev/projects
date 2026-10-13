@@ -956,18 +956,7 @@ elif page == p1:
                 ],
                 "tooltip": {
                     "trigger": "item",
-                    "formatter": (
-                        "function(params) {"
-                        "var v = params.value;"
-                        "var revenue = Math.abs(v) >= 1000000"
-                        " ? '$' + (v / 1000000).toFixed(2) + 'M'"
-                        " : Math.abs(v) >= 1000"
-                        " ? '$' + (v / 1000).toFixed(1) + 'K'"
-                        " : '$' + Math.ceil(v);"
-                        "return params.name + '<br/>Revenue: ' + revenue"
-                        " + '<br/>Share: ' + params.percent + '%';"
-                        "}"
-                    )
+                    "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
                 },
                 "legend": {
                     "orient": "horizontal",
