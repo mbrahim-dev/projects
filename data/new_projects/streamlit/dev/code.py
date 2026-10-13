@@ -367,35 +367,37 @@ elif page == p1:
 
                     with st.container(border=True):
 
-                        st.markdown(
-                            f"<span style='color:{metric['color']};font-weight:600'>"
-                            f"{metric['title']}</span>",
-                            unsafe_allow_html=True
-                        )
+                        st.markdown(f"**{metric['title']}**")
 
                         st.markdown(
-                            f"<h3 style='margin:0;color:{metric['color']}'>"
+                            f"<h3 style='margin:0;color:#000000'>"
                             f"{metric['value']}</h3>",
                             unsafe_allow_html=True
                         )
 
                         if metric["delta"] is not None:
 
+                            is_favorable = (
+                                metric["delta"] <= 0
+                                if metric["title"] == "Total Costs"
+                                else metric["delta"] >= 0
+                            )
+
                             delta_color = (
-                                "#2E8B57"
-                                if metric["delta"] >= 0
-                                else "#E53935"
+                                "#2E8B57" if is_favorable else "#E53935"
                             )
 
                             st.markdown(
                                 f"<span style='color:{delta_color};font-size:12px'>"
-                                f"{metric['delta']:+.1f}% vs previous year</span>",
+                                f"{metric['delta']:+.1f}%</span>",
                                 unsafe_allow_html=True
                             )
 
                         st.progress(
                             min(1.0, max(0.0, float(metric["progress"]) / 100))
                         )
+
+                    st.subheader("")
 
             # prepare year colors
 
