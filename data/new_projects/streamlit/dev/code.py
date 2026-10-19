@@ -319,28 +319,28 @@ elif page == p1:
                     "title": "Revenue",
                     "value": f"${revenue:,.0f}",
                     "delta": revenue_delta,
-                    "delta_label": f"vs {comparison_year}",
+                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
                     "progress": min(1.0, max(0.0, revenue / metric_maxima["Revenue"]))
                 },
                 {
                     "title": "Profit",
                     "value": f"${profit:,.0f}",
                     "delta": profit_delta,
-                    "delta_label": f"vs {comparison_year}",
+                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
                     "progress": min(1.0, max(0.0, profit / metric_maxima["Profit"]))
                 },
                 {
                     "title": "Number of Orders",
                     "value": f"{number_of_orders:,}",
                     "delta": orders_delta,
-                    "delta_label": f"vs {comparison_year}",
+                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
                     "progress": min(1.0, max(0.0, number_of_orders / metric_maxima["Number of Orders"]))
                 },
                 {
                     "title": "Total Costs",
                     "value": f"${total_costs:,.0f}",
                     "delta": costs_delta,
-                    "delta_label": f"vs {comparison_year}",
+                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
                     "progress": min(1.0, max(0.0, total_costs / metric_maxima["Total Costs"]))
                 }
             ]
