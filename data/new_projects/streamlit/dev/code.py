@@ -1226,45 +1226,49 @@ elif page == p1:
 
         # page 4 - geographical analysis
         
-        h3, sp17, country_col, category_col2, channel_col2 = st.columns([3, 2, 3])
+        h3, sp17, f3 = st.columns([3, 2, 3])
         
-        with h2:
+        with h3 :
             st.header("Geographical Analysis 🌍")
             st.caption("")
+
+        with f3 :
+            st.markdown("**Filters**")
+            country_col, category_col2, channel_col2 = st.columns(3)
         
     
-        with country_col:
-            with st.popover("Country", use_container_width=True):
-                countries = sorted(df["country"].dropna().unique())
-        
-                selected_countries = st.multiselect(
-                    "Select countries",
-                    options=countries,
-                    default=countries,
-                    key="geo_country_filter",
+            with country_col:
+                with st.popover("Country", use_container_width=True):
+                    countries = sorted(df["country"].dropna().unique())
+            
+                    selected_countries = st.multiselect(
+                        "Select countries",
+                        options=countries,
+                        default=countries,
+                        key="geo_country_filter",
+                    )
+            
+            with category_col2:
+                with st.popover("Category", use_container_width=True):
+                    categories = sorted(df["category"].dropna().unique())
+            
+                    selected_categories = st.multiselect(
+                        "Select categories",
+                        options=categories,
+                    default=categories,
+                    key="geo_category_filter",
+                    )
+            
+            with channel_col2:
+                with st.popover("Channels", use_container_width=True):
+                    channels = sorted(df["sales_channel"].dropna().unique())
+            
+                    selected_channels = st.multiselect(
+                        "Select channels",
+                        options=channels,
+                    default=channels,
+                    key="geo_channel_filter",
                 )
-        
-        with category_col2:
-            with st.popover("Category", use_container_width=True):
-                categories = sorted(df["category"].dropna().unique())
-        
-                selected_categories = st.multiselect(
-                    "Select categories",
-                    options=categories,
-                default=categories,
-                key="geo_category_filter",
-                )
-        
-        with channel_col2:
-            with st.popover("Channels", use_container_width=True):
-                channels = sorted(df["sales_channel"].dropna().unique())
-        
-                selected_channels = st.multiselect(
-                    "Select channels",
-                    options=channels,
-                default=channels,
-                key="geo_channel_filter",
-            )
         
         # apply the filters
         
