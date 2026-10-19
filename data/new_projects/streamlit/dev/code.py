@@ -1281,19 +1281,16 @@ elif page == p1:
     
         # create the map and kpi layout
     
-        map_col, sp18, kpi_col = st.columns([6, 0.3, 2])
+        map_col, sp18, kpi_col = st.columns([6, 1, 2])
     
         with map_col:
-    
-            st.subheader("Revenue by Country")
-    
-            # map placeholder
-    
-            st.info("The geographical map will be displayed here.")
+
+
+
     
         with kpi_col:
     
-            st.subheader("Key Performance Indicators")
+            st.markdown("**Key Performance Indicators**")
             st.caption("")
     
             # calculate key metrics
