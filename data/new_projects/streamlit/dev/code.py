@@ -7,7 +7,7 @@ from streamviz import gauge
 
 # import datasets
 
-df1 = pd.read_csv("data/new_projects/streamlit/datasets/sales_performance.csv")
+df1 = pd.read_csv("data/new_projects/streamlit/dataset/sales_performance.csv")
 
 # page config
 
