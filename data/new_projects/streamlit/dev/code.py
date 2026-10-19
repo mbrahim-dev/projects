@@ -217,9 +217,9 @@ elif page == p1:
                     ]
 
                     selected_years = st.multiselect(
-                        "Select years",
-                        available_years,
-                        default=default_years
+                    "Select years",
+                    available_years,
+                    default=[2025] if 2025 in available_years else available_years[:1]
                     )
 
             with month_col:
