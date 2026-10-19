@@ -1229,7 +1229,7 @@ elif page == p1:
         h3, sp17, f3 = st.columns([3, 2, 3])
     
         with h3:
-            st.header("Geographical Performance 🌍")
+            st.header("Geographical Analysis 🌍")
             st.caption("")
     
         with f3:
@@ -1237,116 +1237,121 @@ elif page == p1:
             country_col, category_col2, channel_col2 = st.columns(3)
     
             with country_col:
-                with st.popover("Country"):
+                with st.popover("Country", use_container_width=True):
                     countries = sorted(df1["country"].dropna().unique())
     
                     selected_countries = st.multiselect(
                         "Select countries",
-                        countries
+                        options=countries,
+                        default=countries,
+                        key="geo_country_filter"
                     )
     
             with category_col2:
-                with st.popover("Category"):
+                with st.popover("Category", use_container_width=True):
                     categories = sorted(df1["category"].dropna().unique())
     
                     selected_categories = st.multiselect(
                         "Select categories",
-                        categories
+                        options=categories,
+                        default=categories,
+                        key="geo_category_filter"
                     )
     
             with channel_col2:
-                with st.popover("Channels"):
+                with st.popover("Channels", use_container_width=True):
                     channels = sorted(df1["sales_channel"].dropna().unique())
-    
-                    default_channels = [
-                        channel for channel in ["Marketplace", "Mobile App"]
-                        if channel in channels
-                    ]
     
                     selected_channels = st.multiselect(
                         "Select channels",
-                        channels,
-                        default=default_channels
+                        options=channels,
+                        default=channels,
+                        key="geo_channel_filter"
                     )
     
+        # apply the filters
+    
+        geo_df = df1[
+            df1["country"].isin(selected_countries)
+            & df1["category"].isin(selected_categories)
+            & df1["sales_channel"].isin(selected_channels)
+        ].copy()
+    
         st.divider()
-        st.caption("")
     
-        # apply filters
+        # create the map and kpi layout
     
-        geo_df = df1.copy()
+        map_col, sp18, kpi_col = st.columns([6, 0.3, 2])
     
-        if selected_countries:
-            geo_df = geo_df[
-                geo_df["country"].isin(selected_countries)
-            ]
+        with map_col:
     
-        if selected_categories:
-            geo_df = geo_df[
-                geo_df["category"].isin(selected_categories)
-            ]
+            st.subheader("Revenue by Country")
     
-        if selected_channels:
-            geo_df = geo_df[
-                geo_df["sales_channel"].isin(selected_channels)
-            ]
+            # map placeholder
     
-        # calculate key metrics
+            st.info("The geographical map will be displayed here.")
     
-        revenue = float(geo_df["revenue"].sum())
-        profit = float(geo_df["profit"].sum())
-        number_of_orders = int(geo_df["order_id"].nunique())
+        with kpi_col:
     
-        # calculate reference values for the metric progress bars
+            st.subheader("Key Performance Indicators")
+            st.caption("")
     
-        metric_maxima = {
-            "Revenue": max(float(df1["revenue"].sum()), 1),
-            "Profit": max(float(df1["profit"].sum()), 1),
-            "Number of Orders": max(int(df1["order_id"].nunique()), 1)
-        }
+            # calculate key metrics
     
-        # prepare key metric cards
+            total_revenue = float(geo_df["revenue"].sum())
+            total_profit = float(geo_df["profit"].sum())
+            total_orders = int(geo_df["order_id"].nunique())
     
-        metric_cards = [
-            {
-                "title": "Revenue",
-                "value": f"${revenue:,.0f}",
-                "progress": min(
-                    1.0,
-                    max(0.0, revenue / metric_maxima["Revenue"])
-                )
-            },
-            {
-                "title": "Profit",
-                "value": f"${profit:,.0f}",
-                "progress": min(
-                    1.0,
-                    max(0.0, profit / metric_maxima["Profit"])
-                )
-            },
-            {
-                "title": "Number of Orders",
-                "value": f"{number_of_orders:,}",
-                "progress": min(
-                    1.0,
-                    max(0.0, number_of_orders / metric_maxima["Number of Orders"])
-                )
+            # calculate reference values for the metric progress bars
+    
+            metric_maxima = {
+                "Revenue": max(float(df1["revenue"].sum()), 1),
+                "Profit": max(float(df1["profit"].sum()), 1),
+                "Number of Orders": max(int(df1["order_id"].nunique()), 1)
             }
-        ]
     
-        # display three key metrics horizontally
+            # prepare key metric cards
     
-        st.markdown("**Key Metrics**")
-        st.caption("")
+            metric_cards = [
+                {
+                    "title": "Revenue",
+                    "value": f"${total_revenue:,.0f}",
+                    "progress": min(
+                        1.0,
+                        max(
+                            0.0,
+                            total_revenue / metric_maxima["Revenue"]
+                        )
+                    )
+                },
+                {
+                    "title": "Profit",
+                    "value": f"${total_profit:,.0f}",
+                    "progress": min(
+                        1.0,
+                        max(
+                            0.0,
+                            total_profit / metric_maxima["Profit"]
+                        )
+                    )
+                },
+                {
+                    "title": "Number of Orders",
+                    "value": f"{total_orders:,}",
+                    "progress": min(
+                        1.0,
+                        max(
+                            0.0,
+                            total_orders / metric_maxima["Number of Orders"]
+                        )
+                    )
+                }
+            ]
     
-        kpi1, kpi2, kpi3 = st.columns(3, gap="medium")
+            # display three key metrics vertically
     
-        for column, metric in zip(
-            [kpi1, kpi2, kpi3],
-            metric_cards
-        ):
+            for metric in metric_cards:
     
-            with column:
                 with st.container(border=True):
     
                     st.markdown(f"**{metric['title']}**")
@@ -1369,16 +1374,9 @@ elif page == p1:
                         )
                     )
     
-        # spacing between metrics and geographical analysis
-    
-        st.subheader("")
-    
-        # geographical map placeholder
-    
-        st.info("The geographical map will be displayed here.")
-    
         # footer
     
+        st.subheader("")
         st.divider()
 
 
