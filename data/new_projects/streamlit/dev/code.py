@@ -711,7 +711,6 @@ elif page == p1:
 
     # product analysis
     
-    
     elif page_analysis == 3:
 
         # create the header and filter columns
@@ -731,12 +730,13 @@ elif page == p1:
             )
 
         with f3:
-            selected_channel = st.selectbox(
-                "Sales Channel",
-                options=["All"] + sorted(
-                    df1["sales_channel"].dropna().unique().tolist()
-                ),
-                index=0
+            available_channels = sorted(
+                df1["sales_channel"].dropna().unique().tolist()
+            )
+            selected_channels = st.multiselect(
+                "Sales Channels",
+                options=available_channels,
+                default=available_channels
             )
 
         st.subheader("")
@@ -751,10 +751,19 @@ elif page == p1:
                 filtered_df["category"] == selected_category
             ]
 
-        if selected_channel != "All":
+        if selected_channels:
             filtered_df = filtered_df[
-                filtered_df["sales_channel"] == selected_channel
+                filtered_df["sales_channel"].isin(selected_channels)
             ]
+        else:
+            filtered_df = filtered_df.iloc[0:0]
+
+        # define a coordinated color palette
+
+        color_units = "#356B8C"
+        color_revenue = "#2A9D8F"
+        color_profit = "#E76F51"
+        color_channels = ["#356B8C", "#2A9D8F", "#E76F51", "#E9C46A"]
 
         # calculate the selected metrics
 
@@ -814,7 +823,7 @@ elif page == p1:
                         "show": True,
                         "width": 16,
                         "roundCap": True,
-                        "itemStyle": {"color": "#4387C5"}
+                        "itemStyle": {"color": color_units}
                     },
                     "axisLine": {
                         "roundCap": True,
@@ -838,7 +847,7 @@ elif page == p1:
                         "offsetCenter": [0, "-5%"],
                         "fontSize": 22,
                         "fontWeight": "bold",
-                        "color": "#4387C5",
+                        "color": color_units,
                         "formatter": units_display
                     },
                     "data": [{
@@ -870,7 +879,7 @@ elif page == p1:
                         "show": True,
                         "width": 16,
                         "roundCap": True,
-                        "itemStyle": {"color": "#8E63CE"}
+                        "itemStyle": {"color": color_revenue}
                     },
                     "axisLine": {
                         "roundCap": True,
@@ -894,7 +903,7 @@ elif page == p1:
                         "offsetCenter": [0, "-5%"],
                         "fontSize": 17,
                         "fontWeight": "bold",
-                        "color": "#8E63CE",
+                        "color": color_revenue,
                         "formatter": revenue_display
                     },
                     "data": [{
@@ -926,7 +935,7 @@ elif page == p1:
                         "show": True,
                         "width": 16,
                         "roundCap": True,
-                        "itemStyle": {"color": "#2E8B57"}
+                        "itemStyle": {"color": color_profit}
                     },
                     "axisLine": {
                         "roundCap": True,
@@ -950,7 +959,7 @@ elif page == p1:
                         "offsetCenter": [0, "-5%"],
                         "fontSize": 17,
                         "fontWeight": "bold",
-                        "color": "#2E8B57",
+                        "color": color_profit,
                         "formatter": profit_display
                     },
                     "data": [{
@@ -987,7 +996,7 @@ elif page == p1:
         # aggregate revenue across all sales channels
 
         channel_performance = (
-            df1.groupby("sales_channel", as_index=False)
+            filtered_df.groupby("sales_channel", as_index=False)
             .agg(Revenue=("revenue", "sum"))
             .sort_values("Revenue", ascending=False)
         )
@@ -1046,14 +1055,14 @@ elif page == p1:
                     ],
                     "barMaxWidth": 24,
                     "itemStyle": {
-                        "color": "#4387C5",
+                        "color": color_units,
                         "borderRadius": [0, 5, 5, 0]
                     },
                     "label": {
                         "show": True,
                         "position": "right",
                         "distance": 6,
-                        "color": "#4387C5",
+                        "color": color_units,
                         "formatter": "{c}"
                     }
                 }]
@@ -1112,14 +1121,14 @@ elif page == p1:
                     ],
                     "barMaxWidth": 24,
                     "itemStyle": {
-                        "color": "#8E63CE",
+                        "color": color_profit,
                         "borderRadius": [0, 5, 5, 0]
                     },
                     "label": {
                         "show": True,
                         "position": "right",
                         "distance": 6,
-                        "color": "#8E63CE",
+                        "color": color_profit,
                         "formatter": "{c}"
                     }
                 }]
@@ -1137,12 +1146,7 @@ elif page == p1:
 
             channel_options = {
                 "animation": True,
-                "color": [
-                    "#4387C5",
-                    "#FB8C00",
-                    "#8E63CE",
-                    "#2E8B57"
-                ],
+                "color": color_channels,
                 "tooltip": {
                     "trigger": "item",
                     "formatter": "{b}<br/>Revenue: ${c}<br/>Share: {d}%"
@@ -1190,7 +1194,6 @@ elif page == p1:
 
         st.subheader("")
         st.divider()
-
 
 
 
