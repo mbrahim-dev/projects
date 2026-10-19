@@ -761,8 +761,8 @@ elif page == p1:
         # define a coordinated color palette
 
         color_units = "#356B8C"
-        color_revenue = "#2A9D8F"
-        color_profit = "#E76F51"
+        color_revenue = "#356B8C"
+        color_profit = "#356B8C"
         color_channels = ["#356B8C", "#2A9D8F", "#E76F51", "#E9C46A"]
 
         # calculate the selected metrics
