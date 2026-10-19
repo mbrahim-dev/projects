@@ -222,6 +222,9 @@ elif page == p1:
                     default=[2025] if 2025 in available_years else available_years[:1]
                     )
 
+            # get the comparison year automatically
+            comparison_year = selected_years[0] - 1
+
             with month_col:
                 with st.popover("Month"):
                     selected_months = st.multiselect(
@@ -243,19 +246,13 @@ elif page == p1:
 
             # apply filters
 
-            chart_data = df1[
-                df1["year"].isin(selected_years)
-            ].copy()
+            chart_data = df1[df1["year"].isin(selected_years)].copy()
 
             if selected_months:
-                chart_data = chart_data[
-                    chart_data["month_name"].isin(selected_months)
-                ]
+                chart_data = chart_data[chart_data["month_name"].isin(selected_months)]
 
             if selected_quarters:
-                chart_data = chart_data[
-                    chart_data["quarter"].isin(selected_quarters)
-                ]
+                chart_data = chart_data[chart_data["quarter"].isin(selected_quarters)]
 
             # calculate key metrics
 
@@ -276,14 +273,10 @@ elif page == p1:
                 comparison_data = df1[df1["year"] == 2024].copy()
 
                 if selected_months:
-                    comparison_data = comparison_data[
-                        comparison_data["month_name"].isin(selected_months)
-                    ]
+                    comparison_data = comparison_data[comparison_data["month_name"].isin(selected_months)]
 
                 if selected_quarters:
-                    comparison_data = comparison_data[
-                        comparison_data["quarter"].isin(selected_quarters)
-                    ]
+                    comparison_data = comparison_data[comparison_data["quarter"].isin(selected_quarters)]
 
                 previous_revenue = float(comparison_data["revenue"].sum())
                 previous_profit = float(comparison_data["profit"].sum())
@@ -326,24 +319,28 @@ elif page == p1:
                     "title": "Revenue",
                     "value": f"${revenue:,.0f}",
                     "delta": revenue_delta,
+                    "delta_label": f"vs {comparison_year}",
                     "progress": min(1.0, max(0.0, revenue / metric_maxima["Revenue"]))
                 },
                 {
                     "title": "Profit",
                     "value": f"${profit:,.0f}",
                     "delta": profit_delta,
+                    "delta_label": f"vs {comparison_year}",
                     "progress": min(1.0, max(0.0, profit / metric_maxima["Profit"]))
                 },
                 {
                     "title": "Number of Orders",
                     "value": f"{number_of_orders:,}",
                     "delta": orders_delta,
+                    "delta_label": f"vs {comparison_year}",
                     "progress": min(1.0, max(0.0, number_of_orders / metric_maxima["Number of Orders"]))
                 },
                 {
                     "title": "Total Costs",
                     "value": f"${total_costs:,.0f}",
                     "delta": costs_delta,
+                    "delta_label": f"vs {comparison_year}",
                     "progress": min(1.0, max(0.0, total_costs / metric_maxima["Total Costs"]))
                 }
             ]
@@ -355,10 +352,8 @@ elif page == p1:
 
             kpi1, kpi2, kpi3, kpi4 = st.columns(4, gap="medium")
 
-            for column, metric in zip(
-                [kpi1, kpi2, kpi3, kpi4],
-                metric_cards
-            ):
+            for column, metric in zip([kpi1, kpi2, kpi3, kpi4],metric_cards):
+                
                 with column:
                     with st.container(border=True):
 
