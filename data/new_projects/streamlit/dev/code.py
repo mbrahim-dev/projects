@@ -761,8 +761,8 @@ elif page == p1:
         # define a coordinated color palette
 
         color_units = "#356B8C"
-        color_revenue = "#356B8C"
-        color_profit = "#356B8C"
+        color_revenue = "#2A9D8F"
+        color_profit = "#E76F51"
         color_channels = ["#356B8C", "#2A9D8F", "#E76F51", "#E9C46A"]
 
         # calculate the selected metrics
@@ -797,11 +797,16 @@ elif page == p1:
             else f"${total_profit:.0f}"
         )
 
-        # set fixed gauge ranges
+        # set gauge ranges and fill them for the complete dataset
 
-        max_units = 30000
-        max_revenue = 5000000
-        max_profit = 2000000
+        show_all_data = (
+            selected_category == "All"
+            and set(selected_channels) == set(available_channels)
+        )
+
+        max_units = max(units_sold, 1) if show_all_data else 30000
+        max_revenue = max(total_revenue, 1) if show_all_data else 5000000
+        max_profit = max(total_profit, 1) if show_all_data else 2000000
 
         # create the three gauges
 
@@ -1194,7 +1199,6 @@ elif page == p1:
 
         st.subheader("")
         st.divider()
-
 
 
     
