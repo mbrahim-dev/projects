@@ -222,9 +222,6 @@ elif page == p1:
                     default=[2025] if 2025 in available_years else available_years[:1]
                     )
 
-            # get the comparison year automatically
-            comparison_year = selected_years[0] - 1
-
             with month_col:
                 with st.popover("Month"):
                     selected_months = st.multiselect(
@@ -243,6 +240,10 @@ elif page == p1:
         st.caption("")
 
         if selected_years:
+
+            # get the comparison year automatically
+            
+            comparison_year = selected_years[0] - 1
 
             # apply filters
 
