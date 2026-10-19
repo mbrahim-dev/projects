@@ -727,9 +727,9 @@ elif page == p1:
             category_col, channel_col = st.columns(2)
 
             with category_col:
-                with st.popover("Channels"):
+                with st.popover("Category"):
                     selected_category = st.selectbox(
-                        "Category",
+                        "Select a category",
                         options=["All"] + sorted(
                             df1["category"].dropna().unique().tolist()
                         ),
@@ -742,7 +742,7 @@ elif page == p1:
                         df1["sales_channel"].dropna().unique().tolist()
                     )
                     selected_channels = st.multiselect(
-                        "Sales Channels",
+                        "Select channels",
                         options=available_channels,
                         default=available_channels
                     )
