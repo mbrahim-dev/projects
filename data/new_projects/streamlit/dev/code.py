@@ -242,8 +242,13 @@ elif page == p1:
         if selected_years:
 
             # get the comparison year automatically
-            
-            comparison_year = selected_years[0] - 1
+
+            selected_year = int(selected_years[0]) if len(selected_years) == 1 else None
+            comparison_year = selected_year - 1 if selected_year is not None else None
+            has_comparison_year = (
+                comparison_year is not None
+                and comparison_year in available_years
+            )
 
             # apply filters
 
@@ -262,16 +267,16 @@ elif page == p1:
             number_of_orders = int(chart_data["order_id"].nunique())
             total_costs = float(chart_data["cost"].sum())
 
-            # calculate year-over-year variations only for 2025 alone
+            # calculate year-over-year variations for a single selected year
 
             revenue_delta = None
             profit_delta = None
             orders_delta = None
             costs_delta = None
 
-            if len(selected_years) == 1 and int(selected_years[0]) == 2025:
+            if has_comparison_year:
 
-                comparison_data = df1[df1["year"] == 2024].copy()
+                comparison_data = df1[df1["year"] == comparison_year].copy()
 
                 if selected_months:
                     comparison_data = comparison_data[comparison_data["month_name"].isin(selected_months)]
@@ -320,28 +325,28 @@ elif page == p1:
                     "title": "Revenue",
                     "value": f"${revenue:,.0f}",
                     "delta": revenue_delta,
-                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
+                    "delta_label": f"vs {comparison_year}" if has_comparison_year else "",
                     "progress": min(1.0, max(0.0, revenue / metric_maxima["Revenue"]))
                 },
                 {
                     "title": "Profit",
                     "value": f"${profit:,.0f}",
                     "delta": profit_delta,
-                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
+                    "delta_label": f"vs {comparison_year}" if has_comparison_year else "",
                     "progress": min(1.0, max(0.0, profit / metric_maxima["Profit"]))
                 },
                 {
                     "title": "Number of Orders",
                     "value": f"{number_of_orders:,}",
                     "delta": orders_delta,
-                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
+                    "delta_label": f"vs {comparison_year}" if has_comparison_year else "",
                     "progress": min(1.0, max(0.0, number_of_orders / metric_maxima["Number of Orders"]))
                 },
                 {
                     "title": "Total Costs",
                     "value": f"${total_costs:,.0f}",
                     "delta": costs_delta,
-                    "delta_label": f"vs {comparison_year}" if comparison_year is not None else "",
+                    "delta_label": f"vs {comparison_year}" if has_comparison_year else "",
                     "progress": min(1.0, max(0.0, total_costs / metric_maxima["Total Costs"]))
                 }
             ]
@@ -380,7 +385,9 @@ elif page == p1:
 
                             st.markdown(
                                 f"<span style='color:{delta_color};font-size:12px'>"
-                                f"{metric['delta']:+.1f}%</span>",
+                                f"{metric['delta']:+.1f}%</span> "
+                                f"<span style='font-size:12px;color:#666666'>"
+                                f"{metric['delta_label']}</span>",
                                 unsafe_allow_html=True
                             )
 
