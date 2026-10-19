@@ -1283,11 +1283,6 @@ elif page == p1:
     
         map_col, sp18, kpi_col = st.columns([6, 1, 2])
     
-        with map_col:
-
-
-
-    
         with kpi_col:
     
             st.markdown("**Key Performance Indicators**")
