@@ -868,65 +868,9 @@ elif page == p1:
                 key="sales_units_circular_gauge"
             )
 
-        # display the revenue circular gauge
-
-        with g2:
-
-            revenue_gauge_options = {
-                "animation": True,
-                "series": [{
-                    "type": "gauge",
-                    "startAngle": 90,
-                    "endAngle": -270,
-                    "min": 0,
-                    "max": max_revenue,
-                    "progress": {
-                        "show": True,
-                        "width": 16,
-                        "roundCap": True,
-                        "itemStyle": {"color": color_revenue}
-                    },
-                    "axisLine": {
-                        "roundCap": True,
-                        "lineStyle": {
-                            "width": 16,
-                            "color": [[1, "#E8EDF3"]]
-                        }
-                    },
-                    "pointer": {"show": False},
-                    "axisTick": {"show": False},
-                    "splitLine": {"show": False},
-                    "axisLabel": {"show": False},
-                    "title": {
-                        "show": True,
-                        "offsetCenter": [0, "32%"],
-                        "fontSize": 13,
-                        "color": "#64748B"
-                    },
-                    "detail": {
-                        "valueAnimation": True,
-                        "offsetCenter": [0, "-5%"],
-                        "fontSize": 17,
-                        "fontWeight": "bold",
-                        "color": color_revenue,
-                        "formatter": revenue_display
-                    },
-                    "data": [{
-                        "value": total_revenue,
-                        "name": "Revenue"
-                    }]
-                }]
-            }
-
-            st.echarts_chart(
-                revenue_gauge_options,
-                height=250,
-                key="sales_revenue_circular_gauge"
-            )
-
         # display the profit circular gauge
 
-        with g3:
+        with g2:
 
             profit_gauge_options = {
                 "animation": True,
@@ -978,6 +922,62 @@ elif page == p1:
                 profit_gauge_options,
                 height=250,
                 key="sales_profit_circular_gauge"
+            )
+
+        # display the revenue circular gauge
+
+        with g3:
+
+            revenue_gauge_options = {
+                "animation": True,
+                "series": [{
+                    "type": "gauge",
+                    "startAngle": 90,
+                    "endAngle": -270,
+                    "min": 0,
+                    "max": max_revenue,
+                    "progress": {
+                        "show": True,
+                        "width": 16,
+                        "roundCap": True,
+                        "itemStyle": {"color": color_revenue}
+                    },
+                    "axisLine": {
+                        "roundCap": True,
+                        "lineStyle": {
+                            "width": 16,
+                            "color": [[1, "#E8EDF3"]]
+                        }
+                    },
+                    "pointer": {"show": False},
+                    "axisTick": {"show": False},
+                    "splitLine": {"show": False},
+                    "axisLabel": {"show": False},
+                    "title": {
+                        "show": True,
+                        "offsetCenter": [0, "32%"],
+                        "fontSize": 13,
+                        "color": "#64748B"
+                    },
+                    "detail": {
+                        "valueAnimation": True,
+                        "offsetCenter": [0, "-5%"],
+                        "fontSize": 17,
+                        "fontWeight": "bold",
+                        "color": color_revenue,
+                        "formatter": revenue_display
+                    },
+                    "data": [{
+                        "value": total_revenue,
+                        "name": "Revenue"
+                    }]
+                }]
+            }
+
+            st.echarts_chart(
+                revenue_gauge_options,
+                height=250,
+                key="sales_revenue_circular_gauge"
             )
 
         # prepare the top five products by units sold
