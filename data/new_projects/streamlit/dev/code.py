@@ -1216,9 +1216,108 @@ elif page == p1:
 
         st.subheader("")
         st.divider()
+        
 
+#########################################################################################
 
+    # product analysis
     
+    elif page_analysis == 4:
+
+        # page 4 - geographical analysis
+        
+        h3, sp17, country_col, category_col2, channel_col2 = st.columns([3, 2, 3])
+        
+        with h2:
+            st.header("Geographical Analysis 🌍")
+            st.caption("")
+        
+    
+        with country_col:
+            with st.popover("Country", use_container_width=True):
+                countries = sorted(df["country"].dropna().unique())
+        
+                selected_countries = st.multiselect(
+                    "Select countries",
+                    options=countries,
+                    default=countries,
+                    key="geo_country_filter",
+                )
+        
+        with category_col2:
+            with st.popover("Category", use_container_width=True):
+                categories = sorted(df["category"].dropna().unique())
+        
+                selected_categories = st.multiselect(
+                    "Select categories",
+                    options=categories,
+                default=categories,
+                key="geo_category_filter",
+                )
+        
+        with channel_col2:
+            with st.popover("Channels", use_container_width=True):
+                channels = sorted(df["sales_channel"].dropna().unique())
+        
+                selected_channels = st.multiselect(
+                    "Select channels",
+                    options=channels,
+                default=channels,
+                key="geo_channel_filter",
+            )
+        
+        # apply the filters
+        
+        geo_df = df[
+            df["country"].isin(selected_countries)
+            & df["category"].isin(selected_categories)
+            & df["sales_channel"].isin(selected_channels)
+        ]
+        
+        st.divider()
+        
+        # create the map and kpi layout
+        
+        map_col, sp18, kpi_col = st.columns([6, 0.3, 2])
+        
+        with map_col:
+            
+            st.subheader("Revenue by Country")
+        
+            # map placeholder
+            
+            st.info("The geographical map will be displayed here.")
+        
+        with kpi_col:
+            
+            st.subheader("Key Performance Indicators")
+        
+            total_revenue = geo_df["revenue"].sum()
+            total_profit = geo_df["profit"].sum()
+            total_orders = geo_df["order_id"].nunique()
+        
+            # revenue kpi
+            
+            st.metric(
+                label="Revenue",
+                value=f"{total_revenue:,.0f} €",
+            )
+        
+            # profit kpi
+            
+            st.metric(
+                label="Profit",
+                value=f"{total_profit:,.0f} €",
+            )
+        
+            # orders kpi
+            
+            st.metric(
+                label="Orders",
+                value=f"{total_orders:,.0f}",
+            )
+        
+        st.divider()
 
 
 
