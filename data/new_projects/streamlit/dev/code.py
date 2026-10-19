@@ -1305,7 +1305,7 @@ elif page == p1:
 
         with map_col:
 
-            st.subheader("Revenue by City")
+            st.caption("")
 
             if not geo_df.empty:
 
