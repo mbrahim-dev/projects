@@ -746,7 +746,7 @@ elif page == p1:
                     )
     
                     default_channels = [
-                        channel for channel in ["Marketplace", "MobileApp"]
+                        channel for channel in ["Marketplace", "Mobile App"]
                         if channel in available_channels
                     ]
     
