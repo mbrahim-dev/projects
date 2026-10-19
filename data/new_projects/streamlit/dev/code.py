@@ -715,30 +715,37 @@ elif page == p1:
 
         # create the header and filter columns
 
-        h2, sp11, f2, sp12, f3 = st.columns([4, 0.2, 1, 0.2, 1])
+        h2, sp11, f2 = st.columns([3, 2, 3])
 
         with h2:
             st.header("Product Sales Analysis 🛍️")
+            st.caption("")
 
         with f2:
-            selected_category = st.selectbox(
-                "Category",
-                options=["All"] + sorted(
-                    df1["category"].dropna().unique().tolist()
-                ),
-                index=0
-            )
+            st.markdown("**Filters**")
+            
+            category_col, channel_col = st.columns(2)
 
-        with f3:
-            with st.popover("Channels"):
-                available_channels = sorted(
-                    df1["sales_channel"].dropna().unique().tolist()
-                )
-                selected_channels = st.multiselect(
-                    "Sales Channels",
-                    options=available_channels,
-                    default=available_channels
-                )
+            with category_col:
+                with st.popover("Channels"):
+                    selected_category = st.selectbox(
+                        "Category",
+                        options=["All"] + sorted(
+                            df1["category"].dropna().unique().tolist()
+                        ),
+                        index=0
+                    )
+
+            with channel_col:
+                with st.popover("Channels"):
+                    available_channels = sorted(
+                        df1["sales_channel"].dropna().unique().tolist()
+                    )
+                    selected_channels = st.multiselect(
+                        "Sales Channels",
+                        options=available_channels,
+                        default=available_channels
+                    )
 
         st.subheader("")
         st.divider()
