@@ -310,6 +310,15 @@ elif page == p1:
                     if previous_costs != 0 else None
                 )
 
+            # calculate reference values for the metric progress bars
+
+            metric_maxima = {
+                "Revenue": max(float(df1["revenue"].sum()), 1),
+                "Profit": max(float(df1["profit"].sum()), 1),
+                "Number of Orders": max(int(df1["order_id"].nunique()), 1),
+                "Total Costs": max(float(df1["cost"].sum()), 1)
+            }
+
             # prepare key metric cards
 
             metric_cards = [
@@ -317,25 +326,25 @@ elif page == p1:
                     "title": "Revenue",
                     "value": f"${revenue:,.0f}",
                     "delta": revenue_delta,
-                    "progress": 1.0
+                    "progress": min(1.0, max(0.0, revenue / metric_maxima["Revenue"]))
                 },
                 {
                     "title": "Profit",
                     "value": f"${profit:,.0f}",
                     "delta": profit_delta,
-                    "progress": 1.0
+                    "progress": min(1.0, max(0.0, profit / metric_maxima["Profit"]))
                 },
                 {
                     "title": "Number of Orders",
                     "value": f"{number_of_orders:,}",
                     "delta": orders_delta,
-                    "progress": 1.0
+                    "progress": min(1.0, max(0.0, number_of_orders / metric_maxima["Number of Orders"]))
                 },
                 {
                     "title": "Total Costs",
                     "value": f"${total_costs:,.0f}",
                     "delta": costs_delta,
-                    "progress": 1.0
+                    "progress": min(1.0, max(0.0, total_costs / metric_maxima["Total Costs"]))
                 }
             ]
 
