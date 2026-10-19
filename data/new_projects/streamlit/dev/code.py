@@ -1221,99 +1221,94 @@ elif page == p1:
 ##########################################################################################
 
     # geographical analysis
-    
+
     elif page_analysis == 4:
-    
+
+        # header and filters
+
         h3, sp17, f3 = st.columns([3, 2, 3])
-    
+
         with h3:
             st.header("Geographical Analysis 🌍")
-    
+            st.caption("")
+
         with f3:
             st.markdown("**Filters**")
-    
             country_col, city_col, category_col2, channel_col2 = st.columns(4)
-    
-            # Country filter
+
             with country_col:
                 with st.popover("Country", use_container_width=True):
                     countries = sorted(df1["country"].dropna().unique())
-    
+
                     selected_countries = st.multiselect(
                         "Select countries",
                         options=countries,
                         default=countries,
-                        key="geo_country_filter",
+                        key="geo_country_filter"
                     )
-    
-            # City filter: cities depend on selected countries
+
+            # City filter depending on selected countries
+
             city_options = sorted(
                 df1.loc[
                     df1["country"].isin(selected_countries),
                     "city"
                 ].dropna().unique()
             )
-    
-            # Remove previously selected cities that are no longer available
-            if "geo_city_filter" in st.session_state:
-                st.session_state["geo_city_filter"] = [
-                    city for city in st.session_state["geo_city_filter"]
-                    if city in city_options
-                ]
-    
+
             with city_col:
                 with st.popover("City", use_container_width=True):
+
                     selected_cities = st.multiselect(
                         "Select cities",
                         options=city_options,
                         default=city_options,
-                        key="geo_city_filter",
+                        key="geo_city_filter"
                     )
-    
-            # Category filter
+
             with category_col2:
                 with st.popover("Category", use_container_width=True):
                     categories = sorted(df1["category"].dropna().unique())
-    
+
                     selected_categories = st.multiselect(
                         "Select categories",
                         options=categories,
                         default=categories,
-                        key="geo_category_filter",
+                        key="geo_category_filter"
                     )
-    
-            # Channel filter
+
             with channel_col2:
                 with st.popover("Channels", use_container_width=True):
                     channels = sorted(df1["sales_channel"].dropna().unique())
-    
+
                     selected_channels = st.multiselect(
                         "Select channels",
                         options=channels,
-                    default=channels,
-                    key="geo_channel_filter",
-                )
-    
-        # Apply all filters
+                        default=channels,
+                        key="geo_channel_filter"
+                    )
+
+        # apply the filters
+
         geo_df = df1[
             df1["country"].isin(selected_countries)
             & df1["city"].isin(selected_cities)
             & df1["category"].isin(selected_categories)
             & df1["sales_channel"].isin(selected_channels)
         ].copy()
-    
+
         st.divider()
-    
-        # Map and KPI layout
-        map_col, sp18, kpi_col = st.columns([6, 0.3, 2])
-    
+
+        # create the map and kpi layout
+
+        map_col, sp18, kpi_col = st.columns([6, 1, 2])
+
         with map_col:
-    
+
             st.subheader("Revenue by City")
-    
+
             if not geo_df.empty:
-    
-                # Aggregate sales by city
+
                 city_map = (
                     geo_df.groupby(
                         ["country", "city", "latitude", "longitude"],
@@ -1322,48 +1317,107 @@ elif page == p1:
                     .agg(
                         revenue=("revenue", "sum"),
                         profit=("profit", "sum"),
-                        orders=("order_id", "nunique"),
+                        orders=("order_id", "nunique")
                     )
                 )
-    
-                # Interactive map with one point per city
+
                 st.map(
                     city_map,
                     latitude="latitude",
                     longitude="longitude",
                     size="revenue",
-                    use_container_width=True,
+                    use_container_width=True
                 )
-    
+
             else:
                 st.info("No data available for the selected filters.")
-    
+
         with kpi_col:
-    
-            st.subheader("Key Performance Indicators")
-    
-            total_revenue = geo_df["revenue"].sum()
-            total_profit = geo_df["profit"].sum()
-            total_orders = geo_df["order_id"].nunique()
-    
-            # Revenue KPI
-            st.metric(
-                label="Revenue",
-                value=f"{total_revenue:,.0f} €",
-            )
-    
-            # Profit KPI
-            st.metric(
-                label="Profit",
-                value=f"{total_profit:,.0f} €",
-            )
-    
-            # Orders KPI
-            st.metric(
-                label="Orders",
-                value=f"{total_orders:,.0f}",
-            )
-    
+
+            st.markdown("**Key Performance Indicators**")
+            st.caption("")
+
+            # calculate key metrics
+
+            total_revenue = float(geo_df["revenue"].sum())
+            total_profit = float(geo_df["profit"].sum())
+            total_orders = int(geo_df["order_id"].nunique())
+
+            # calculate reference values for the metric progress bars
+
+            metric_maxima = {
+                "Revenue": max(float(df1["revenue"].sum()), 1),
+                "Profit": max(float(df1["profit"].sum()), 1),
+                "Number of Orders": max(int(df1["order_id"].nunique()), 1)
+            }
+
+            # prepare key metric cards
+
+            metric_cards = [
+                {
+                    "title": "Revenue",
+                    "value": f"${total_revenue:,.0f}",
+                    "progress": min(
+                        1.0,
+                        max(
+                            0.0,
+                            total_revenue / metric_maxima["Revenue"]
+                        )
+                    )
+                },
+                {
+                    "title": "Profit",
+                    "value": f"${total_profit:,.0f}",
+                    "progress": min(
+                        1.0,
+                        max(
+                            0.0,
+                            total_profit / metric_maxima["Profit"]
+                        )
+                    )
+                },
+                {
+                    "title": "Number of Orders",
+                    "value": f"{total_orders:,}",
+                    "progress": min(
+                        1.0,
+                        max(
+                            0.0,
+                            total_orders / metric_maxima["Number of Orders"]
+                        )
+                    )
+                }
+            ]
+
+            # display three key metrics vertically
+
+            for metric in metric_cards:
+
+                with st.container(border=True):
+
+                    st.markdown(f"**{metric['title']}**")
+
+                    st.markdown(
+                        f"<h3 style='margin:0;color:#000000'>"
+                        f"{metric['value']}</h3>",
+                        unsafe_allow_html=True
+                    )
+
+                    st.markdown(
+                        "<span style='font-size:12px'>&nbsp;</span>",
+                        unsafe_allow_html=True
+                    )
+
+                    st.progress(
+                        min(
+                            1.0,
+                            max(0.0, float(metric["progress"]))
+                        )
+                    )
+
+        # footer
+
+        st.subheader("")
         st.divider()
 
 
