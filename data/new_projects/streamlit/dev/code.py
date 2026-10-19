@@ -730,14 +730,15 @@ elif page == p1:
             )
 
         with f3:
-            available_channels = sorted(
-                df1["sales_channel"].dropna().unique().tolist()
-            )
-            selected_channels = st.multiselect(
-                "Sales Channels",
-                options=available_channels,
-                default=available_channels
-            )
+            with st.popover("Channels"):
+                available_channels = sorted(
+                    df1["sales_channel"].dropna().unique().tolist()
+                )
+                selected_channels = st.multiselect(
+                    "Sales Channels",
+                    options=available_channels,
+                    default=available_channels
+                )
 
         st.subheader("")
         st.divider()
