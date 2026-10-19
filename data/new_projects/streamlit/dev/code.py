@@ -712,41 +712,50 @@ elif page == p1:
     # product analysis
     
     elif page_analysis == 3:
-
+    
         # create the header and filter columns
-
+    
         h2, sp11, f2 = st.columns([3, 2, 3])
-
+    
         with h2:
             st.header("Product Sales Analysis 🛍️")
             st.caption("")
-
+    
         with f2:
             st.markdown("**Filters**")
-            
+    
             category_col, channel_col = st.columns(2)
-
+    
             with category_col:
                 with st.popover("Category"):
+                    available_categories = sorted(
+                        df1["category"].dropna().unique().tolist()
+                    )
+    
                     selected_category = st.selectbox(
                         "Select a category",
-                        options=["All"] + sorted(
-                            df1["category"].dropna().unique().tolist()
-                        ),
-                        index=0
+                        options=["All"] + available_categories,
+                        index=(available_categories.index("Books") + 1)
+                        if "Books" in available_categories else 0
                     )
-
+    
             with channel_col:
                 with st.popover("Channels"):
                     available_channels = sorted(
                         df1["sales_channel"].dropna().unique().tolist()
                     )
+    
+                    default_channels = [
+                        channel for channel in ["Marketplace", "MobileApp"]
+                        if channel in available_channels
+                    ]
+    
                     selected_channels = st.multiselect(
                         "Select channels",
                         options=available_channels,
-                        default=available_channels
+                        default=default_channels
                     )
-
+    
         st.subheader("")
         st.divider()
 
