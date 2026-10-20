@@ -6,7 +6,6 @@ import altair as alt
 from streamviz import gauge
 import json
 import streamlit.components.v1 as components
-import * as echarts from 'echarts'
 
 # import datasets
 
