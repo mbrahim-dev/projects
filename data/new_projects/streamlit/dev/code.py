@@ -1926,6 +1926,4 @@ elif page == p1:
                         min(1.0, max(0.0, float(metric["progress"])))
                     )
 
-        # Footer
-        st.subheader("")
         st.divider()
