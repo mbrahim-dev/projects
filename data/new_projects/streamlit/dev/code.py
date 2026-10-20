@@ -6,6 +6,7 @@ import altair as alt
 from streamviz import gauge
 import json
 import streamlit.components.v1 as components
+import * as echarts from 'echarts'
 
 # import datasets
 
@@ -1307,7 +1308,6 @@ elif page == p1:
 
         
         with map_col:
-            st.markdown("**Global Sales Performance**")
 
             if geo_df.empty:
                 st.info("No data available for the selected filters.")
@@ -1375,7 +1375,7 @@ elif page == p1:
 
                 st_echarts(
                     options=options,
-                    height="550",
+                    height="550px",
                     key="geographical_sales_map"
                 )
 
@@ -1390,7 +1390,6 @@ elif page == p1:
             total_revenue = float(geo_df["revenue"].sum())
             total_profit = float(geo_df["profit"].sum())
             total_orders = int(geo_df["order_id"].nunique())
-            total_units = int(geo_df["quantity"].sum())
 
             # calculate reference values for the metric progress bars
 
