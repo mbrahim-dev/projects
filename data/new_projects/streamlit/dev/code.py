@@ -1914,6 +1914,14 @@ elif page == p1:
                 }
             ]
 
+            # Colors matching the map legend
+            metric_colors = {
+                "Revenue": "#2A9D8F",
+                "Profit": "#E9C46A",
+                "Number of Orders": "#E76F51",
+                "Units Sold": "#457B9D"
+            }
+
             for metric in metric_cards:
                 with st.container(border=True):
                     st.markdown(f"**{metric['title']}**")
@@ -1922,8 +1930,31 @@ elif page == p1:
                         f"{metric['value']}</h3>",
                         unsafe_allow_html=True
                     )
-                    st.progress(
-                        min(1.0, max(0.0, float(metric["progress"])))
+
+                    progress = min(
+                        1.0,
+                        max(0.0, float(metric["progress"]))
+                    )
+                    color = metric_colors[metric["title"]]
+
+                    st.markdown(
+                        f"""
+                        <div style="
+                            width:100%;
+                            height:8px;
+                            background-color:#E6EAF0;
+                            border-radius:10px;
+                            overflow:hidden;
+                        ">
+                            <div style="
+                                width:{progress * 100:.2f}%;
+                                height:100%;
+                                background-color:{color};
+                                border-radius:10px;
+                            "></div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
                     )
 
         st.divider()
