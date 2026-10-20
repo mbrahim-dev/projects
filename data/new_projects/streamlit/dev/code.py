@@ -1691,7 +1691,75 @@ elif page == p1:
                                 }
                             })
 
-                        # Native pie chart positioned at the city's coordinates
+                    # Build native ECharts pie series for each city
+                    pie_series = []
+
+                    metric_styles = [
+                        {
+                            "name": "Revenue",
+                            "color": "#2A9D8F",
+                            "value_key": "revenue",
+                            "format": "currency"
+                        },
+                        {
+                            "name": "Profit",
+                            "color": "#E9C46A",
+                            "value_key": "profit",
+                            "format": "currency"
+                        },
+                        {
+                            "name": "Number of Orders",
+                            "color": "#E76F51",
+                            "value_key": "orders",
+                            "format": "number"
+                        },
+                        {
+                            "name": "Units Sold",
+                            "color": "#457B9D",
+                            "value_key": "units_sold",
+                            "format": "number"
+                        }
+                    ]
+
+                    # Normalize each metric separately to make all slices visible
+                    metric_maxima = {
+                        metric["value_key"]: max(
+                            float(city_map[metric["value_key"]].max()), 0
+                        )
+                        for metric in metric_styles
+                    }
+
+                    for row in city_map.itertuples():
+                        city_name = str(row.city)
+                        country_name = str(row.country)
+
+                        pie_data = []
+
+                        for metric in metric_styles:
+                            actual_value = float(
+                                getattr(row, metric["value_key"])
+                            )
+
+                            # Use a common scale for the visual pie slices
+                            metric_max = metric_maxima[metric["value_key"]]
+                            normalized_value = (
+                                max(actual_value, 0) / metric_max * 100
+                                if metric_max > 0
+                                else 0
+                            )
+
+                            pie_data.append({
+                                "name": metric["name"],
+                                "value": normalized_value,
+                                "actualValue": actual_value,
+                                "city": city_name,
+                                "country": country_name,
+                                "format": metric["format"],
+                                "itemStyle": {
+                                    "color": metric["color"]
+                                }
+                            })
+
                         pie_series.append({
                             "name": city_name,
                             "type": "pie",
@@ -1750,7 +1818,7 @@ elif page == p1:
                                         '<span style="color:' +
                                         params.color + '">●</span> ' +
                                         d.name + ': ' + displayValue +
-                                        '<br/>Share: ' +
+                                        '<br/>Normalized share: ' +
                                         Number(params.percent).toFixed(1) +
                                         '%';
                                 }
@@ -1759,6 +1827,7 @@ elif page == p1:
                         "geo": geo_options,
                         "series": pie_series
                     }
+
 
                     # Recreate the chart when the country changes
                     map_key = (
