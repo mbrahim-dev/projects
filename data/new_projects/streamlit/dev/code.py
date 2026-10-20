@@ -1230,11 +1230,12 @@ elif page == p1:
 ##########################################################################################
 
 
-     # geographic analysis 
+     # Geographical Analysis
 
     elif page_analysis == 4:
 
         import unicodedata
+        import math
 
         # Header and filters
         h3, sp17, f3 = st.columns([3, 2, 3])
@@ -1362,104 +1363,182 @@ elif page == p1:
                     .dropna(subset=["latitude", "longitude"])
                 )
 
-                # Limit the number of plotted cities to avoid overloading the map
+                # Limit plotted cities to avoid overloading the map
                 MAX_CITIES = 100
 
                 if len(city_map) > MAX_CITIES:
                     city_map = city_map.nlargest(MAX_CITIES, "revenue")
 
-                # Get the actual geographic boundaries of the selected country
-                def normalize_geo_name(value):
-                    value = str(value).strip().lower()
-                    value = unicodedata.normalize("NFKD", value)
-                    return "".join(
-                        char for char in value
-                        if not unicodedata.combining(char)
-                    )
-
-                def get_country_bounds(geojson, country_name):
-                    aliases = {
-                        "usa": "united states of america",
-                        "united states": "united states of america",
-                        "uk": "united kingdom",
-                    }
-
-                    target = normalize_geo_name(country_name)
-                    target = aliases.get(target, target)
-
-                    def collect_coords(obj, result):
-                        if isinstance(obj, list):
-                            if (
-                                len(obj) >= 2
-                                and isinstance(obj[0], (int, float))
-                                and isinstance(obj[1], (int, float))
-                            ):
-                                result.append(
-                                    (float(obj[0]), float(obj[1]))
-                                )
-                            else:
-                                for item in obj:
-                                    collect_coords(item, result)
-
-                    for feature in geojson.get("features", []):
-                        properties = feature.get("properties", {})
-
-                        names = [
-                            properties.get("name"),
-                            properties.get("NAME"),
-                            properties.get("ADMIN"),
-                            properties.get("admin"),
-                            properties.get("name_en"),
-                        ]
-
-                        normalized_names = [
-                            normalize_geo_name(name)
-                            for name in names
-                            if name is not None
-                        ]
-
-                        if target not in normalized_names:
-                            continue
-
-                        geometry = feature.get("geometry") or {}
-                        coords = []
-
-                        collect_coords(
-                            geometry.get("coordinates", []),
-                            coords
-                        )
-
-                        if not coords:
-                            return None
-
-                        longitudes = [point[0] for point in coords]
-                        latitudes = [point[1] for point in coords]
-
-                        return {
-                            "min_lon": min(longitudes),
-                            "max_lon": max(longitudes),
-                            "min_lat": min(latitudes),
-                            "max_lat": max(latitudes),
-                        }
-
-                    return None
-
                 if city_map.empty:
                     st.info("No valid geographic coordinates available.")
                 else:
+
+                    # Normalize country names for GeoJSON matching
+                    def normalize_geo_name(value):
+                        value = str(value).strip().lower()
+                        value = unicodedata.normalize("NFKD", value)
+                        return "".join(
+                            char for char in value
+                            if not unicodedata.combining(char)
+                        )
+
+                    # Get country boundaries from GeoJSON
+                    def get_country_bounds(geojson, country_name):
+
+                        aliases = {
+                            "usa": [
+                                "united states",
+                                "united states of america"
+                            ],
+                            "united states": [
+                                "united states",
+                                "united states of america"
+                            ],
+                            "united states of america": [
+                                "united states",
+                                "united states of america"
+                            ],
+                            "uk": [
+                                "uk",
+                                "united kingdom",
+                                "united kingdom of great britain and northern ireland"
+                            ],
+                            "united kingdom": [
+                                "uk",
+                                "united kingdom",
+                                "united kingdom of great britain and northern ireland"
+                            ],
+                            "united kingdom of great britain and northern ireland": [
+                                "uk",
+                                "united kingdom",
+                                "united kingdom of great britain and northern ireland"
+                            ],
+                        }
+
+                        target = normalize_geo_name(country_name)
+                        target_names = aliases.get(target, [target])
+
+                        target_names = [
+                            normalize_geo_name(name)
+                            for name in target_names
+                        ]
+
+                        def collect_coords(obj, result):
+                            if isinstance(obj, list):
+                                if (
+                                    len(obj) >= 2
+                                    and isinstance(obj[0], (int, float))
+                                    and isinstance(obj[1], (int, float))
+                                ):
+                                    lon = float(obj[0])
+                                    lat = float(obj[1])
+
+                                    if (
+                                        math.isfinite(lon)
+                                        and math.isfinite(lat)
+                                    ):
+                                        result.append((lon, lat))
+                                else:
+                                    for item in obj:
+                                        collect_coords(item, result)
+
+                        for feature in geojson.get("features", []):
+                            properties = feature.get("properties", {})
+
+                            names = [
+                                properties.get("name"),
+                                properties.get("NAME"),
+                                properties.get("ADMIN"),
+                                properties.get("admin"),
+                                properties.get("name_en"),
+                            ]
+
+                            feature_names = [
+                                normalize_geo_name(name)
+                                for name in names
+                                if name is not None
+                            ]
+
+                            if not any(
+                                name in target_names
+                                for name in feature_names
+                            ):
+                                continue
+
+                            geometry = feature.get("geometry") or {}
+                            coords = []
+
+                            collect_coords(
+                                geometry.get("coordinates", []),
+                                coords
+                            )
+
+                            if not coords:
+                                return None
+
+                            longitudes = [point[0] for point in coords]
+                            latitudes = [point[1] for point in coords]
+
+                            return {
+                                "min_lon": min(longitudes),
+                                "max_lon": max(longitudes),
+                                "min_lat": min(latitudes),
+                                "max_lat": max(latitudes),
+                            }
+
+                        return None
+
+                    # Load and register the world map
                     world_geojson = load_world_geojson()
 
-                    # Register the world map
                     world_map = Map(
                         map_name="world",
                         geo_json=world_geojson
                     )
 
-                    # Fit the map to the selected country's boundaries
-                    country_bounds = get_country_bounds(
-                        world_geojson,
-                        selected_country
-                    )
+                    # Country-specific boundaries for better framing
+                    normalized_country = normalize_geo_name(selected_country)
+
+                    country_bounds_overrides = {
+                        # Metropolitan France only, excluding French Guiana
+                        "france": {
+                            "min_lon": -5.5,
+                            "max_lon": 9.8,
+                            "min_lat": 41.2,
+                            "max_lat": 51.3
+                        },
+
+                        # Great Britain and Northern Ireland
+                        "united kingdom": {
+                            "min_lon": -8.7,
+                            "max_lon": 2.0,
+                            "min_lat": 49.8,
+                            "max_lat": 59.5
+                        },
+                        "uk": {
+                            "min_lon": -8.7,
+                            "max_lon": 2.0,
+                            "min_lat": 49.8,
+                            "max_lat": 59.5
+                        },
+                        "united kingdom of great britain and northern ireland": {
+                            "min_lon": -8.7,
+                            "max_lon": 2.0,
+                            "min_lat": 49.8,
+                            "max_lat": 59.5
+                        }
+                    }
+
+                    # Use explicit boundaries for France and the UK
+                    if normalized_country in country_bounds_overrides:
+                        country_bounds = country_bounds_overrides[
+                            normalized_country
+                        ]
+                    else:
+                        country_bounds = get_country_bounds(
+                            world_geojson,
+                            selected_country
+                        )
 
                     geo_options = {
                         "map": "world",
@@ -1479,20 +1558,20 @@ elif page == p1:
                         }
                     }
 
+                    # Fit the map to the selected country's boundaries
                     if country_bounds:
                         min_lon = country_bounds["min_lon"]
                         max_lon = country_bounds["max_lon"]
                         min_lat = country_bounds["min_lat"]
                         max_lat = country_bounds["max_lat"]
 
-                        # Add a small margin around the country
                         lon_span = max(max_lon - min_lon, 0.1)
                         lat_span = max(max_lat - min_lat, 0.1)
 
-                        lon_margin = lon_span * 0.04
-                        lat_margin = lat_span * 0.04
+                        # Small padding around the country
+                        lon_margin = lon_span * 0.035
+                        lat_margin = lat_span * 0.035
 
-                        # Use the country's actual boundaries for map framing
                         geo_options["boundingCoords"] = [
                             [
                                 min_lon - lon_margin,
@@ -1505,14 +1584,28 @@ elif page == p1:
                         ]
 
                     else:
-                        # Fall back to the selected country's data coordinates
+                        # Fallback to coordinates in the dataset
                         country_geo = (
                             df1.loc[
                                 df1["country"] == selected_country,
                                 ["latitude", "longitude"]
                             ]
-                            .dropna()
+                            .copy()
                         )
+
+                        country_geo["latitude"] = pd.to_numeric(
+                            country_geo["latitude"],
+                            errors="coerce"
+                        )
+                        country_geo["longitude"] = pd.to_numeric(
+                            country_geo["longitude"],
+                            errors="coerce"
+                        )
+
+                        country_geo = country_geo.replace(
+                            [float("inf"), float("-inf")],
+                            float("nan")
+                        ).dropna()
 
                         if not country_geo.empty:
                             min_lon = float(country_geo["longitude"].min())
@@ -1520,21 +1613,19 @@ elif page == p1:
                             min_lat = float(country_geo["latitude"].min())
                             max_lat = float(country_geo["latitude"].max())
 
-                            geo_options["center"] = [
-                                (min_lon + max_lon) / 2,
-                                (min_lat + max_lat) / 2
+                            lon_span = max(max_lon - min_lon, 0.1)
+                            lat_span = max(max_lat - min_lat, 0.1)
+
+                            geo_options["boundingCoords"] = [
+                                [
+                                    min_lon - lon_span * 0.05,
+                                    max_lat + lat_span * 0.05
+                                ],
+                                [
+                                    max_lon + lon_span * 0.05,
+                                    min_lat - lat_span * 0.05
+                                ]
                             ]
-
-                            span = max(
-                                max_lon - min_lon,
-                                max_lat - min_lat,
-                                0.1
-                            )
-
-                            geo_options["zoom"] = max(
-                                1.5,
-                                min(12, math.log2(360 / span) - 1.5)
-                            )
 
                     map_options = {
                         "tooltip": {
@@ -1586,7 +1677,7 @@ elif page == p1:
                         }]
                     }
 
-                    # Recreate the chart when the selected country changes
+                    # Recreate the chart when the country changes
                     map_key = (
                         "geographical_sales_map_"
                         + normalize_geo_name(selected_country).replace(" ", "_")
