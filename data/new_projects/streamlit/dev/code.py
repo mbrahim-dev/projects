@@ -1230,8 +1230,8 @@ elif page == p1:
 ##########################################################################################
 
 
+
     # Geographical Analysis
-    
     elif page_analysis == 4:
 
         # Header and filters
@@ -1239,12 +1239,13 @@ elif page == p1:
 
         with h3:
             st.header("Geographical Analysis 🌍")
+            st.caption("Explore sales by country and city")
 
         with f3:
             st.markdown("**Filters**")
             country_col, city_col, category_col2, channel_col2 = st.columns(4)
 
-            # Country: one country at a time
+            # Country filter
             countries = sorted(df1["country"].dropna().unique())
 
             with country_col:
@@ -1257,8 +1258,10 @@ elif page == p1:
                         key="geo_country_select"
                     )
 
-            # Cities depend on the selected country
-            if selected_country := st.session_state.get("geo_country_select"):
+            # Cities available in selected country
+            selected_country = st.session_state.get("geo_country_select")
+
+            if selected_country:
                 city_options = sorted(
                     df1.loc[
                         df1["country"] == selected_country,
@@ -1268,12 +1271,19 @@ elif page == p1:
             else:
                 city_options = []
 
-            # Keep only valid city selections when the country changes
+            # Reset city selections when country changes
             previous_country = st.session_state.get("geo_previous_country")
 
             if previous_country != selected_country:
                 st.session_state["geo_city_filter"] = []
                 st.session_state["geo_previous_country"] = selected_country
+
+            # Remove invalid city selections
+            if "geo_city_filter" in st.session_state:
+                st.session_state["geo_city_filter"] = [
+                    city for city in st.session_state["geo_city_filter"]
+                    if city in city_options
+                ]
 
             with city_col:
                 with st.popover("City", use_container_width=True):
@@ -1307,12 +1317,13 @@ elif page == p1:
                         key="geo_channel_filter"
                     )
 
-        st.divider()
-
         # Apply filters
-        if not selected_country:
-            geo_df = df1.iloc[0:0].copy()
-        elif not selected_cities or not selected_categories or not selected_channels:
+        if (
+            not selected_country
+            or not selected_cities
+            or not selected_categories
+            or not selected_channels
+        ):
             geo_df = df1.iloc[0:0].copy()
         else:
             geo_df = df1[
@@ -1322,6 +1333,8 @@ elif page == p1:
                 & df1["sales_channel"].isin(selected_channels)
             ].copy()
 
+        st.divider()
+
         # Map and KPI layout
         map_col, sp18, kpi_col = st.columns([6, 1, 2])
 
@@ -1329,9 +1342,9 @@ elif page == p1:
             if not selected_country:
                 st.info("Select a country to display the map.")
             elif not selected_cities:
-                st.info("Select one or more cities to zoom in on the map.")
+                st.info("Select one or more cities.")
             elif not selected_categories or not selected_channels:
-                st.info("Select at least one category and one sales channel.")
+                st.info("Select at least one category and sales channel.")
             elif geo_df.empty:
                 st.info("No data available for the selected filters.")
             else:
@@ -1348,31 +1361,42 @@ elif page == p1:
                     .dropna(subset=["latitude", "longitude"])
                 )
 
-                if city_map.empty:
+                # Use ALL coordinates for the selected country to set
+                # the map extent, not just the selected cities.
+                country_geo = (
+                    df1.loc[
+                        df1["country"] == selected_country,
+                        ["latitude", "longitude"]
+                    ]
+                    .dropna()
+                    .drop_duplicates()
+                )
+
+                if country_geo.empty or city_map.empty:
                     st.info("No valid geographic coordinates available.")
                 else:
-                    # Geographic extent of the selected cities
-                    min_lon = float(city_map["longitude"].min())
-                    max_lon = float(city_map["longitude"].max())
-                    min_lat = float(city_map["latitude"].min())
-                    max_lat = float(city_map["latitude"].max())
+                    min_lon = float(country_geo["longitude"].min())
+                    max_lon = float(country_geo["longitude"].max())
+                    min_lat = float(country_geo["latitude"].min())
+                    max_lat = float(country_geo["latitude"].max())
 
                     center_lon = (min_lon + max_lon) / 2
                     center_lat = (min_lat + max_lat) / 2
 
-                    # Estimate zoom from the distance between selected cities
+                    # Fit the selected country more closely
                     lon_span = max_lon - min_lon
                     lat_span = max_lat - min_lat
                     span = max(lon_span, lat_span)
 
-                    if len(city_map) == 1 or span < 0.02:
-                        zoom_level = 8
-                    else:
-                        import math
-                        zoom_level = max(
-                            2,
-                            min(10, math.log2(360 / max(span, 0.01)) - 1)
+                    import math
+
+                    zoom_level = max(
+                        1.5,
+                        min(
+                            12,
+                            math.log2(360 / max(span, 0.1)) - 1.5
                         )
+                    )
 
                     world_map = Map(
                         map_name="world",
@@ -1404,7 +1428,10 @@ elif page == p1:
                             "roam": True,
                             "center": [center_lon, center_lat],
                             "zoom": zoom_level,
-                            "scaleLimit": {"min": 1, "max": 20},
+                            "scaleLimit": {
+                                "min": 1,
+                                "max": 20
+                            },
                             "itemStyle": {
                                 "areaColor": "#EAF0F6",
                                 "borderColor": "#AAB7C4"
@@ -1434,7 +1461,9 @@ elif page == p1:
                                 }
                                 for row in city_map.itertuples()
                             ],
-                            "itemStyle": {"color": "#2A9D8F"},
+                            "itemStyle": {
+                                "color": "#2A9D8F"
+                            },
                             "emphasis": {
                                 "focus": "self",
                                 "scale": True
@@ -1503,6 +1532,7 @@ elif page == p1:
         # Footer
         st.subheader("")
         st.divider()
+
 
 
 
