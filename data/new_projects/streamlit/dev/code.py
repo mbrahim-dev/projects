@@ -1628,25 +1628,95 @@ elif page == p1:
                                 ]
                             ]
 
-                    # Build pie charts using raw values
-                    pie_data = []
+                    # Build native ECharts pie series for each city
+                    pie_series = []
+
+                    metric_styles = [
+                        {
+                            "name": "Revenue",
+                            "color": "#2A9D8F",
+                            "value_key": "revenue",
+                            "format": "currency"
+                        },
+                        {
+                            "name": "Profit",
+                            "color": "#E9C46A",
+                            "value_key": "profit",
+                            "format": "currency"
+                        },
+                        {
+                            "name": "Number of Orders",
+                            "color": "#E76F51",
+                            "value_key": "orders",
+                            "format": "number"
+                        },
+                        {
+                            "name": "Units Sold",
+                            "color": "#457B9D",
+                            "value_key": "units_sold",
+                            "format": "number"
+                        }
+                    ]
 
                     for row in city_map.itertuples():
-                        pie_data.append({
-                            "name": str(row.city),
-                            "country": str(row.country),
-                            "value": [
+                        city_name = str(row.city)
+                        country_name = str(row.country)
+
+                        # Negative values cannot be represented as pie slices
+                        chart_values = [
+                            max(float(row.revenue), 0),
+                            max(float(row.profit), 0),
+                            max(int(row.orders), 0),
+                            max(float(row.units_sold), 0)
+                        ]
+
+                        pie_data = []
+
+                        for metric, chart_value in zip(
+                            metric_styles, chart_values
+                        ):
+                            actual_value = getattr(
+                                row, metric["value_key"]
+                            )
+
+                            pie_data.append({
+                                "name": metric["name"],
+                                "value": chart_value,
+                                "actualValue": float(actual_value),
+                                "city": city_name,
+                                "country": country_name,
+                                "format": metric["format"],
+                                "itemStyle": {
+                                    "color": metric["color"]
+                                }
+                            })
+
+                        # Native pie chart positioned at the city's coordinates
+                        pie_series.append({
+                            "name": city_name,
+                            "type": "pie",
+                            "coordinateSystem": "geo",
+                            "center": [
                                 float(row.longitude),
-                                float(row.latitude),
-                                max(float(row.revenue), 0),
-                                max(float(row.profit), 0),
-                                max(int(row.orders), 0),
-                                max(float(row.units_sold), 0)
+                                float(row.latitude)
                             ],
-                            "revenue": float(row.revenue),
-                            "profit": float(row.profit),
-                            "orders": int(row.orders),
-                            "units_sold": float(row.units_sold)
+                            "radius": 24,
+                            "data": pie_data,
+                            "label": {
+                                "show": False
+                            },
+                            "labelLine": {
+                                "show": False
+                            },
+                            "emphasis": {
+                                "scale": True,
+                                "scaleSize": 5,
+                                "itemStyle": {
+                                    "shadowBlur": 10,
+                                    "shadowColor": "rgba(0, 0, 0, 0.35)"
+                                }
+                            },
+                            "z": 10
                         })
 
                     map_options = {
@@ -1656,158 +1726,38 @@ elif page == p1:
                                 function(params) {
                                     const d = params.data;
 
-                                    if (!d || d.revenue === undefined) {
+                                    if (!d || d.actualValue === undefined) {
                                         return params.name || '';
                                     }
 
-                                    const values = d.value;
-                                    const total = values.slice(2, 6).reduce(
-                                        (sum, value) => sum + value, 0
+                                    const value = Number(d.actualValue);
+
+                                    const formattedValue = value.toLocaleString(
+                                        undefined,
+                                        {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 2
+                                        }
                                     );
 
-                                    function percent(value) {
-                                        return total > 0
-                                            ? (value / total * 100).toFixed(1) + '%'
-                                            : '0.0%';
-                                    }
+                                    const displayValue =
+                                        d.format === 'currency'
+                                            ? '$' + formattedValue
+                                            : formattedValue;
 
-                                    function fmt(value) {
-                                        return Number(value).toLocaleString(
-                                            undefined,
-                                            {maximumFractionDigits: 2}
-                                        );
-                                    }
-
-                                    return '<b>' + d.name + '</b><br/>' +
-                                        '<span style="color:#2A9D8F">●</span> Revenue: $' +
-                                        fmt(d.revenue) + ' (' + percent(values[2]) + ')<br/>' +
-                                        '<span style="color:#E9C46A">●</span> Profit: $' +
-                                        fmt(d.profit) + ' (' + percent(values[3]) + ')<br/>' +
-                                        '<span style="color:#E76F51">●</span> Number of Orders: ' +
-                                        fmt(d.orders) + ' (' + percent(values[4]) + ')<br/>' +
-                                        '<span style="color:#457B9D">●</span> Units Sold: ' +
-                                        fmt(d.units_sold) + ' (' + percent(values[5]) + ')';
+                                    return '<b>' + d.city + '</b><br/>' +
+                                        d.country + '<br/>' +
+                                        '<span style="color:' +
+                                        params.color + '">●</span> ' +
+                                        d.name + ': ' + displayValue +
+                                        '<br/>Share: ' +
+                                        Number(params.percent).toFixed(1) +
+                                        '%';
                                 }
                             """).js_code
                         },
                         "geo": geo_options,
-                        "series": [{
-                            "name": "City KPI Breakdown",
-                            "type": "custom",
-                            "coordinateSystem": "geo",
-                            "encode": {
-                                "tooltip": [2, 3, 4, 5]
-                            },
-                            "data": pie_data,
-                            "renderItem": JsCode("""
-                                function(params, api) {
-                                    const coord = api.coord([
-                                        api.value(0),
-                                        api.value(1)
-                                    ]);
-
-                                    const values = [
-                                        Math.max(0, Number(api.value(2)) || 0),
-                                        Math.max(0, Number(api.value(3)) || 0),
-                                        Math.max(0, Number(api.value(4)) || 0),
-                                        Math.max(0, Number(api.value(5)) || 0)
-                                    ];
-
-                                    const colors = [
-                                        '#2A9D8F',
-                                        '#E9C46A',
-                                        '#E76F51',
-                                        '#457B9D'
-                                    ];
-
-                                    const total = values.reduce(
-                                        (sum, value) => sum + value, 0
-                                    );
-
-                                    const radius = 24;
-
-                                    if (
-                                        !coord ||
-                                        !isFinite(coord[0]) ||
-                                        !isFinite(coord[1])
-                                    ) {
-                                        return null;
-                                    }
-
-                                    if (total <= 0) {
-                                        return {
-                                            type: 'circle',
-                                            shape: {
-                                                cx: coord[0],
-                                                cy: coord[1],
-                                                r: 4
-                                            },
-                                            style: {
-                                                fill: '#AAB7C4'
-                                            }
-                                        };
-                                    }
-
-                                    let startAngle = -Math.PI / 2;
-                                    const children = [];
-
-                                    values.forEach(function(value, index) {
-                                        if (value <= 0) return;
-
-                                        const endAngle = startAngle +
-                                            (value / total) * Math.PI * 2;
-
-                                        children.push({
-                                            type: 'sector',
-                                            shape: {
-                                                cx: coord[0],
-                                                cy: coord[1],
-                                                r: radius,
-                                                r0: 0,
-                                                startAngle: startAngle,
-                                                endAngle: endAngle,
-                                                clockwise: true
-                                            },
-                                            style: {
-                                                fill: colors[index],
-                                                stroke: '#FFFFFF',
-                                                lineWidth: 1.5
-                                            },
-                                            emphasis: {
-                                                style: {
-                                                    lineWidth: 3,
-                                                    shadowBlur: 12,
-                                                    shadowColor: colors[index]
-                                                }
-                                            }
-                                        });
-
-                                        startAngle = endAngle;
-                                    });
-
-                                    children.push({
-                                        type: 'circle',
-                                        shape: {
-                                            cx: coord[0],
-                                            cy: coord[1],
-                                            r: radius
-                                        },
-                                        style: {
-                                            fill: 'transparent',
-                                            stroke: '#FFFFFF',
-                                            lineWidth: 1
-                                        }
-                                    });
-
-                                    return {
-                                        type: 'group',
-                                        children: children
-                                    };
-                                }
-                            """).js_code,
-                            "silent": False,
-                            "z": 10
-                        }]
+                        "series": pie_series
                     }
 
                     # Recreate the chart when the country changes
