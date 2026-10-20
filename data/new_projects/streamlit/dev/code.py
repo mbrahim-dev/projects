@@ -1229,8 +1229,8 @@ elif page == p1:
 
 ##########################################################################################
 
-
     # Geographical Analysis
+    
     elif page_analysis == 4:
 
         # Header and filters
@@ -1242,29 +1242,37 @@ elif page == p1:
 
         with f3:
             st.markdown("**Filters**")
+
             country_col, city_col, category_col2, channel_col2 = st.columns(4)
 
-            # Country filter
+            # Country: one country at a time
             with country_col:
-                with st.popover("Country", use_container_width=True):
-                    countries = sorted(df1["country"].dropna().unique())
+                countries = sorted(df1["country"].dropna().unique())
 
-                    selected_countries = st.multiselect(
-                        "Select countries",
-                        options=countries,
-                        default=countries,
-                        key="geo_country_filter"
-                    )
+                selected_country = st.selectbox(
+                    "Country",
+                    options=countries,
+                    key="geo_country_select"
+                )
 
-            # Cities depend on selected countries
+            # Cities available in the selected country
             city_options = sorted(
                 df1.loc[
-                    df1["country"].isin(selected_countries),
+                    df1["country"] == selected_country,
                     "city"
                 ].dropna().unique()
             )
 
-            # Remove cities that no longer belong to selected countries
+            # Reset city selection when the country changes
+            previous_country = st.session_state.get(
+                "geo_previous_country"
+            )
+
+            if previous_country != selected_country:
+                st.session_state["geo_city_filter"] = city_options
+                st.session_state["geo_previous_country"] = selected_country
+
+            # Keep only valid city selections
             if "geo_city_filter" in st.session_state:
                 st.session_state["geo_city_filter"] = [
                     city
@@ -1273,45 +1281,40 @@ elif page == p1:
                 ]
 
             with city_col:
-                with st.popover("City", use_container_width=True):
-                    selected_cities = st.multiselect(
-                        "Select cities",
-                        options=city_options,
-                        default=city_options,
-                        key="geo_city_filter"
-                    )
+                selected_cities = st.multiselect(
+                    "Cities",
+                    options=city_options,
+                    default=city_options,
+                    key="geo_city_filter"
+                )
 
-            # Category filter
             with category_col2:
-                with st.popover("Category", use_container_width=True):
-                    categories = sorted(
-                        df1["category"].dropna().unique()
-                    )
+                categories = sorted(
+                    df1["category"].dropna().unique()
+                )
 
-                    selected_categories = st.multiselect(
-                        "Select categories",
-                        options=categories,
-                        default=categories,
-                        key="geo_category_filter"
-                    )
+                selected_categories = st.multiselect(
+                    "Category",
+                    options=categories,
+                    default=categories,
+                    key="geo_category_filter"
+                )
 
-            # Sales channel filter
             with channel_col2:
-                with st.popover("Channels", use_container_width=True):
-                    channels = sorted(
-                        df1["sales_channel"].dropna().unique()
-                    )
+                channels = sorted(
+                    df1["sales_channel"].dropna().unique()
+                )
 
-                    selected_channels = st.multiselect(
-                        "Select channels",
-                        options=channels,
-                        default=channels,
-                        key="geo_channel_filter"
-                    )
+                selected_channels = st.multiselect(
+                    "Channels",
+                    options=channels,
+                    default=channels,
+                    key="geo_channel_filter"
+                )
 
         # Apply filters
         geo_df = df1[
-            df1["country"].isin(selected_countries)
+            (df1["country"] == selected_country)
             & df1["city"].isin(selected_cities)
             & df1["category"].isin(selected_categories)
             & df1["sales_channel"].isin(selected_channels)
@@ -1323,110 +1326,155 @@ elif page == p1:
         map_col, sp18, kpi_col = st.columns([6, 1, 2])
 
         with map_col:
-            if geo_df.empty:
-                st.info("No data available for the selected filters.")
+
+            # Aggregate all cities for the selected country
+            country_geo = df1[
+                df1["country"] == selected_country
+            ].dropna(subset=["latitude", "longitude"])
+
+            # Aggregate filtered data for the selected cities
+            city_map = (
+                geo_df.groupby(
+                    ["country", "city", "latitude", "longitude"],
+                    as_index=False
+                )
+                .agg(
+                    revenue=("revenue", "sum"),
+                    profit=("profit", "sum"),
+                    units_sold=("quantity", "sum")
+                )
+                .dropna(subset=["latitude", "longitude"])
+            )
+
+            if country_geo.empty:
+                st.info("No geographic coordinates available for this country.")
 
             else:
-                city_map = (
-                    geo_df.groupby(
-                        ["country", "city", "latitude", "longitude"],
-                        as_index=False
+                # Determine the map extent from selected cities,
+                # or from all cities in the country if none are selected.
+                if selected_cities and not city_map.empty:
+                    zoom_data = city_map
+                else:
+                    zoom_data = country_geo
+
+                min_lon = float(zoom_data["longitude"].min())
+                max_lon = float(zoom_data["longitude"].max())
+                min_lat = float(zoom_data["latitude"].min())
+                max_lat = float(zoom_data["latitude"].max())
+
+                center_lon = (min_lon + max_lon) / 2
+                center_lat = (min_lat + max_lat) / 2
+
+                # Calculate zoom from the geographic extent
+                span = max(max_lon - min_lon, max_lat - min_lat)
+
+                if span < 0.01:
+                    zoom_level = 10
+                else:
+                    import math
+                    zoom_level = max(
+                        1.5,
+                        min(12, 5.5 - math.log2(span))
                     )
-                    .agg(
-                        revenue=("revenue", "sum"),
-                        profit=("profit", "sum"),
-                        units_sold=("quantity", "sum")
+
+                # Avoid too much zoom for a single city
+                if len(zoom_data) == 1 and selected_cities:
+                    zoom_level = 8
+
+                # Limit the number of displayed points
+                MAX_CITIES = 100
+
+                if len(city_map) > MAX_CITIES:
+                    st.warning(
+                        f"{len(city_map)} cities match your filters. "
+                        f"The map displays the first {MAX_CITIES}."
                     )
-                    .dropna(subset=["latitude", "longitude"])
+                    display_map = city_map.head(MAX_CITIES)
+                else:
+                    display_map = city_map
+
+                # Register world map
+                world_map = Map(
+                    map_name="world",
+                    geo_json=load_world_geojson()
                 )
 
-                if city_map.empty:
-                    st.info("No valid geographic coordinates available.")
+                map_options = {
+                    "tooltip": {
+                        "trigger": "item",
+                        "formatter": JsCode("""
+                            function(params) {
+                                const d = params.data;
 
-                else:
-                    # Limit displayed cities to avoid overloading the map
-                    MAX_CITIES = 100
-                    if len(city_map) > MAX_CITIES:
-                        st.warning(
-                            f"{len(city_map)} cities match your filters. "
-                            f"The map displays the first {MAX_CITIES}. "
-                            "Select fewer cities to display others."
-                        )
-                        city_map = city_map.head(MAX_CITIES)
-
-                    world_map = Map(
-                        map_name="world",
-                        geo_json=load_world_geojson()
-                    )
-
-                    map_options = {
-                        "tooltip": {
-                            "trigger": "item",
-                            "formatter": JsCode("""
-                                function(params) {
-                                    const d = params.data;
-                                    if (!d || d.revenue === undefined) {
-                                        return params.name || '';
-                                    }
-                                    return '<b>' + d.name + '</b><br/>' +
-                                        'Country: ' + d.country + '<br/>' +
-                                        'Revenue: $' +
-                                        Number(d.revenue).toLocaleString() +
-                                        '<br/>Profit: $' +
-                                        Number(d.profit).toLocaleString() +
-                                        '<br/>Units Sold: ' +
-                                        Number(d.units_sold).toLocaleString();
+                                if (!d || d.revenue === undefined) {
+                                    return params.name || '';
                                 }
-                            """).js_code
-                        },
-                        "geo": {
-                            "map": "world",
-                            "roam": True,
-                            "itemStyle": {
-                                "areaColor": "#EAF0F6",
-                                "borderColor": "#AAB7C4"
-                            },
-                            "emphasis": {
-                                "itemStyle": {
-                                    "areaColor": "#D2E5F3"
-                                }
+
+                                return '<b>' + d.name + '</b><br/>' +
+                                    'Country: ' + d.country + '<br/>' +
+                                    'Revenue: $' +
+                                    Number(d.revenue).toLocaleString() +
+                                    '<br/>Profit: $' +
+                                    Number(d.profit).toLocaleString() +
+                                    '<br/>Units Sold: ' +
+                                    Number(d.units_sold).toLocaleString();
                             }
+                        """).js_code
+                    },
+                    "geo": {
+                        "map": "world",
+                        "roam": True,
+                        "center": [center_lon, center_lat],
+                        "zoom": zoom_level,
+                        "scaleLimit": {
+                            "min": 1,
+                            "max": 20
                         },
-                        "series": [{
-                            "name": "City Sales",
-                            "type": "scatter",
-                            "coordinateSystem": "geo",
-                            "symbolSize": 10,
-                            "data": [
-                                {
-                                    "name": str(row.city),
-                                    "country": str(row.country),
-                                    "value": [
-                                        float(row.longitude),
-                                        float(row.latitude)
-                                    ],
-                                    "revenue": float(row.revenue),
-                                    "profit": float(row.profit),
-                                    "units_sold": int(row.units_sold)
-                                }
-                                for row in city_map.itertuples()
-                            ],
+                        "itemStyle": {
+                            "areaColor": "#EAF0F6",
+                            "borderColor": "#AAB7C4"
+                        },
+                        "emphasis": {
                             "itemStyle": {
-                                "color": "#2A9D8F"
-                            },
-                            "emphasis": {
-                                "focus": "self",
-                                "scale": True
+                                "areaColor": "#D2E5F3"
                             }
-                        }]
-                    }
+                        }
+                    },
+                    "series": [{
+                        "name": "City Sales",
+                        "type": "scatter",
+                        "coordinateSystem": "geo",
+                        "symbolSize": 10,
+                        "data": [
+                            {
+                                "name": str(row.city),
+                                "country": str(row.country),
+                                "value": [
+                                    float(row.longitude),
+                                    float(row.latitude)
+                                ],
+                                "revenue": float(row.revenue),
+                                "profit": float(row.profit),
+                                "units_sold": int(row.units_sold)
+                            }
+                            for row in display_map.itertuples()
+                        ],
+                        "itemStyle": {
+                            "color": "#2A9D8F"
+                        },
+                        "emphasis": {
+                            "focus": "self",
+                            "scale": True
+                        }
+                    }]
+                }
 
-                    st_echarts(
-                        options=map_options,
-                        map=world_map,
-                        height="550px",
-                        key="geographical_sales_map"
-                    )
+                st_echarts(
+                    options=map_options,
+                    map=world_map,
+                    height="550px",
+                    key="geographical_sales_map"
+                )
 
         # Key Performance Indicators
         with kpi_col:
@@ -1438,7 +1486,6 @@ elif page == p1:
             total_orders = int(geo_df["order_id"].nunique())
             total_units_sold = int(geo_df["quantity"].sum())
 
-            # Reference values for progress bars
             metric_maxima = {
                 "Revenue": max(float(df1["revenue"].sum()), 1),
                 "Profit": max(float(df1["profit"].sum()), 1),
@@ -1448,7 +1495,6 @@ elif page == p1:
                 "Units Sold": max(int(df1["quantity"].sum()), 1)
             }
 
-            # KPI cards
             metric_cards = [
                 {
                     "title": "Revenue",
@@ -1480,7 +1526,6 @@ elif page == p1:
                 }
             ]
 
-            # Display KPI cards
             for metric in metric_cards:
                 with st.container(border=True):
                     st.markdown(f"**{metric['title']}**")
@@ -1501,6 +1546,7 @@ elif page == p1:
         # Footer
         st.subheader("")
         st.divider()
+
 
 
 
