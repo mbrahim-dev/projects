@@ -1338,7 +1338,7 @@ elif page == p1:
         st.divider()
 
         # Map and KPI layout
-        map_col, sp18, kpi_col = st.columns([6, 1, 2])
+        map_col, sp18, kpi_col = st.columns([6, 0.5, 2])
 
         with map_col:
             if not selected_country:
