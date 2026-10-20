@@ -4,8 +4,15 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from streamviz import gauge
-from streamlit_echarts import st_echarts
+import json
+import urllib.request
+from streamlit_echarts import st_echarts, Map, JsCode
 
+@st.cache_data
+def load_world_geojson():
+    url = "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"
+    with urllib.request.urlopen(url, timeout=20) as response:
+        return json.loads(response.read())
 
 # import datasets
 
@@ -1222,8 +1229,8 @@ elif page == p1:
 
 ##########################################################################################
 
+
     # Geographical Analysis
-    
     elif page_analysis == 4:
 
         # Header and filters
@@ -1231,25 +1238,56 @@ elif page == p1:
 
         with h3:
             st.header("Geographical Analysis 🌍")
-            st.caption("Explore sales by city")
+            st.caption("Explore sales by country and city")
 
         with f3:
             st.markdown("**Filters**")
-            city_col, category_col2, channel_col2 = st.columns(3)
+            country_col, city_col, category_col2, channel_col2 = st.columns(4)
+
+            # Country filter
+            with country_col:
+                with st.popover("Country", use_container_width=True):
+                    countries = sorted(df1["country"].dropna().unique())
+
+                    selected_countries = st.multiselect(
+                        "Select countries",
+                        options=countries,
+                        default=countries,
+                        key="geo_country_filter"
+                    )
+
+            # Cities depend on selected countries
+            city_options = sorted(
+                df1.loc[
+                    df1["country"].isin(selected_countries),
+                    "city"
+                ].dropna().unique()
+            )
+
+            # Remove cities that no longer belong to selected countries
+            if "geo_city_filter" in st.session_state:
+                st.session_state["geo_city_filter"] = [
+                    city
+                    for city in st.session_state["geo_city_filter"]
+                    if city in city_options
+                ]
 
             with city_col:
                 with st.popover("City", use_container_width=True):
-                    cities = sorted(df1["city"].dropna().unique())
                     selected_cities = st.multiselect(
                         "Select cities",
-                        options=cities,
-                        default=cities,
+                        options=city_options,
+                        default=city_options,
                         key="geo_city_filter"
                     )
 
+            # Category filter
             with category_col2:
                 with st.popover("Category", use_container_width=True):
-                    categories = sorted(df1["category"].dropna().unique())
+                    categories = sorted(
+                        df1["category"].dropna().unique()
+                    )
+
                     selected_categories = st.multiselect(
                         "Select categories",
                         options=categories,
@@ -1257,11 +1295,13 @@ elif page == p1:
                         key="geo_category_filter"
                     )
 
+            # Sales channel filter
             with channel_col2:
                 with st.popover("Channels", use_container_width=True):
                     channels = sorted(
                         df1["sales_channel"].dropna().unique()
                     )
+
                     selected_channels = st.multiselect(
                         "Select channels",
                         options=channels,
@@ -1271,7 +1311,8 @@ elif page == p1:
 
         # Apply filters
         geo_df = df1[
-            df1["city"].isin(selected_cities)
+            df1["country"].isin(selected_countries)
+            & df1["city"].isin(selected_cities)
             & df1["category"].isin(selected_categories)
             & df1["sales_channel"].isin(selected_channels)
         ].copy()
@@ -1284,10 +1325,11 @@ elif page == p1:
         with map_col:
             if geo_df.empty:
                 st.info("No data available for the selected filters.")
+
             else:
                 city_map = (
                     geo_df.groupby(
-                        ["city", "latitude", "longitude"],
+                        ["country", "city", "latitude", "longitude"],
                         as_index=False
                     )
                     .agg(
@@ -1300,7 +1342,18 @@ elif page == p1:
 
                 if city_map.empty:
                     st.info("No valid geographic coordinates available.")
+
                 else:
+                    # Limit displayed cities to avoid overloading the map
+                    MAX_CITIES = 100
+                    if len(city_map) > MAX_CITIES:
+                        st.warning(
+                            f"{len(city_map)} cities match your filters. "
+                            f"The map displays the first {MAX_CITIES}. "
+                            "Select fewer cities to display others."
+                        )
+                        city_map = city_map.head(MAX_CITIES)
+
                     world_map = Map(
                         map_name="world",
                         geo_json=load_world_geojson()
@@ -1312,11 +1365,11 @@ elif page == p1:
                             "formatter": JsCode("""
                                 function(params) {
                                     const d = params.data;
-                                    if (!d || !d.revenue && !d.profit
-                                        && !d.units_sold) {
+                                    if (!d || d.revenue === undefined) {
                                         return params.name || '';
                                     }
                                     return '<b>' + d.name + '</b><br/>' +
+                                        'Country: ' + d.country + '<br/>' +
                                         'Revenue: $' +
                                         Number(d.revenue).toLocaleString() +
                                         '<br/>Profit: $' +
@@ -1347,6 +1400,7 @@ elif page == p1:
                             "data": [
                                 {
                                     "name": str(row.city),
+                                    "country": str(row.country),
                                     "value": [
                                         float(row.longitude),
                                         float(row.latitude)
@@ -1374,7 +1428,7 @@ elif page == p1:
                         key="geographical_sales_map"
                     )
 
-        # KPI calculations
+        # Key Performance Indicators
         with kpi_col:
             st.markdown("**Key Performance Indicators**")
             st.caption("")
@@ -1384,6 +1438,7 @@ elif page == p1:
             total_orders = int(geo_df["order_id"].nunique())
             total_units_sold = int(geo_df["quantity"].sum())
 
+            # Reference values for progress bars
             metric_maxima = {
                 "Revenue": max(float(df1["revenue"].sum()), 1),
                 "Profit": max(float(df1["profit"].sum()), 1),
@@ -1393,16 +1448,21 @@ elif page == p1:
                 "Units Sold": max(int(df1["quantity"].sum()), 1)
             }
 
+            # KPI cards
             metric_cards = [
                 {
                     "title": "Revenue",
                     "value": f"${total_revenue:,.0f}",
-                    "progress": total_revenue / metric_maxima["Revenue"]
+                    "progress": (
+                        total_revenue / metric_maxima["Revenue"]
+                    )
                 },
                 {
                     "title": "Profit",
                     "value": f"${total_profit:,.0f}",
-                    "progress": total_profit / metric_maxima["Profit"]
+                    "progress": (
+                        total_profit / metric_maxima["Profit"]
+                    )
                 },
                 {
                     "title": "Number of Orders",
@@ -1420,21 +1480,28 @@ elif page == p1:
                 }
             ]
 
+            # Display KPI cards
             for metric in metric_cards:
                 with st.container(border=True):
                     st.markdown(f"**{metric['title']}**")
+
                     st.markdown(
                         f"<h3 style='margin:0;color:#000000'>"
                         f"{metric['value']}</h3>",
                         unsafe_allow_html=True
                     )
+
                     st.progress(
-                        min(1.0, max(0.0, float(metric["progress"])))
+                        min(
+                            1.0,
+                            max(0.0, float(metric["progress"]))
+                        )
                     )
 
         # Footer
         st.subheader("")
         st.divider()
+
 
 
 
