@@ -1336,9 +1336,10 @@ elif page == p1:
             ].copy()
 
         st.divider()
-
+        st.caption("")
+        
         # Map and KPI layout
-        map_col, sp18, kpi_col = st.columns([6, 0.5, 2])
+        sp18, map_col, sp19, kpi_col, sp20 = st.columns([0.5, 5, 0.5, 1, 0.5])
 
         with map_col:
             if not selected_country:
@@ -1957,4 +1958,5 @@ elif page == p1:
                         unsafe_allow_html=True
                     )
 
+        st.caption("")
         st.divider()
