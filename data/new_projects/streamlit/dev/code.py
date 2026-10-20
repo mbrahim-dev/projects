@@ -1336,7 +1336,7 @@ elif page == p1:
             ].copy()
 
         st.divider()
-        
+
         # Map and KPI layout
         sp18, map_col, sp19, kpi_col, sp20 = st.columns([0.5, 5, 0.5, 1, 0.5])
 
@@ -1659,69 +1659,6 @@ elif page == p1:
                         }
                     ]
 
-                    for row in city_map.itertuples():
-                        city_name = str(row.city)
-                        country_name = str(row.country)
-
-                        # Negative values cannot be represented as pie slices
-                        chart_values = [
-                            max(float(row.revenue), 0),
-                            max(float(row.profit), 0),
-                            max(int(row.orders), 0),
-                            max(float(row.units_sold), 0)
-                        ]
-
-                        pie_data = []
-
-                        for metric, chart_value in zip(
-                            metric_styles, chart_values
-                        ):
-                            actual_value = getattr(
-                                row, metric["value_key"]
-                            )
-
-                            pie_data.append({
-                                "name": metric["name"],
-                                "value": chart_value,
-                                "actualValue": float(actual_value),
-                                "city": city_name,
-                                "country": country_name,
-                                "format": metric["format"],
-                                "itemStyle": {
-                                    "color": metric["color"]
-                                }
-                            })
-
-                    # Build native ECharts pie series for each city
-                    pie_series = []
-
-                    metric_styles = [
-                        {
-                            "name": "Revenue",
-                            "color": "#2A9D8F",
-                            "value_key": "revenue",
-                            "format": "currency"
-                        },
-                        {
-                            "name": "Profit",
-                            "color": "#E9C46A",
-                            "value_key": "profit",
-                            "format": "currency"
-                        },
-                        {
-                            "name": "Number of Orders",
-                            "color": "#E76F51",
-                            "value_key": "orders",
-                            "format": "number"
-                        },
-                        {
-                            "name": "Units Sold",
-                            "color": "#457B9D",
-                            "value_key": "units_sold",
-                            "format": "number"
-                        }
-                    ]
-
                     # Normalize each metric separately to make all slices visible
                     metric_maxima = {
                         metric["value_key"]: max(
@@ -1818,17 +1755,13 @@ elif page == p1:
                                         d.country + '<br/>' +
                                         '<span style="color:' +
                                         params.color + '">●</span> ' +
-                                        d.name + ': ' + displayValue +
-                                        '<br/>Normalized share: ' +
-                                        Number(params.percent).toFixed(1) +
-                                        '%';
+                                        d.name + ': ' + displayValue;
                                 }
                             """).js_code
                         },
                         "geo": geo_options,
                         "series": pie_series
                     }
-
 
                     # Recreate the chart when the country changes
                     map_key = (
@@ -1867,7 +1800,7 @@ elif page == p1:
                                 <span style="width:13px;height:13px;border-radius:50%;background:#E76F51;display:inline-block;"></span>
                                 <span>Number of Orders</span>
                             </div>
-                            <div style="display:flex;align-items:center;gap:7px;">
+            <div style="display:flex;align-items:center;gap:7px;">
                                 <span style="width:13px;height:13px;border-radius:50%;background:#457B9D;display:inline-block;"></span>
                                 <span>Units Sold</span>
                             </div>
