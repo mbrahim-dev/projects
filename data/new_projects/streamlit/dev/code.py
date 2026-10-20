@@ -1229,826 +1229,684 @@ elif page == p1:
 
 ##########################################################################################
 
-
     
-    # geographic analysis
+    # Geographical Analysis
 
     elif page_analysis == 4:
 
-        import math
         import unicodedata
-    
-        st.markdown("## Geographical Sales Analysis")
-    
-        def normalize_geo_name(value):
-            value = str(value).strip().lower()
-            value = unicodedata.normalize("NFKD", value)
-            value = "".join(
-                char for char in value
-                if not unicodedata.combining(char)
-            )
-            return value.replace("&", "and").strip()
-    
-        def extract_geo_coordinates(coordinates, result=None):
-            if result is None:
-                result = []
-    
-            if (
-                isinstance(coordinates, (list, tuple))
-                and len(coordinates) >= 2
-                and isinstance(coordinates[0], (int, float))
-                and isinstance(coordinates[1], (int, float))
-            ):
-                result.append((coordinates[0], coordinates[1]))
-            elif isinstance(coordinates, (list, tuple)):
-                for item in coordinates:
-                    extract_geo_coordinates(item, result)
-    
-            return result
-    
-        def get_country_bounds(feature):
-            geometry = feature.get("geometry", {})
-            coordinates = geometry.get("coordinates", [])
-            points = extract_geo_coordinates(coordinates)
-    
-            if not points:
-                return None
-    
-            longitudes = [point[0] for point in points]
-            latitudes = [point[1] for point in points]
-    
-            return {
-                "min_lon": min(longitudes),
-                "max_lon": max(longitudes),
-                "min_lat": min(latitudes),
-                "max_lat": max(latitudes),
-            }
-    
-        required_columns = [
-            "order_id",
-            "country",
-            "city",
-            "category",
-            "sales_channel",
-            "latitude",
-            "longitude",
-            "revenue",
-            "profit",
-            "quantity",
-        ]
-    
-        missing_columns = [
-            column for column in required_columns
-            if column not in df1.columns
-        ]
-    
-        if missing_columns:
-            st.error(
-                "The dataset is missing the following required columns: "
-                + ", ".join(missing_columns)
-            )
-    
-        else:
-    
-            geo_df_all = df1.copy()
-    
-            for column in [
-                "latitude",
-                "longitude",
-                "revenue",
-                "profit",
-                "quantity",
-            ]:
-                geo_df_all[column] = pd.to_numeric(
-                    geo_df_all[column],
-                    errors="coerce"
-                )
-    
-            geo_df_all["country"] = (
-                geo_df_all["country"].fillna("").astype(str).str.strip()
-            )
-            geo_df_all["city"] = (
-                geo_df_all["city"].fillna("").astype(str).str.strip()
-            )
-            geo_df_all["category"] = (
-                geo_df_all["category"].fillna("").astype(str).str.strip()
-            )
-            geo_df_all["sales_channel"] = (
-                geo_df_all["sales_channel"].fillna("").astype(str).str.strip()
-            )
-    
-            geo_df_all = geo_df_all[
-                (geo_df_all["country"] != "")
-                & geo_df_all["latitude"].notna()
-                & geo_df_all["longitude"].notna()
-            ].copy()
-    
-            if geo_df_all.empty:
-                st.warning(
-                    "No valid geographical data is available in the dataset."
-                )
-    
-            else:
-    
-                filter_col1, filter_col2, filter_col3, filter_col4 = (
-                    st.columns(4)
-                )
-    
-                countries = sorted(
-                    geo_df_all["country"].unique().tolist()
-                )
-    
-                with filter_col1:
-                    with st.popover("Country", use_container_width=True):
-                        selected_country = st.selectbox(
-                            "Select a country",
-                            options=countries,
-                            index=None,
-                            placeholder="Choose a country",
-                            key="geo_country_filter",
-                        )
-    
-                if selected_country:
-                    country_df = geo_df_all[
-                        geo_df_all["country"] == selected_country
-                    ].copy()
-                else:
-                    country_df = geo_df_all.iloc[0:0].copy()
-    
-                city_options = sorted(
-                    country_df.loc[
-                        country_df["city"] != "", "city"
-                    ].unique().tolist()
-                )
-    
-                with filter_col2:
-                    with st.popover("City", use_container_width=True):
-                        selected_cities = st.multiselect(
-                            "Select one or more cities",
-                            options=city_options,
-                            default=[],
-                            key=(
-                                "geo_city_filter_"
-                                + normalize_geo_name(selected_country or "none")
-                            ),
-                        )
-    
-                categories = sorted(
-                    geo_df_all.loc[
-                        geo_df_all["category"] != "", "category"
-                    ].unique().tolist()
-                )
-    
-                with filter_col3:
-                    with st.popover("Category", use_container_width=True):
-                        selected_categories = st.multiselect(
-                            "Select categories",
-                            options=categories,
-                            default=[],
-                            key="geo_category_filter",
-                        )
-    
-                channels = sorted(
-                    geo_df_all.loc[
-                        geo_df_all["sales_channel"] != "",
-                        "sales_channel",
-                    ].unique().tolist()
-                )
-    
-                with filter_col4:
-                    with st.popover("Sales Channel", use_container_width=True):
-                        selected_channels = st.multiselect(
-                            "Select sales channels",
-                            options=channels,
-                            default=[],
-                            key="geo_channel_filter",
-                        )
-    
-                filters_complete = (
-                    selected_country is not None
-                    and len(selected_cities) > 0
-                    and len(selected_categories) > 0
-                    and len(selected_channels) > 0
-                )
-    
-                if not filters_complete:
-                    st.info(
-                        "Select a country, at least one city, "
-                        "a category and a sales channel to display the map."
-                    )
-    
-                else:
-    
-                    geo_df = geo_df_all[
-                        (geo_df_all["country"] == selected_country)
-                        & (geo_df_all["city"].isin(selected_cities))
-                        & (geo_df_all["category"].isin(selected_categories))
-                        & (geo_df_all["sales_channel"].isin(selected_channels))
-                    ].copy()
-    
-                    if geo_df.empty:
-                        st.warning(
-                            "No sales data matches the selected filters."
-                        )
-    
-                    else:
-    
-                        city_map = (
-                            geo_df.groupby(
-                                [
-                                    "country",
-                                    "city",
-                                    "latitude",
-                                    "longitude",
-                                ],
-                                as_index=False,
-                            )
-                            .agg(
-                                revenue=("revenue", "sum"),
-                                profit=("profit", "sum"),
-                                units_sold=("quantity", "sum"),
-                                orders=("order_id", "nunique"),
-                            )
-                        )
-    
-                        city_map = city_map.dropna(
-                            subset=["latitude", "longitude"]
-                        ).copy()
-    
-                        city_map = city_map.head(100)
+        import math
 
-                        city_map["pie_revenue"] = (
-                            city_map["revenue"].clip(lower=0)
+        # Header and filters
+        h3, sp17, f3 = st.columns([3, 2, 3])
+
+        with h3:
+            st.header("Geographical Analysis 🌍")
+
+        with f3:
+            st.markdown("**Filters**")
+            country_col, city_col, category_col2, channel_col2 = st.columns(4)
+
+            # Country filter
+            countries = sorted(df1["country"].dropna().unique())
+
+            with country_col:
+                with st.popover("Country", use_container_width=True):
+                    selected_country = st.selectbox(
+                        "Select one country",
+                        options=countries,
+                        index=None,
+                        placeholder="Choose a country",
+                        key="geo_country_select"
+                    )
+
+            # Cities available in selected country
+            selected_country = st.session_state.get("geo_country_select")
+
+            if selected_country:
+                city_options = sorted(
+                    df1.loc[
+                        df1["country"] == selected_country,
+                        "city"
+                    ].dropna().unique()
+                )
+            else:
+                city_options = []
+
+            # Reset city selections when country changes
+            previous_country = st.session_state.get("geo_previous_country")
+
+            if previous_country != selected_country:
+                st.session_state["geo_city_filter"] = []
+                st.session_state["geo_previous_country"] = selected_country
+
+            # Remove invalid city selections
+            if "geo_city_filter" in st.session_state:
+                st.session_state["geo_city_filter"] = [
+                    city for city in st.session_state["geo_city_filter"]
+                    if city in city_options
+                ]
+
+            with city_col:
+                with st.popover("City", use_container_width=True):
+                    selected_cities = st.multiselect(
+                        "Select cities",
+                        options=city_options,
+                        default=[],
+                        key="geo_city_filter",
+                        disabled=not bool(selected_country)
+                    )
+
+            categories = sorted(df1["category"].dropna().unique())
+
+            with category_col2:
+                with st.popover("Category", use_container_width=True):
+                    selected_categories = st.multiselect(
+                        "Select categories",
+                        options=categories,
+                        default=[],
+                        key="geo_category_filter"
+                    )
+
+            channels = sorted(df1["sales_channel"].dropna().unique())
+
+            with channel_col2:
+                with st.popover("Channels", use_container_width=True):
+                    selected_channels = st.multiselect(
+                        "Select channels",
+                        options=channels,
+                        default=[],
+                        key="geo_channel_filter"
+                    )
+
+        # Apply filters
+        if (
+            not selected_country
+            or not selected_cities
+            or not selected_categories
+            or not selected_channels
+        ):
+            geo_df = df1.iloc[0:0].copy()
+        else:
+            geo_df = df1[
+                (df1["country"] == selected_country)
+                & df1["city"].isin(selected_cities)
+                & df1["category"].isin(selected_categories)
+                & df1["sales_channel"].isin(selected_channels)
+            ].copy()
+
+        st.divider()
+
+        # Map and KPI layout
+        map_col, sp18, kpi_col = st.columns([6, 1, 2])
+
+        with map_col:
+            if not selected_country:
+                st.info("Select a country to display the map.")
+            elif not selected_cities:
+                st.info("Select one or more cities.")
+            elif not selected_categories or not selected_channels:
+                st.info("Select at least one category and sales channel.")
+            elif geo_df.empty:
+                st.info("No data available for the selected filters.")
+            else:
+                city_map = (
+                    geo_df.groupby(
+                        ["country", "city", "latitude", "longitude"],
+                        as_index=False
+                    )
+                    .agg(
+                        revenue=("revenue", "sum"),
+                        profit=("profit", "sum"),
+                        units_sold=("quantity", "sum"),
+                        orders=("order_id", "nunique")
+                    )
+                    .dropna(subset=["latitude", "longitude"])
+                )
+
+                # Limit plotted cities to avoid overloading the map
+                MAX_CITIES = 100
+
+                if len(city_map) > MAX_CITIES:
+                    city_map = city_map.nlargest(MAX_CITIES, "revenue")
+
+                if city_map.empty:
+                    st.info("No valid geographic coordinates available.")
+                else:
+
+                    # Normalize country names for GeoJSON matching
+                    def normalize_geo_name(value):
+                        value = str(value).strip().lower()
+                        value = unicodedata.normalize("NFKD", value)
+                        return "".join(
+                            char for char in value
+                            if not unicodedata.combining(char)
                         )
-                        city_map["pie_profit"] = (
-                            city_map["profit"].clip(lower=0)
-                        )
-                        city_map["pie_orders"] = (
-                            city_map["orders"].clip(lower=0)
-                        )
-                        city_map["pie_units"] = (
-                            city_map["units_sold"].clip(lower=0)
-                        )
-    
-                        pie_data = []
-    
-                        for row in city_map.itertuples():
-                            pie_data.append(
-                                {
-                                    "name": str(row.city),
-                                    "country": str(row.country),
-                                    "value": [
-                                        float(row.longitude),
-                                        float(row.latitude),
-                                        float(row.pie_revenue),
-                                        float(row.pie_profit),
-                                        float(row.pie_orders),
-                                        float(row.pie_units),
-                                    ],
-                                    "revenue": float(row.revenue),
-                                    "profit": float(row.profit),
-                                    "orders": int(row.orders),
-                                    "units_sold": float(row.units_sold),
-                                }
-                            )
-    
-                        total_revenue = float(geo_df["revenue"].sum())
-                        total_profit = float(geo_df["profit"].sum())
-                        total_orders = int(geo_df["order_id"].nunique())
-                        total_units = float(geo_df["quantity"].sum())
-    
-                        all_revenue = float(
-                            pd.to_numeric(
-                                df1["revenue"], errors="coerce"
-                            ).sum()
-                        )
-                        all_profit = float(
-                            pd.to_numeric(
-                                df1["profit"], errors="coerce"
-                            ).sum()
-                        )
-                        all_orders = int(df1["order_id"].nunique())
-                        all_units = float(
-                            pd.to_numeric(
-                                df1["quantity"], errors="coerce"
-                            ).sum()
-                        )
-    
-                        def safe_progress(value, total):
-                            if total <= 0:
-                                return 0.0
-                            return min(max(value / total, 0.0), 1.0)
-    
-                        map_col, kpi_col = st.columns(
-                            [3.4, 1],
-                            gap="large",
-                        )
-    
-                        with map_col:
-        
-                            world_geojson = load_world_geojson()
-    
-                            country_aliases = {
-                                "usa": "united states of america",
-                                "united states": "united states of america",
-                                "uk": "united kingdom",
-                                "south korea": "south korea",
-                                "russia": "russia",
-                                "ivory coast": "cote d'ivoire",
-                            }
-    
-                            selected_country_normalized = normalize_geo_name(
-                                selected_country
-                            )
-    
-                            target_country_name = country_aliases.get(
-                                selected_country_normalized,
-                                selected_country_normalized,
-                            )
-    
-                            country_feature = None
-    
-                            for feature in world_geojson.get("features", []):
-                                properties = feature.get("properties", {})
-    
-                                geo_names = [
-                                    properties.get("name", ""),
-                                    properties.get("NAME", ""),
-                                    properties.get("ADMIN", ""),
-                                    properties.get("name_long", ""),
-                                ]
-    
-                                normalized_names = [
-                                    normalize_geo_name(name)
-                                    for name in geo_names
-                                    if name
-                                ]
-    
-                                normalized_names = [
-                                    country_aliases.get(name, name)
-                                    for name in normalized_names
-                                ]
-    
-                                if target_country_name in normalized_names:
-                                    country_feature = feature
-                                    break
-    
-                            country_bounds_overrides = {
-                                "france": {
-                                    "min_lon": -5.5,
-                                    "max_lon": 9.8,
-                                    "min_lat": 41.2,
-                                    "max_lat": 51.3,
-                                },
-                                "united kingdom": {
-                                    "min_lon": -8.7,
-                                    "max_lon": 2.0,
-                                    "min_lat": 49.8,
-                                    "max_lat": 59.5,
-                                },
-                                "uk": {
-                                    "min_lon": -8.7,
-                                    "max_lon": 2.0,
-                                    "min_lat": 49.8,
-                                    "max_lat": 59.5,
-                                },
-                                "united kingdom of great britain and northern ireland": {
-                                    "min_lon": -8.7,
-                                    "max_lon": 2.0,
-                                    "min_lat": 49.8,
-                                    "max_lat": 59.5,
-                                },
-                            }
-    
-                            country_bounds = country_bounds_overrides.get(
-                                selected_country_normalized
-                            )
-    
-                            if country_bounds is None and country_feature:
-                                country_bounds = get_country_bounds(
-                                    country_feature
-                                )
-    
-                            if country_bounds is None:
-                                country_bounds = {
-                                    "min_lon": float(city_map["longitude"].min()),
-                                    "max_lon": float(city_map["longitude"].max()),
-                                    "min_lat": float(city_map["latitude"].min()),
-                                    "max_lat": float(city_map["latitude"].max()),
-                                }
-    
-                            lon_span = max(
-                                country_bounds["max_lon"]
-                                - country_bounds["min_lon"],
-                                0.5,
-                            )
-                            lat_span = max(
-                                country_bounds["max_lat"]
-                                - country_bounds["min_lat"],
-                                0.5,
-                            )
-    
-                            lon_padding = lon_span * 0.06
-                            lat_padding = lat_span * 0.06
-    
-                            bounding_coords = [
-                                [
-                                    country_bounds["min_lon"] - lon_padding,
-                                    country_bounds["max_lat"] + lat_padding,
-                                ],
-                                [
-                                    country_bounds["max_lon"] + lon_padding,
-                                    country_bounds["min_lat"] - lat_padding,
-                                ],
+
+                    # Get country boundaries from GeoJSON
+                    def get_country_bounds(geojson, country_name):
+
+                        aliases = {
+                            "usa": [
+                                "united states",
+                                "united states of america"
+                            ],
+                            "united states": [
+                                "united states",
+                                "united states of america"
+                            ],
+                            "united states of america": [
+                                "united states",
+                                "united states of america"
+                            ],
+                            "uk": [
+                                "uk",
+                                "united kingdom",
+                                "united kingdom of great britain and northern ireland"
+                            ],
+                            "united kingdom": [
+                                "uk",
+                                "united kingdom",
+                                "united kingdom of great britain and northern ireland"
+                            ],
+                            "united kingdom of great britain and northern ireland": [
+                                "uk",
+                                "united kingdom",
+                                "united kingdom of great britain and northern ireland"
+                            ],
+                        }
+
+                        target = normalize_geo_name(country_name)
+                        target_names = aliases.get(target, [target])
+
+                        target_names = [
+                            normalize_geo_name(name)
+                            for name in target_names
+                        ]
+
+                        def collect_coords(obj, result):
+                            if isinstance(obj, list):
+                                if (
+                                    len(obj) >= 2
+                                    and isinstance(obj[0], (int, float))
+                                    and isinstance(obj[1], (int, float))
+                                ):
+                                    lon = float(obj[0])
+                                    lat = float(obj[1])
+
+                                    if (
+                                        math.isfinite(lon)
+                                        and math.isfinite(lat)
+                                    ):
+                                        result.append((lon, lat))
+                                else:
+                                    for item in obj:
+                                        collect_coords(item, result)
+
+                        for feature in geojson.get("features", []):
+                            properties = feature.get("properties", {})
+
+                            names = [
+                                properties.get("name"),
+                                properties.get("NAME"),
+                                properties.get("ADMIN"),
+                                properties.get("admin"),
+                                properties.get("name_en"),
                             ]
-    
-                            map_options = {
-                                "backgroundColor": "transparent",
-                                "animation": True,
-                                "tooltip": {
-                                    "trigger": "item",
-                                    "confine": True,
-                                    "backgroundColor": "rgba(30, 30, 30, 0.95)",
-                                    "borderWidth": 0,
-                                    "textStyle": {
-                                        "color": "#FFFFFF",
-                                        "fontSize": 12,
-                                    },
-                                    "formatter": """
-                                        function(params) {
-                                            var d = params.data;
-    
-                                            if (!d) {
-                                                return '';
-                                            }
-    
-                                            var values = d.value || [];
-                                            var revenue = Math.max(0, Number(values[2]) || 0);
-                                            var profit = Math.max(0, Number(values[3]) || 0);
-                                            var orders = Math.max(0, Number(values[4]) || 0);
-                                            var units = Math.max(0, Number(values[5]) || 0);
-                                            var total = revenue + profit + orders + units;
-    
-                                            function fmt(v) {
-                                                return Number(v).toLocaleString(
-                                                    undefined,
-                                                    { maximumFractionDigits: 2 }
-                                                );
-                                            }
-    
-                                            function pct(v) {
-                                                return total > 0
-                                                    ? (v / total * 100).toFixed(1) + '%'
-                                                    : '0.0%';
-                                            }
-    
-                                            return '<b>' + d.name + '</b><br/>' +
-                                                '<span style="color:#2A9D8F">●</span> Revenue: ' +
-                                                fmt(d.revenue) + ' (' + pct(revenue) + ')<br/>' +
-                                                '<span style="color:#E9C46A">●</span> Profit: ' +
-                                                fmt(d.profit) + ' (' + pct(profit) + ')<br/>' +
-                                                '<span style="color:#E76F51">●</span> Number of Orders: ' +
-                                                fmt(d.orders) + ' (' + pct(orders) + ')<br/>' +
-                                                '<span style="color:#457B9D">●</span> Units Sold: ' +
-                                                fmt(d.units_sold) + ' (' + pct(units) + ')';
-                                        }
-                                    """,
-                                },
-                                "geo": {
-                                    "map": "world",
-                                    "roam": True,
-                                    "boundingCoords": bounding_coords,
-                                    "layoutCenter": ["50%", "50%"],
-                                    "layoutSize": "100%",
-                                    "itemStyle": {
-                                        "areaColor": "#E8EDF2",
-                                        "borderColor": "#FFFFFF",
-                                        "borderWidth": 0.7,
-                                    },
-                                    "emphasis": {
-                                        "itemStyle": {
-                                            "areaColor": "#D5DEE8",
-                                        }
-                                    },
-                                },
-                                "series": [
-                                    {
-                                        "name": "City Sales",
-                                        "type": "custom",
-                                        "coordinateSystem": "geo",
-                                        "renderItem": """
-                                            function(params, api) {
-                                                var lon = api.value(0);
-                                                var lat = api.value(1);
-    
-                                                var revenue = Math.max(0, Number(api.value(2)) || 0);
-                                                var profit = Math.max(0, Number(api.value(3)) || 0);
-                                                var orders = Math.max(0, Number(api.value(4)) || 0);
-                                                var units = Math.max(0, Number(api.value(5)) || 0);
-    
-                                                var values = [revenue, profit, orders, units];
-                                                var colors = [
-                                                    '#2A9D8F',
-                                                    '#E9C46A',
-                                                    '#E76F51',
-                                                    '#457B9D'
-                                                ];
-    
-                                                var total = values.reduce(
-                                                    function(sum, value) {
-                                                        return sum + value;
-                                                    },
-                                                    0
-                                                );
-    
-                                                var point = api.coord([lon, lat]);
-    
-                                                if (
-                                                    !point ||
-                                                    !isFinite(point[0]) ||
-                                                    !isFinite(point[1])
-                                                ) {
-                                                    return null;
-                                                }
-    
-                                                if (total <= 0) {
-                                                    return {
-                                                        type: 'circle',
-                                                        shape: {
-                                                            cx: point[0],
-                                                            cy: point[1],
-                                                            r: 4
-                                                        },
-                                                        style: {
-                                                            fill: '#777777',
-                                                            stroke: '#FFFFFF',
-                                                            lineWidth: 1
-                                                        }
-                                                    };
-                                                }
-    
-                                                var radius = 28;
-                                                var startAngle = -Math.PI / 2;
-                                                var children = [];
-    
-                                                for (var i = 0; i < values.length; i++) {
-                                                    if (values[i] <= 0) {
-                                                        continue;
-                                                    }
-    
-                                                    var endAngle = startAngle +
-                                                        (values[i] / total) * Math.PI * 2;
-    
-                                                    children.push({
-                                                        type: 'sector',
-                                                        shape: {
-                                                            cx: point[0],
-                                                            cy: point[1],
-                                                            r: radius,
-                                                            r0: 0,
-                                                            startAngle: startAngle,
-                                                            endAngle: endAngle,
-                                                            clockwise: true
-                                                        },
-                                                        style: {
-                                                            fill: colors[i],
-                                                            stroke: '#FFFFFF',
-                                                            lineWidth: 1.5,
-                                                            opacity: 0.95
-                                                        },
-                                                        emphasis: {
-                                                            style: {
-                                                                opacity: 1,
-                                                                lineWidth: 3,
-                                                                shadowBlur: 12,
-                                                                shadowColor: colors[i]
-                                                            }
-                                                        },
-                                                        z2: 10
-                                                    });
-    
-                                                    startAngle = endAngle;
-                                                }
-    
-                                                return {
-                                                    type: 'group',
-                                                    children: children,
-                                                    emphasis: {
-                                                        focus: 'self'
-                                                    },
-                                                    z2: 10
-                                                };
-                                            }
-                                        """,
-                                        "dimensions": [
-                                            "longitude",
-                                            "latitude",
-                                            "revenue",
-                                            "profit",
-                                            "orders",
-                                            "units_sold",
-                                        ],
-                                        "encode": {
-                                            "tooltip": [
-                                                "revenue",
-                                                "profit",
-                                                "orders",
-                                                "units_sold",
-                                            ],
-                                        },
-                                        "data": pie_data,
-                                        "silent": False,
-                                        "z": 10,
-                                    }
-                                ],
+
+                            feature_names = [
+                                normalize_geo_name(name)
+                                for name in names
+                                if name is not None
+                            ]
+
+                            if not any(
+                                name in target_names
+                                for name in feature_names
+                            ):
+                                continue
+
+                            geometry = feature.get("geometry") or {}
+                            coords = []
+
+                            collect_coords(
+                                geometry.get("coordinates", []),
+                                coords
+                            )
+
+                            if not coords:
+                                return None
+
+                            longitudes = [point[0] for point in coords]
+                            latitudes = [point[1] for point in coords]
+
+                            return {
+                                "min_lon": min(longitudes),
+                                "max_lon": max(longitudes),
+                                "min_lat": min(latitudes),
+                                "max_lat": max(latitudes),
                             }
-    
-                            world_map = Map(
-                                map_name="world",
-                                geo_json=world_geojson,
-                            )
-    
-                            map_key = (
-                                "geographical_sales_map_"
-                                + normalize_geo_name(selected_country).replace(
-                                    " ", "_"
-                                )
-                            )
-    
-                            st_echarts(
-                                options=map_options,
-                                map=world_map,
-                                height="550px",
-                                key=map_key,
-                            )
-    
-                            st.markdown(
-                                """
-                                <div style="
-                                    display:flex;
-                                    justify-content:center;
-                                    align-items:center;
-                                    flex-wrap:wrap;
-                                    gap:22px;
-                                    margin-top:12px;
-                                    padding:10px 0;
-                                ">
-                                    <div style="display:flex;align-items:center;gap:7px;">
-                                        <span style="
-                                            width:13px;height:13px;border-radius:50%;
-                                            background:#2A9D8F;display:inline-block;
-                                        "></span>
-                                        <span>Revenue</span>
-                                    </div>
-                                    <div style="display:flex;align-items:center;gap:7px;">
-                                        <span style="
-                                            width:13px;height:13px;border-radius:50%;
-                                            background:#E9C46A;display:inline-block;
-                                        "></span>
-                                        <span>Profit</span>
-                                    </div>
-                                    <div style="display:flex;align-items:center;gap:7px;">
-                                        <span style="
-                                            width:13px;height:13px;border-radius:50%;
-                                            background:#E76F51;display:inline-block;
-                                        "></span>
-                                        <span>Number of Orders</span>
-                                    </div>
-                                    <div style="display:flex;align-items:center;gap:7px;">
-                                        <span style="
-                                            width:13px;height:13px;border-radius:50%;
-                                            background:#457B9D;display:inline-block;
-                                        "></span>
-                                        <span>Units Sold</span>
-                                    </div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True,
-                            )
-    
-                        with kpi_col:
-    
-                            st.markdown("### Key Metrics")
-    
-                            st.markdown(
-                                f"""
-                                <div style="
-                                    border:1px solid rgba(128,128,128,0.25);
-                                    border-radius:12px;
-                                    padding:14px;
-                                    margin-bottom:12px;
-                                ">
-                                    <div style="font-size:13px;opacity:0.75;">
-                                        Revenue
-                                    </div>
-                                    <div style="font-size:25px;font-weight:700;">
-                                        {total_revenue:,.2f}
-                                    </div>
-                                    <div style="
-                                        background:rgba(128,128,128,0.18);
-                                        border-radius:5px;height:6px;margin-top:10px;
-                                    ">
-                                        <div style="
-                                            background:#2A9D8F;
-                                            width:{safe_progress(total_revenue, all_revenue) * 100:.1f}%;
-                                            height:6px;border-radius:5px;
-                                        "></div>
-                                    </div>
-                                    <div style="font-size:11px;opacity:0.65;margin-top:5px;">
-                                        Share of overall revenue
-                                    </div>
-                                </div>
-    
-                                <div style="
-                                    border:1px solid rgba(128,128,128,0.25);
-                                    border-radius:12px;
-                                    padding:14px;
-                                    margin-bottom:12px;
-                                ">
-                                    <div style="font-size:13px;opacity:0.75;">
-                                        Profit
-                                    </div>
-                                    <div style="font-size:25px;font-weight:700;">
-                                        {total_profit:,.2f}
-                                    </div>
-                                    <div style="
-                                        background:rgba(128,128,128,0.18);
-                                        border-radius:5px;height:6px;margin-top:10px;
-                                    ">
-                                        <div style="
-                                            background:#E9C46A;
-                                            width:{safe_progress(max(total_profit, 0), max(all_profit, 0)) * 100:.1f}%;
-                                            height:6px;border-radius:5px;
-                                        "></div>
-                                    </div>
-                                    <div style="font-size:11px;opacity:0.65;margin-top:5px;">
-                                        Share of overall positive profit
-                                    </div>
-                                </div>
-    
-                                <div style="
-                                    border:1px solid rgba(128,128,128,0.25);
-                                    border-radius:12px;
-                                    padding:14px;
-                                    margin-bottom:12px;
-                                ">
-                                    <div style="font-size:13px;opacity:0.75;">
-                                        Number of Orders
-                                    </div>
-                                    <div style="font-size:25px;font-weight:700;">
-                                        {total_orders:,}
-                                    </div>
-                                    <div style="
-                                        background:rgba(128,128,128,0.18);
-                                        border-radius:5px;height:6px;margin-top:10px;
-                                    ">
-                                        <div style="
-                                            background:#E76F51;
-                                            width:{safe_progress(total_orders, all_orders) * 100:.1f}%;
-                                            height:6px;border-radius:5px;
-                                        "></div>
-                                    </div>
-                                    <div style="font-size:11px;opacity:0.65;margin-top:5px;">
-                                        Share of overall orders
-                                    </div>
-                                </div>
-    
-                                <div style="
-                                    border:1px solid rgba(128,128,128,0.25);
-                                    border-radius:12px;
-                                    padding:14px;
-                                    margin-bottom:12px;
-                                ">
-                                    <div style="font-size:13px;opacity:0.75;">
-                                        Units Sold
-                                    </div>
-                                    <div style="font-size:25px;font-weight:700;">
-                                        {total_units:,.0f}
-                                    </div>
-                                    <div style="
-                                        background:rgba(128,128,128,0.18);
-                                        border-radius:5px;height:6px;margin-top:10px;
-                                    ">
-                                        <div style="
-                                            background:#457B9D;
-                                            width:{safe_progress(total_units, all_units) * 100:.1f}%;
-                                            height:6px;border-radius:5px;
-                                        "></div>
-                                    </div>
-                                    <div style="font-size:11px;opacity:0.65;margin-top:5px;">
-                                        Share of overall units sold
-                                    </div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True,
-                            )
+
+                        return None
+
+                    # Load and register the world map
+                    world_geojson = load_world_geojson()
+
+                    world_map = Map(
+                        map_name="world",
+                        geo_json=world_geojson
+                    )
+
+                    # Country-specific boundaries for better framing
+                    normalized_country = normalize_geo_name(selected_country)
+
+                    country_bounds_overrides = {
+                        # Metropolitan France only, excluding French Guiana
+                        "france": {
+                            "min_lon": -5.5,
+                            "max_lon": 9.8,
+                            "min_lat": 41.2,
+                            "max_lat": 51.3
+                        },
+
+                        # Great Britain and Northern Ireland
+                        "united kingdom": {
+                            "min_lon": -8.7,
+                            "max_lon": 2.0,
+                            "min_lat": 49.8,
+                            "max_lat": 59.5
+                        },
+                        "uk": {
+                            "min_lon": -8.7,
+                            "max_lon": 2.0,
+                            "min_lat": 49.8,
+                            "max_lat": 59.5
+                        },
+                        "united kingdom of great britain and northern ireland": {
+                            "min_lon": -8.7,
+                            "max_lon": 2.0,
+                            "min_lat": 49.8,
+                            "max_lat": 59.5
+                        }
+                    }
+
+                    # Use explicit boundaries for France and the UK
+                    if normalized_country in country_bounds_overrides:
+                        country_bounds = country_bounds_overrides[
+                            normalized_country
+                        ]
+                    else:
+                        country_bounds = get_country_bounds(
+                            world_geojson,
+                            selected_country
+                        )
+
+                    geo_options = {
+                        "map": "world",
+                        "roam": True,
+                        "scaleLimit": {
+                            "min": 1,
+                            "max": 20
+                        },
+                        "itemStyle": {
+                            "areaColor": "#EAF0F6",
+                            "borderColor": "#AAB7C4"
+                        },
+                        "emphasis": {
+                            "itemStyle": {
+                                "areaColor": "#D2E5F3"
+                            }
+                        }
+                    }
+
+                    # Fit the map to the selected country's boundaries
+                    if country_bounds:
+                        min_lon = country_bounds["min_lon"]
+                        max_lon = country_bounds["max_lon"]
+                        min_lat = country_bounds["min_lat"]
+                        max_lat = country_bounds["max_lat"]
+
+                        lon_span = max(max_lon - min_lon, 0.1)
+                        lat_span = max(max_lat - min_lat, 0.1)
+
+                        # Small padding around the country
+                        lon_margin = lon_span * 0.035
+                        lat_margin = lat_span * 0.035
+
+                        geo_options["boundingCoords"] = [
+                            [
+                                min_lon - lon_margin,
+                                max_lat + lat_margin
+                            ],
+                            [
+                                max_lon + lon_margin,
+                                min_lat - lat_margin
+                            ]
+                        ]
+
+                    else:
+                        # Fallback to coordinates in the dataset
+                        country_geo = (
+                            df1.loc[
+                                df1["country"] == selected_country,
+                                ["latitude", "longitude"]
+                            ]
+                            .copy()
+                        )
+
+                        country_geo["latitude"] = pd.to_numeric(
+                            country_geo["latitude"],
+                            errors="coerce"
+                        )
+                        country_geo["longitude"] = pd.to_numeric(
+                            country_geo["longitude"],
+                            errors="coerce"
+                        )
+
+                        country_geo = country_geo.replace(
+                            [float("inf"), float("-inf")],
+                            float("nan")
+                        ).dropna()
+
+                        if not country_geo.empty:
+                            min_lon = float(country_geo["longitude"].min())
+                            max_lon = float(country_geo["longitude"].max())
+                            min_lat = float(country_geo["latitude"].min())
+                            max_lat = float(country_geo["latitude"].max())
+
+                            lon_span = max(max_lon - min_lon, 0.1)
+                            lat_span = max(max_lat - min_lat, 0.1)
+
+                            geo_options["boundingCoords"] = [
+                                [
+                                    min_lon - lon_span * 0.05,
+                                    max_lat + lat_span * 0.05
+                                ],
+                                [
+                                    max_lon + lon_span * 0.05,
+                                    min_lat - lat_span * 0.05
+                                ]
+                            ]
+
+                    # Build pie charts using raw values
+                    pie_data = []
+
+                    for row in city_map.itertuples():
+                        pie_data.append({
+                            "name": str(row.city),
+                            "country": str(row.country),
+                            "value": [
+                                float(row.longitude),
+                                float(row.latitude),
+                                max(float(row.revenue), 0),
+                                max(float(row.profit), 0),
+                                max(int(row.orders), 0),
+                                max(float(row.units_sold), 0)
+                            ],
+                            "revenue": float(row.revenue),
+                            "profit": float(row.profit),
+                            "orders": int(row.orders),
+                            "units_sold": float(row.units_sold)
+                        })
+
+                    map_options = {
+                        "tooltip": {
+                            "trigger": "item",
+                            "formatter": JsCode("""
+                                function(params) {
+                                    const d = params.data;
+
+                                    if (!d || d.revenue === undefined) {
+                                        return params.name || '';
+                                    }
+
+                                    const values = d.value;
+                                    const total = values.slice(2, 6).reduce(
+                                        (sum, value) => sum + value, 0
+                                    );
+
+                                    function percent(value) {
+                                        return total > 0
+                                            ? (value / total * 100).toFixed(1) + '%'
+                                            : '0.0%';
+                                    }
+
+                                    function fmt(value) {
+                                        return Number(value).toLocaleString(
+                                            undefined,
+                                            {maximumFractionDigits: 2}
+                                        );
+                                    }
+
+                                    return '<b>' + d.name + '</b><br/>' +
+                                        '<span style="color:#2A9D8F">●</span> Revenue: $' +
+                                        fmt(d.revenue) + ' (' + percent(values[2]) + ')<br/>' +
+                                        '<span style="color:#E9C46A">●</span> Profit: $' +
+                                        fmt(d.profit) + ' (' + percent(values[3]) + ')<br/>' +
+                                        '<span style="color:#E76F51">●</span> Number of Orders: ' +
+                                        fmt(d.orders) + ' (' + percent(values[4]) + ')<br/>' +
+                                        '<span style="color:#457B9D">●</span> Units Sold: ' +
+                                        fmt(d.units_sold) + ' (' + percent(values[5]) + ')';
+                                }
+                            """).js_code
+                        },
+                        "geo": geo_options,
+                        "series": [{
+                            "name": "City KPI Breakdown",
+                            "type": "custom",
+                            "coordinateSystem": "geo",
+                            "encode": {
+                                "tooltip": [2, 3, 4, 5]
+                            },
+                            "data": pie_data,
+                            "renderItem": JsCode("""
+                                function(params, api) {
+                                    const coord = api.coord([
+                                        api.value(0),
+                                        api.value(1)
+                                    ]);
+
+                                    const values = [
+                                        Math.max(0, Number(api.value(2)) || 0),
+                                        Math.max(0, Number(api.value(3)) || 0),
+                                        Math.max(0, Number(api.value(4)) || 0),
+                                        Math.max(0, Number(api.value(5)) || 0)
+                                    ];
+
+                                    const colors = [
+                                        '#2A9D8F',
+                                        '#E9C46A',
+                                        '#E76F51',
+                                        '#457B9D'
+                                    ];
+
+                                    const total = values.reduce(
+                                        (sum, value) => sum + value, 0
+                                    );
+
+                                    const radius = 24;
+
+                                    if (
+                                        !coord ||
+                                        !isFinite(coord[0]) ||
+                                        !isFinite(coord[1])
+                                    ) {
+                                        return null;
+                                    }
+
+                                    if (total <= 0) {
+                                        return {
+                                            type: 'circle',
+                                            shape: {
+                                                cx: coord[0],
+                                                cy: coord[1],
+                                                r: 4
+                                            },
+                                            style: {
+                                                fill: '#AAB7C4'
+                                            }
+                                        };
+                                    }
+
+                                    let startAngle = -Math.PI / 2;
+                                    const children = [];
+
+                                    values.forEach(function(value, index) {
+                                        if (value <= 0) return;
+
+                                        const endAngle = startAngle +
+                                            (value / total) * Math.PI * 2;
+
+                                        children.push({
+                                            type: 'sector',
+                                            shape: {
+                                                cx: coord[0],
+                                                cy: coord[1],
+                                                r: radius,
+                                                r0: 0,
+                                                startAngle: startAngle,
+                                                endAngle: endAngle,
+                                                clockwise: true
+                                            },
+                                            style: {
+                                                fill: colors[index],
+                                                stroke: '#FFFFFF',
+                                                lineWidth: 1.5
+                                            },
+                                            emphasis: {
+                                                style: {
+                                                    lineWidth: 3,
+                                                    shadowBlur: 12,
+                                                    shadowColor: colors[index]
+                                                }
+                                            }
+                                        });
+
+                                        startAngle = endAngle;
+                                    });
+
+                                    children.push({
+                                        type: 'circle',
+                                        shape: {
+                                            cx: coord[0],
+                                            cy: coord[1],
+                                            r: radius
+                                        },
+                                        style: {
+                                            fill: 'transparent',
+                                            stroke: '#FFFFFF',
+                                            lineWidth: 1
+                                        }
+                                    });
+
+                                    return {
+                                        type: 'group',
+                                        children: children
+                                    };
+                                }
+                            """).js_code,
+                            "silent": False,
+                            "z": 10
+                        }]
+                    }
+
+                    # Recreate the chart when the country changes
+                    map_key = (
+                        "geographical_sales_map_"
+                        + normalize_geo_name(selected_country).replace(" ", "_")
+                    )
+
+                    st_echarts(
+                        options=map_options,
+                        map=world_map,
+                        height="550px",
+                        key=map_key
+                    )
+
+                    # Legend below the map
+                    st.markdown(
+                        """
+                        <div style="
+                            display:flex;
+                            justify-content:center;
+                            align-items:center;
+                            flex-wrap:wrap;
+                            gap:22px;
+                            margin-top:12px;
+                            padding:10px 0;
+                        ">
+                            <div style="display:flex;align-items:center;gap:7px;">
+                                <span style="width:13px;height:13px;border-radius:50%;background:#2A9D8F;display:inline-block;"></span>
+                                <span>Revenue</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:7px;">
+                                <span style="width:13px;height:13px;border-radius:50%;background:#E9C46A;display:inline-block;"></span>
+                                <span>Profit</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:7px;">
+                                <span style="width:13px;height:13px;border-radius:50%;background:#E76F51;display:inline-block;"></span>
+                                <span>Number of Orders</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:7px;">
+                                <span style="width:13px;height:13px;border-radius:50%;background:#457B9D;display:inline-block;"></span>
+                                <span>Units Sold</span>
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+        # Key Performance Indicators
+        with kpi_col:
+            st.markdown("**Key Performance Indicators**")
+
+            total_revenue = float(geo_df["revenue"].sum())
+            total_profit = float(geo_df["profit"].sum())
+            total_orders = int(geo_df["order_id"].nunique())
+            total_units_sold = int(geo_df["quantity"].sum())
+
+            metric_maxima = {
+                "Revenue": max(float(df1["revenue"].sum()), 1),
+                "Profit": max(float(df1["profit"].sum()), 1),
+                "Number of Orders": max(int(df1["order_id"].nunique()), 1),
+                "Units Sold": max(int(df1["quantity"].sum()), 1)
+            }
+
+            metric_cards = [
+                {
+                    "title": "Revenue",
+                    "value": f"${total_revenue:,.0f}",
+                    "progress": total_revenue / metric_maxima["Revenue"]
+                },
+                {
+                    "title": "Profit",
+                    "value": f"${total_profit:,.0f}",
+                    "progress": total_profit / metric_maxima["Profit"]
+                },
+                {
+                    "title": "Number of Orders",
+                    "value": f"{total_orders:,}",
+                    "progress": total_orders / metric_maxima["Number of Orders"]
+                },
+                {
+                    "title": "Units Sold",
+                    "value": f"{total_units_sold:,}",
+                    "progress": total_units_sold / metric_maxima["Units Sold"]
+                }
+            ]
+
+            for metric in metric_cards:
+                with st.container(border=True):
+                    st.markdown(f"**{metric['title']}**")
+                    st.markdown(
+                        f"<h3 style='margin:0;color:#000000'>"
+                        f"{metric['value']}</h3>",
+                        unsafe_allow_html=True
+                    )
+                    st.progress(
+                        min(1.0, max(0.0, float(metric["progress"])))
+                    )
 
         # Footer
         st.subheader("")
         st.divider()
-
-
-
-
-
-
