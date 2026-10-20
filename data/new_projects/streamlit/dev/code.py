@@ -1325,8 +1325,6 @@ elif page == p1:
                     city_map,
                     latitude="latitude",
                     longitude="longitude",
-                    size="revenue",
-                    use_container_width=True
                 )
 
             else:
