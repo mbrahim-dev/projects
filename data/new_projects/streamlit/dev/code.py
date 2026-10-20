@@ -1878,7 +1878,7 @@ elif page == p1:
 
         # Key Performance Indicators
         with kpi_col:
-            st.markdown("**Key Performance Indicators**")
+            st.markdown("**Key Metrics**")
 
             total_revenue = float(geo_df["revenue"].sum())
             total_profit = float(geo_df["profit"].sum())
