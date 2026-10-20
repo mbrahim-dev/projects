@@ -1241,7 +1241,7 @@ elif page == p1:
         h3, sp17, f3 = st.columns([3, 2, 3])
 
         with h3:
-            st.header("Geographical Analysis 🌍")
+            st.header("Geographical Business Analysis 🌍")
 
         with f3:
             st.markdown("**Filters**")
