@@ -4,18 +4,8 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from streamviz import gauge
-import json
-import streamlit.components.v1 as components
 from streamlit_echarts import st_echarts
-import json
-import urllib.request
-from streamlit_echarts import st_echarts, Map, JsCode
 
-@st.cache_data
-def load_world_geojson():
-    url = "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"
-    with urllib.request.urlopen(url, timeout=20) as response:
-        return json.loads(response.read())
 
 # import datasets
 
