@@ -102,7 +102,7 @@ elif page == p1:
 
         st.subheader("")
 
-        st.markdown("""This page provides an overview of the fictional e-commerce dataset used throughout this dashboard to create different visualizations. Each subsequent page explores the data from a different perspective to highlight key business insights.""")
+        st.markdown("""This page provides an overview of the fictional e-commerce dataset used throughout this section. Each subsequent page explores the data from a different perspective, using visualizations to present key business information.""")
 
         st.divider()
 
