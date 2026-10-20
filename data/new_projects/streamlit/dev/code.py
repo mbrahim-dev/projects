@@ -1305,15 +1305,13 @@ elif page == p1:
 
         map_col, sp18, kpi_col = st.columns([6, 1, 2])
 
+        
         with map_col:
-            st.markdown("**Sales Performance by City**")
+            st.markdown("**Global Sales Performance**")
 
             if geo_df.empty:
                 st.info("No data available for the selected filters.")
-
             else:
-                # Aggregate sales data by city and coordinates
-                
                 city_map = (
                     geo_df.groupby(
                         ["country", "city", "latitude", "longitude"],
@@ -1322,328 +1320,65 @@ elif page == p1:
                     .agg(
                         revenue=("revenue", "sum"),
                         profit=("profit", "sum"),
-                        units_sold=("quantity", "sum"),
-                        orders=("order_id", "nunique")
+                        units_sold=("quantity", "sum")
                     )
+                    .dropna(subset=["latitude", "longitude"])
                 )
 
-                # Ensure geographic coordinates are valid
-                city_map["latitude"] = pd.to_numeric(
-                    city_map["latitude"], errors="coerce"
-                )
-                city_map["longitude"] = pd.to_numeric(
-                    city_map["longitude"], errors="coerce"
-                )
-                city_map = city_map.dropna(
-                    subset=["latitude", "longitude"]
-                )
-                city_map = city_map[
-                    city_map["latitude"].between(-90, 90)
-                    & city_map["longitude"].between(-180, 180)
-                ].copy()
+                max_revenue = max(city_map["revenue"].max(), 1)
 
-                if city_map.empty:
-                    st.warning("No valid geographic coordinates found.")
-
-                else:
-                    # Normalize the metrics to make different units
-                    # comparable within each pie chart.
-                    max_revenue = max(
-                        float(city_map["revenue"].max()), 1.0
-                    )
-                    max_profit = max(
-                        float(city_map["profit"].max()), 1.0
-                    )
-                    max_units = max(
-                        float(city_map["units_sold"].max()), 1.0
-                    )
-
-                    map_data = []
-
-                    for _, row in city_map.iterrows():
-                        revenue = max(0.0, float(row["revenue"]))
-                        profit = max(0.0, float(row["profit"]))
-                        units = max(0.0, float(row["units_sold"]))
-
-                        # Scale each metric against its own maximum.
-                        scaled = [
-                            revenue / max_revenue,
-                            profit / max_profit,
-                            units / max_units
-                        ]
-                        scaled_total = sum(scaled)
-
-                        if scaled_total > 0:
-                            shares = [
-                                value / scaled_total
-                                for value in scaled
-                            ]
-                        else:
-                            shares = [1 / 3, 1 / 3, 1 / 3]
-
-                        map_data.append({
-                            "name": str(row["city"]),
-                            "country": str(row["country"]),
-                            "city": str(row["city"]),
-                            "longitude": float(row["longitude"]),
-                            "latitude": float(row["latitude"]),
-                            "revenue": revenue,
-                            "profit": profit,
-                            "units_sold": units,
-                            "orders": int(row["orders"]),
-                            "shares": shares,
-                            "radius": 8 + 17 * (
-                                revenue / max_revenue
-                            ) ** 0.5
-                        })
-
-                    map_data_json = json.dumps(
-                        map_data,
-                        ensure_ascii=False
-                    )
-
-                    html_template = r"""
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="utf-8">
-                        <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-                        <style>
-                            html, body {
-                                margin: 0;
-                                padding: 0;
-                                width: 100%;
-                                height: 100%;
-                                font-family: Arial, sans-serif;
-                            }
-                            #map {
-                                width: 100%;
-                                height: 610px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div id="map"></div>
-                        <script>
-                        const cities = __CITY_DATA__;
-
-                        const chart = echarts.init(
-                            document.getElementById("map")
-                        );
-
-                        const colors = [
-                            "#2A9D8F",
-                            "#E76F51",
-                            "#356B8C"
-                        ];
-
-                        const option = {
-                            animation: true,
-
-                            title: {
-                                text: "Revenue, Profit & Units Sold",
-                                left: "center",
-                                top: 8,
-                                textStyle: {
-                                    fontSize: 16,
-                                    color: "#243447"
-                                }
-                            },
-
-                            legend: {
-                                data: [
-                                    "Revenue",
-                                    "Profit",
-                                    "Units Sold"
+                options = {
+                    "tooltip": {
+                        "trigger": "item",
+                        "formatter": "{b}"
+                    },
+                    "geo": {
+                        "map": "world",
+                        "roam": True,
+                        "itemStyle": {
+                            "areaColor": "#EAF0F6",
+                            "borderColor": "#AAB7C4"
+                        }
+                    },
+                    "series": [{
+                        "type": "scatter",
+                        "coordinateSystem": "geo",
+                        "symbolSize": 12,
+                        "data": [
+                            {
+                                "name": f"{row.city}, {row.country}",
+                                "value": [
+                                    row.longitude,
+                                    row.latitude,
+                                    row.revenue
                                 ],
-                                top: 38,
-                                left: "center"
-                            },
-
-                            tooltip: {
-                                trigger: "item",
-                                confine: true,
-                                formatter: function(params) {
-                                    const d = params.data;
-
-                                    if (!d || d.revenue === undefined) {
-                                        return "";
-                                    }
-
-                                    return `
-                                        <strong>${d.city}, ${d.country}</strong>
-                                        <br/><span style="color:#2A9D8F">●</span>
-                                        Revenue: $${d.revenue.toLocaleString("en-US", {maximumFractionDigits: 2})}
-                                        <br/><span style="color:#E76F51">●</span>
-                                        Profit: $${d.profit.toLocaleString("en-US", {maximumFractionDigits: 2})}
-                                        <br/><span style="color:#356B8C">●</span>
-                                        Units sold: ${d.units_sold.toLocaleString("en-US")}
-                                        <br/>Orders: ${d.orders.toLocaleString("en-US")}
-                                        <br/><small>Pie slices use normalized values</small>
-                                    `;
-                                }
-                            },
-
-                            geo: {
-                                map: "world",
-                                roam: true,
-                                zoom: 1.15,
-                                scaleLimit: {
-                                    min: 1,
-                                    max: 10
-                                },
-                                itemStyle: {
-                                    areaColor: "#F0F4F8",
-                                    borderColor: "#C7D2DE",
-                                    borderWidth: 0.7
-                                },
-                                emphasis: {
-                                    itemStyle: {
-                                        areaColor: "#DCE8F2"
-                                    }
-                                }
-                            },
-
-                            series: [{
-                                name: "City performance",
-                                type: "custom",
-                                coordinateSystem: "geo",
-
-                                data: cities.map(d => ({
-                                    name: d.city,
-                                    value: [
-                                        d.longitude,
-                                        d.latitude,
-                                        d.revenue
-                                    ],
-                                    city: d.city,
-                                    country: d.country,
-                                    revenue: d.revenue,
-                                    profit: d.profit,
-                                    units_sold: d.units_sold,
-                                    orders: d.orders,
-                                    shares: d.shares,
-                                    radius: d.radius
-                                })),
-
-                                renderItem: function(params, api) {
-                                    const d = params.data;
-                                    const point = api.coord([
-                                        d.value[0],
-                                        d.value[1]
-                                    ]);
-
-                                    if (
-                                        !point ||
-                                        !isFinite(point[0]) ||
-                                        !isFinite(point[1])
-                                    ) {
-                                        return;
-                                    }
-
-                                    const radius = d.radius;
-                                    const values = d.shares;
-                                    const total = values.reduce(
-                                        (sum, value) => sum + value, 0
-                                    );
-
-                                    let angle = -Math.PI / 2;
-                                    const sectors = [];
-
-                                    values.forEach((value, index) => {
-                                        const nextAngle = angle +
-                                            (value / total) * Math.PI * 2;
-
-                                        sectors.push({
-                                            type: "sector",
-                                            shape: {
-                                                cx: point[0],
-                                                cy: point[1],
-                                                r: radius,
-                                                r0: 0,
-                                                startAngle: angle,
-                                                endAngle: nextAngle,
-                                                clockwise: true
-                                            },
-                                            style: {
-                                                fill: colors[index],
-                                                stroke: "#FFFFFF",
-                                                lineWidth: 1
-                                            }
-                                        });
-
-                                        angle = nextAngle;
-                                    });
-
-                                    sectors.push({
-                                        type: "circle",
-                                        shape: {
-                                            cx: point[0],
-                                            cy: point[1],
-                                            r: 2
-                                        },
-                                        style: {
-                                            fill: "#FFFFFF"
-                                        }
-                                    });
-
-                                    return {
-                                        type: "group",
-                                        children: sectors
-                                    };
-                                },
-
-                                encode: {
-                                    tooltip: [2]
-                                },
-
-                                tooltip: {
-                                    show: true
-                                },
-
-                                emphasis: {
-                                    focus: "self"
-                                }
-                            }]
-                        };
-
-                        fetch(
-                            "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson"
-                        )
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Map data unavailable");
+                                "revenue": row.revenue,
+                                "profit": row.profit,
+                                "units": row.units_sold
                             }
-                            return response.json();
-                        })
-                        .then(world => {
-                            echarts.registerMap("world", world);
-                            chart.setOption(option);
-                        })
-                        .catch(error => {
-                            document.getElementById("map").innerText =
-                                "Unable to load the world map. Check your internet connection.";
-                            console.error(error);
-                        });
+                            for row in city_map.itertuples()
+                        ],
+                        "symbolSize": {
+                            "function": "value"
+                        },
+                        "encode": {
+                            "tooltip": [2]
+                        },
+                        "itemStyle": {
+                            "color": "#2A9D8F"
+                        },
+                        "emphasis": {
+                            "focus": "self"
+                        }
+                    }]
+                }
 
-                        window.addEventListener("resize", function() {
-                            chart.resize();
-                        });
-                        </script>
-                    </body>
-                    </html>
-                    """
+                st_echarts(
+                    options=options,
+                    height="550",
+                    key="geographical_sales_map"
+                )
 
-                    html = html_template.replace(
-                        "__CITY_DATA__",
-                        map_data_json
-                    )
-
-                    components.html(
-                        html,
-                        height=630,
-                        scrolling=False
-                    )
 
         with kpi_col:
 
@@ -1702,18 +1437,6 @@ elif page == p1:
                     )
                 }
             ]
-
-            {
-                    "title": "Units Sold",
-                    "value": f"{total_units:,}",
-                    "progress": min(
-                        1.0,
-                        max(
-                            0.0,
-                            total_units / max(int(df1["quantity"].sum()), 1)
-                        )
-                    )
-            }
 
             # display three key metrics vertically
 
