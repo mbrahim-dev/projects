@@ -9,6 +9,9 @@ def render_home_page() -> None:
     
     with st.container(key="title_home_page"):
         st.header("Welcome to my Streamlit App 👋")
+        st.subheader("")
+        st.subheader("")
+
         
     # introduction section
     
@@ -23,6 +26,8 @@ def render_home_page() -> None:
     
     st.caption("")
     st.divider()
+    st.subheader("")
+
 
     # q&a
     
