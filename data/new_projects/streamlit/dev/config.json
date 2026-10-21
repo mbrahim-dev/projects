@@ -1,0 +1,4 @@
+{
+    "dataset_path": "data/new_projects/streamlit/dataset/sales_performance.csv",
+    "world_geojson_url": "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"
+}
