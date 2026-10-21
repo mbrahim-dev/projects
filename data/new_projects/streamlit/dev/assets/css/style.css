@@ -1,3 +1,11 @@
+/* home page style */
+
+.st-key-title_home_page,
+.st-key-home_intro,
+.st-key-qa_home_page {
+    text-align: center;
+}
+
 /* metrics style */
 
 .metric-value {
