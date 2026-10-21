@@ -27,7 +27,7 @@ def load_world_geojson():
 
 # import datasets
 
-df1 = pd.read_csv(BASE_DIR / APP_CONFIG["dataset_path"])
+df1 = pd.read_csv("data/new_projects/streamlit/dataset/sales_performance.csv")
 
 # page config
 
