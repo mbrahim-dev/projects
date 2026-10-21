@@ -1,6 +1,7 @@
-/* Home page styles */
+/* home page styles */
 
-.st-key-home_page {
+.st-key-home_page,
+.st-key-home_intro {
     max-width: 850px;
     margin-left: auto;
     margin-right: auto;
@@ -10,13 +11,9 @@
 .st-key-home_page .stMarkdown,
 .st-key-home_page h1,
 .st-key-home_page h2,
-.st-key-home_page h3 {
+.st-key-home_page h3,
+.st-key-home_intro .stMarkdown {
     text-align: center;
-}
-
-.st-key-home_page hr {
-    margin-left: auto;
-    margin-right: auto;
 }
 
 /* metrics style */
