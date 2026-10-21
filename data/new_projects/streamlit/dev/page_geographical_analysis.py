@@ -6,8 +6,6 @@ import urllib.request
 import pandas as pd
 import streamlit as st
 
-from dev.code import render_streamlit_echarts, render_metric_value, render_progress_bar, load_text_asset, render_html_template
-
 from streamlit_echarts import Map, JsCode
 
 @st.cache_data
