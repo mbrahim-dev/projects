@@ -12,7 +12,6 @@ def render_home_page() -> None:
 
     # introduction section
     
-    st.divider()
 
     with st.container(key="home_intro"):
         
