@@ -16,6 +16,15 @@
     text-align: center;
 }
 
+.stMainBlockContainer hr,
+[data-testid="stMain"] hr {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box;
+}
+
 /* metrics style */
 
 .metric-value {
