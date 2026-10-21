@@ -130,8 +130,6 @@ def main() -> None:
 
     st.set_page_config("", "", layout="wide")
 
-    st.error("TEST: UPDATED CODE.PY")
-
     st.markdown(load_styles_html(), unsafe_allow_html=True)
     
     page = render_sidebar()
