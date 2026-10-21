@@ -5,11 +5,11 @@ import pandas as pd
 import streamlit as st
 from streamlit_option_menu import option_menu
 
-from dev.page_home import render_home_page
-from dev.page_overview import render_overview_page
-from dev.page_time_analysis import render_time_analysis_page
-from dev.page_product_analysis import render_product_analysis_page
-from dev.page_geographical_analysis import render_geographical_analysis_page
+from page_home import render_home_page
+from page_overview import render_overview_page
+from page_time_analysis import render_time_analysis_page
+from page_product_analysis import render_product_analysis_page
+from page_geographical_analysis import render_geographical_analysis_page
 
 
 # configure the application
