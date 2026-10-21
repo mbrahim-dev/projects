@@ -1,6 +1,7 @@
 /* home page style */
 
 .st-key-home_page {
+    outline: 3px solid red;
     max-width: 850px;
     margin-left: auto;
     margin-right: auto;
