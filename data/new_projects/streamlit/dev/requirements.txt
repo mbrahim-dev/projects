@@ -3,3 +3,4 @@ pandas
 altair
 streamviz==5.1
 streamlit-echarts
+streamlit-option-menu
