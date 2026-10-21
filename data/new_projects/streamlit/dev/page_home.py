@@ -5,16 +5,25 @@ import streamlit as st
 
 def render_home_page() -> None:
 
+    # page title
+    
     with st.container(key="home_page"):
-
         st.header("Welcome to my Streamlit App 👋")
 
-        st.divider()
+    # introduction section
+    
+    st.divider()
 
+    with st.container(key="home_intro"):
+        
         st.markdown("On this home page, you will find answers to some of the key questions you may have about this application and the technology behind it.")
 
-        st.divider()
+    st.divider()
 
+    # q&a
+    
+    with st.container(key="home_page"):
+        
         st.subheader("1 - What is a Streamlit App ?")
         
         st.markdown("An interactive web application.")
