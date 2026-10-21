@@ -7,6 +7,14 @@ from streamlit_echarts import st_echarts
 
 HTML_PATH = "/mount/src/projects/data/new_projects/streamlit/dev/assets/html/components.html"
 
+def load_text_asset(relative_path: str) -> str:
+    asset_path = (
+        "/mount/src/projects/data/new_projects/streamlit/dev/assets/"
+        + relative_path
+    )
+
+    with open(asset_path, encoding="utf-8") as file:
+        return file.read()
 
 def render_html_template(component_name: str, **values) -> None:
     with open(HTML_PATH, encoding="utf-8") as file:
