@@ -5,8 +5,6 @@ import streamlit as st
 
 def render_home_page() -> None:
     
-    st.error("TEST: UPDATED PAGE_HOME.PY")
-
     # page title
     
     with st.container(key="home_page"):
