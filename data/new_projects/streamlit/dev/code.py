@@ -222,7 +222,7 @@ elif page == p1:
             year_col, month_col, quarter_col = st.columns(3)
 
             with year_col:
-                with st.popover("Year"):
+                with st.popover("Year", use_container_width=True):
                     available_years = sorted(
                         [int(year) for year in df1["year"].dropna().unique()],
                         reverse=True
@@ -240,14 +240,14 @@ elif page == p1:
                     )
 
             with month_col:
-                with st.popover("Month"):
+                with st.popover("Month", use_container_width=True):
                     selected_months = st.multiselect(
                         "Select months",
                         months
                     )
 
             with quarter_col:
-                with st.popover("Quarter"):
+                with st.popover("Quarter", use_container_width=True):
                     selected_quarters = st.multiselect(
                         "Select quarters",
                         [1, 2, 3, 4]
