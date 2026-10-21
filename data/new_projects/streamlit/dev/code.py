@@ -1,4 +1,5 @@
 from html import escape
+from pathlib import Path
 import re
 
 import pandas as pd
@@ -11,14 +12,12 @@ from page_time_analysis import render_time_analysis_page
 from page_product_analysis import render_product_analysis_page
 from page_geographical_analysis import render_geographical_analysis_page
 
-
 # configure the application
 
 st.set_page_config(
     page_title="My Streamlit App",
     layout="wide",
 )
-
 
 # load CSS
 
@@ -29,17 +28,15 @@ with open(
     css = file.read()
 
 st.markdown(
-    f"<style>{css}</style>",
+    f"<style>\n{css}\n</style>",
     unsafe_allow_html=True,
 )
 
-
 # load dataset
 
-df = pd.read_csv(
+df1 = pd.read_csv(
     "/mount/src/projects/data/new_projects/streamlit/dataset/sales_performance.csv"
 )
-
 
 # shared HTML components
 
@@ -55,11 +52,7 @@ def render_html_template(component_name: str, **values) -> None:
         rf"\s*(.*?)(?=\n<!-- component: |\Z)"
     )
 
-    match = re.search(
-        pattern,
-        source,
-        flags=re.DOTALL,
-    )
+    match = re.search(pattern, source, flags=re.DOTALL)
 
     if match is None:
         raise ValueError(
@@ -115,51 +108,64 @@ def render_progress_bar(
         color=color,
     )
 
-
 # sidebar navigation
 
 with st.sidebar:
     page = option_menu(
         menu_title=None,
-        options=[
-            "Home",
-            "Data Visualization",
-        ],
-        icons=[
-            "house",
-            "bar-chart-line",
-        ],
+        options=["Home", "Data Visualization"],
+        icons=["house", "bar-chart-line"],
+        menu_icon=None,
         default_index=0,
         orientation="vertical",
+        styles={
+            "container": {
+                "padding": "0!important",
+                "background-color": "transparent",
+            },
+            "icon": {
+                "color": "#64748B",
+                "font-size": "18px",
+            },
+            "nav-link": {
+                "font-size": "15px",
+                "text-align": "left",
+                "margin": "4px 0",
+                "padding": "10px 12px",
+                "border-radius": "8px",
+                "background-color": "transparent",
+                "color": "#64748B",
+            },
+            "nav-link-selected": {
+                "background-color": "#E8EDF3",
+                "color": "#1E293B",
+                "font-size": "15px",
+                "font-weight": "600",
+            },
+        },
     )
-
 
 # display selected page
 
 if page == "Home":
     render_home_page()
 
-else:
-    page_analysis = st.pagination(
-        "Select a page",
-        options=[
-            "Overview",
-            "Time Analysis",
-            "Product Analysis",
-            "Geographical Analysis",
-        ],
-        horizontal=True,
-        label_visibility="collapsed",
-    )
+elif page == "Data Visualization":
+    sp1, sp2, pagination_col, sp4, sp5 = st.columns(5)
 
-    if page_analysis == "Overview":
-        render_overview_page(df)
+    with pagination_col:
+        page_analysis = st.pagination(4)
 
-    elif page_analysis == "Time Analysis":
-        render_time_analysis_page(df)
+    st.subheader("")
 
-    elif page_analysis == "Product Analysis":
-        render_product_analysis_page(df)
+    if page_analysis == 1:
+        render_overview_page(df1)
 
-    elif page_analysis == "Geographical Analysis":
-        render_geographical_analysis_page(df)
+    elif page_analysis == 2:
+        render_time_analysis_page(df1)
+
+    elif page_analysis == 3:
+        render_product_analysis_page(df1)
+
+    elif page_analysis == 4:
+        render_geographical_analysis_page(df1)
