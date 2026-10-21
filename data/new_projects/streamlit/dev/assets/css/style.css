@@ -1,11 +1,22 @@
-/* home page style */
+/* Home page styles */
 
 .st-key-home_page {
-    outline: 3px solid red;
     max-width: 850px;
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+}
+
+.st-key-home_page .stMarkdown,
+.st-key-home_page h1,
+.st-key-home_page h2,
+.st-key-home_page h3 {
+    text-align: center;
+}
+
+.st-key-home_page hr {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* metrics style */
