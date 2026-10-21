@@ -129,8 +129,6 @@ def main() -> None:
     df1 = pd.read_csv(DATASET_PATH)
 
     st.set_page_config("", "", layout="wide")
-    
-    css_content = load_text_asset("css/style.css")
 
     st.markdown(load_styles_html(), unsafe_allow_html=True)
     
