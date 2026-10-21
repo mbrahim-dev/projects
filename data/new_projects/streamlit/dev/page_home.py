@@ -59,3 +59,5 @@ def render_home_page() -> None:
         st.caption("")
 
         st.markdown("Primarily with **Python**, but other technologies can also be used to further customize the app.")
+
+        st.markdown("Primarily with **Python**, but other technologies can also be used to further customize the app.")
