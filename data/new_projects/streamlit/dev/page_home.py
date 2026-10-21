@@ -27,19 +27,35 @@ def render_home_page() -> None:
     # q&a
     
     with st.container(key="home_page"):
-        
+
+        st.caption("")
+
         st.subheader("1 - What is a Streamlit App ?")
-        
+
+        st.caption("")
+
         st.markdown("An interactive web application.")
+        
+        st.caption("")
 
         st.subheader("2 - What will you find in this application ?")
-        
+
+        st.caption("")
+
         st.markdown("**Different projects** that can be built with Streamlit.")
 
+        st.caption("")
+
         st.subheader("3 - Why use Streamlit ?")
-        
+
+        st.caption("")
+
         st.markdown("A simple way to **turn data into interactive visualizations**.")
 
+        st.caption("")
+
         st.subheader("4 - How is a Streamlit App built ?")
-        
+
+        st.caption("")
+
         st.markdown("Primarily with **Python**, but other technologies can also be used to further customize the app.")
