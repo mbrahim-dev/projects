@@ -1258,12 +1258,23 @@ elif page == p1:
             # Country filter
             countries = sorted(df1["country"].dropna().unique())
 
+            # Default country: France
+            france_index = next(
+                (i for i, country in enumerate(countries)
+                 if str(country).strip().casefold() == "france"),
+                0
+            )
+
+            # Initialize the widget state so France is selected on first load
+            if countries and st.session_state.get("geo_country_select") not in countries:
+                st.session_state["geo_country_select"] = countries[france_index]
+
             with country_col:
                 with st.popover("Country", use_container_width=True):
                     selected_country = st.selectbox(
                         "Select one country",
                         options=countries,
-                        index=None,
+                        index=france_index if countries else None,
                         placeholder="Choose a country",
                         key="geo_country_select"
                     )
@@ -1281,11 +1292,11 @@ elif page == p1:
             else:
                 city_options = []
 
-            # Reset city selections when country changes
+            # Select all cities by default, and when the country changes
             previous_country = st.session_state.get("geo_previous_country")
 
             if previous_country != selected_country:
-                st.session_state["geo_city_filter"] = []
+                st.session_state["geo_city_filter"] = city_options.copy()
                 st.session_state["geo_previous_country"] = selected_country
 
             # Remove invalid city selections
@@ -1300,30 +1311,42 @@ elif page == p1:
                     selected_cities = st.multiselect(
                         "Select cities",
                         options=city_options,
-                        default=[],
+                        default=city_options,
                         key="geo_city_filter",
                         disabled=not bool(selected_country)
                     )
 
             categories = sorted(df1["category"].dropna().unique())
+            default_categories = [
+                category for category in categories
+                if str(category).strip().casefold() in {"books", "electronics"}
+            ]
+            if "geo_category_filter" not in st.session_state:
+                st.session_state["geo_category_filter"] = default_categories
 
             with category_col2:
                 with st.popover("Category", use_container_width=True):
                     selected_categories = st.multiselect(
                         "Select categories",
                         options=categories,
-                        default=[],
+                        default=default_categories,
                         key="geo_category_filter"
                     )
 
             channels = sorted(df1["sales_channel"].dropna().unique())
+            default_channels = [
+                channel for channel in channels
+                if str(channel).strip().casefold() == "website"
+            ]
+            if "geo_channel_filter" not in st.session_state:
+                st.session_state["geo_channel_filter"] = default_channels
 
             with channel_col2:
                 with st.popover("Channels", use_container_width=True):
                     selected_channels = st.multiselect(
                         "Select channels",
                         options=channels,
-                        default=[],
+                        default=default_channels,
                         key="geo_channel_filter"
                     )
 
