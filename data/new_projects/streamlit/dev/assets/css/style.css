@@ -1,9 +1,14 @@
 /* home page style */
 
-.st-key-title_home_page,
-.st-key-home_intro,
-.st-key-qa_home_page {
-    text-align: center;
+.st-key-title_home_page h1,
+.st-key-title_home_page h2,
+.st-key-title_home_page h3,
+.st-key-home_intro p,
+.st-key-qa_home_page h1,
+.st-key-qa_home_page h2,
+.st-key-qa_home_page h3,
+.st-key-qa_home_page p {
+    text-align: center !important;
 }
 
 /* metrics style */
