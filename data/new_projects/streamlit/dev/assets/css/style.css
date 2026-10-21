@@ -16,8 +16,8 @@
     text-align: center;
 }
 
-.stMainBlockContainer hr,
-[data-testid="stMain"] hr {
+[data-testid="stMarkdownContainer"] hr {
+    display: block;
     width: 100% !important;
     max-width: none !important;
     margin-left: 0 !important;
