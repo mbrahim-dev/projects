@@ -32,7 +32,7 @@ def render_home_page() -> None:
 
         st.subheader("1 - What is a Streamlit App ?")
 
-        st.caption("")
+        st.subheader("")
 
         st.markdown("An interactive web application.")
         
