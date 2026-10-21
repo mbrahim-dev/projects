@@ -129,8 +129,22 @@ def main() -> None:
     df1 = pd.read_csv(DATASET_PATH)
 
     st.set_page_config("", "", layout="wide")
-    st.markdown(load_styles_html(), unsafe_allow_html=True)
+    
+    css_content = load_text_asset("css/style.css")
 
+    st.markdown(
+        f"""
+        <style>
+        {css_content}
+    
+        .st-key-home_page {{
+            outline: 3px solid red !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
     page = render_sidebar()
 
     if page == "Home":
