@@ -13,11 +13,15 @@ def render_home_page() -> None:
     # introduction section
     
     st.divider()
+    st.caption("")
+
     
     with st.container(key="home_intro"):
         
         st.markdown("On this home page, you will find answers to some of the key questions you may have about this application and the technology behind it.")
 
+    
+    st.caption("")
     st.divider()
 
     # q&a
