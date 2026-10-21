@@ -7,7 +7,7 @@ def render_home_page() -> None:
     
     # page title
     
-    with st.container(key="home_page"):
+    with st.container(key="title_home_page"):
         st.header("Welcome to my Streamlit App 👋")
         
     # introduction section
@@ -26,13 +26,13 @@ def render_home_page() -> None:
 
     # q&a
     
-    with st.container(key="home_page"):
+    with st.container(key="qa_home_page"):
 
         st.caption("")
 
         st.subheader("1 - What is a Streamlit App ?")
 
-        st.subheader("")
+        st.caption("")
 
         st.markdown("An interactive web application.")
         
