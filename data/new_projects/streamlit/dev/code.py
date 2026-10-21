@@ -744,7 +744,7 @@ elif page == p1:
             category_col, channel_col = st.columns(2)
     
             with category_col:
-                with st.popover("Category"):
+                with st.popover("Category", use_container_width=True):
                     available_categories = sorted(
                         df1["category"].dropna().unique().tolist()
                     )
@@ -757,7 +757,7 @@ elif page == p1:
                     )
     
             with channel_col:
-                with st.popover("Channels"):
+                with st.popover("Channels", use_container_width=True):
                     available_channels = sorted(
                         df1["sales_channel"].dropna().unique().tolist()
                     )
