@@ -1401,7 +1401,7 @@ elif page == p1:
         st.divider()
 
         # Map and KPI layout
-        sp18, map_col, sp19, kpi_col, sp20 = st.columns([0.5, 5, 0.5, 1, 0.5])
+        sp18, map_col, sp19, kpi_col, sp20 = st.columns([0.3, 5, 0.3, 1, 0.5])
 
         with map_col :
             st.subheader("")
