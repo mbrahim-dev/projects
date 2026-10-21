@@ -140,7 +140,7 @@ if page == "Home":
     render_home_page()
 
 else:
-    page_analysis = st.radio(
+    page_analysis = st.pagination(
         "Select a page",
         options=[
             "Overview",
