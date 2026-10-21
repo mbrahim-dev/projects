@@ -43,4 +43,4 @@ def render_home_page() -> None:
 
     st.caption("")
 
-    st.markdown("""Mainly with **Python code**, but you can also use **CSS (Cascading Style Sheets)** to customize its design.""")
+    st.markdown("""Primarily with **Python**, but other technologies can also be used to further customize the app.""")
