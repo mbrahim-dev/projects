@@ -7,6 +7,7 @@ from streamviz import gauge
 import json
 import urllib.request
 from streamlit_echarts import st_echarts, Map, JsCode
+from streamlit_option_menu import option_menu
 
 @st.cache_data
 def load_world_geojson():
@@ -24,16 +25,47 @@ st.set_page_config("", "", layout="wide")
 
 # creating pages
 
-main = "🏠 Home"
-p1 = "📈 Data Visualisation"
+main = "Home"
+p1 = "Data Visualization"
 
 # sidebar
 
-page = st.sidebar.radio(
-    "Navigation",
-    [main, p1]
-)
+with st.sidebar:
 
+    page = option_menu(
+        menu_title=None,
+        options=[main, p1],
+        icons=["house", "bar-chart-line"],
+        menu_icon=None,
+        default_index=0,
+        orientation="vertical",
+        styles={
+            "container": {
+                "padding": "0!important",
+                "background-color": "transparent",
+            },
+            "icon": {
+                "color": "#64748B",
+                "font-size": "18px",
+            },
+            "nav-link": {
+                "font-size": "15px",
+                "text-align": "left",
+                "margin": "4px 0",
+                "padding": "10px 12px",
+                "border-radius": "8px",
+                "background-color": "transparent",
+                "color": "#64748B",
+            },
+            "nav-link-selected": {
+                "background-color": "#E8EDF3",
+                "color": "#1E293B",
+                "font-size": "15px",
+                "font-weight": "600",
+            },
+        }
+    )
+    
 # home page
 
 if page == main:
