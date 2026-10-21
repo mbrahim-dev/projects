@@ -5,10 +5,12 @@ import streamlit as st
 
 def render_overview_page(df1: pd.DataFrame) -> None:
             st.header("Data Overview 📁")
+            
+            st.caption("")
 
             st.markdown("""This page provides an overview of the fictional e-commerce dataset used throughout this section. Each subsequent page explores the data from a different perspective, using visualizations to present key business information.""")
 
-            st.subheader("")
+            st.caption("")
 
             st.divider()
 
