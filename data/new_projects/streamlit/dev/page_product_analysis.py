@@ -3,8 +3,6 @@
 import pandas as pd
 import streamlit as st
 
-from dev.code import render_echarts_chart
-
 def render_product_analysis_page(df1: pd.DataFrame) -> None:
 
             # create the header and filter columns
