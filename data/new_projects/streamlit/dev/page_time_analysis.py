@@ -3,7 +3,7 @@
 import pandas as pd
 import streamlit as st
 
-from shared import (render_echarts_chart, render_metric_delta, render_metric_delta_empty, render_metric_value)
+from shared import (render_echarts_chart, render_metric_delta, render_metric_delta_empty, render_metric_value, render_progress_bar)
 
 def render_time_analysis_page(df1: pd.DataFrame) -> None:
 
@@ -212,11 +212,9 @@ def render_time_analysis_page(df1: pd.DataFrame) -> None:
                             else:
                                 render_metric_delta_empty()
 
-                            st.progress(
-                                min(
-                                    1.0,
-                                    max(0.0, float(metric["progress"]))
-                                )
+                            render_progress_bar(
+                                        progress=f"{min(1.0, max(0.0, float(metric['progress'])))*100:.1f}",
+                                        color="#356B8C"
                             )
 
                 # add spacing between metrics and charts
