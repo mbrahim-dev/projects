@@ -214,7 +214,7 @@ def render_time_analysis_page(df1: pd.DataFrame) -> None:
 
                             render_progress_bar(
                                         progress=f"{min(1.0, max(0.0, float(metric['progress'])))*100:.1f}",
-                                        color="#356B8C"
+                                        color="#0868C9"
                             )
 
                 # add spacing between metrics and charts
