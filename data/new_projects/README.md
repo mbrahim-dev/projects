@@ -4,7 +4,7 @@ This project is a web application built with **Streamlit**. It currently include
 
 The application is mainly developed in **Python**, with **HTML, CSS, JavaScript and JSON** for custom components and interactive features.
 
----
+
 
 ## 📁 Project Structure
 
