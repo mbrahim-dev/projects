@@ -4,6 +4,10 @@ This project is a web application built with **Streamlit**. It currently include
 
 The application is mainly developed in **Python**, with **HTML, CSS, JavaScript and JSON** for custom components and interactive features.
 
+**Want to explore the app ?** Visit the live Streamlit application here:
+
+👉 **[Open the Streamlit App](https://projects-data.streamlit.app/)**
+
 ---
 
 ### 📁 Project Structure
@@ -34,7 +38,6 @@ The `dev/` folder contains the source code and resources used to build the appli
 - **`page_time_analysis.py`** – analysis of sales trends over time.
 - **`page_product_analysis.py`** – analysis of product and category performance.
 - **`page_geographical_analysis.py`** – geographical analysis of sales performance.
-- **`requirements.txt`** – list of Python dependencies required by the application.
 
 ---
 
@@ -45,3 +48,9 @@ The `assets/` folder contains additional resources used to customize the interfa
 - **`css/style.css`** – custom styling.
 - **`html/components.html`** – custom HTML components.
 - **`js/geo_tooltip.js`** – javaScript for geographical map tooltips and interactions.
+
+---
+
+### 📦 Requirements
+
+The **`dev/requirements.txt`** file lists the Python packages required by the application.
